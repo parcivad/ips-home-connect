@@ -1,6 +1,6 @@
 <?php
 
-class HomeConnectDiscovery {
+class HomeConnectDiscovery extends IPSModule {
 
 
 
