@@ -4,7 +4,8 @@
   "name": "HomeConnect",
   "url": "https://github.com/LegendDragon11",
   "compatibility": {
-    "version": "5.4"
+    "version": "5.5",
+    "date": 1607040000
   },
   "version": "1.0",
   "build": 0,

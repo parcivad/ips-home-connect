@@ -6,5 +6,8 @@
   "aliases": [
     "HomeConnect"
   ],
-  "prefix": "HomeConnectDevice"
+  "url": "",
+  "parentRequirements": [],
+  "childRequirements": [],
+  "implemented": []
 }
