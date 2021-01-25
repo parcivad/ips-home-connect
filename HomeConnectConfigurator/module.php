@@ -1,6 +1,6 @@
 <?php
 
-class HomeConnect extends IPSModule {
+class HomeConnectConfigurator extends IPSModule {
 
     // Überschreibt die interne IPS_Create($id) Funktion
     public function Create() {

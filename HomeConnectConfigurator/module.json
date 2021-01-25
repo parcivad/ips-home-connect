@@ -1,10 +1,10 @@
 {
   "id": "{609EB410-7A83-2FDD-23FD-869D8398593A}",
-  "name": "HomeConnect",
-  "type": 5,
+  "name": "HomeConnectConfigurator",
+  "type": 4,
   "vendor": "HomeConnect GmbH",
   "aliases": [
-    "HomeConnect"
+    "HomeConnectConfigurator"
   ],
   "url": "https://github.com/LegendDragon11",
   "parentRequirements": [],
