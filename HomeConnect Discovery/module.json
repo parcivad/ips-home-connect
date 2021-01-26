@@ -1,0 +1,15 @@
+{
+  "id": "{C479F9CC-ED6C-14D5-623B-A43D659849F2}",
+  "name": "HomeConnectDiscovery",
+  "type": 5,
+  "vendor": "HomeConnect GmbH",
+  "aliases":
+  [
+    "HomeConnect Discovery"
+  ],
+  "url": "https://github.com/LegendDragon11",
+  "parentRequirements": [],
+  "childRequirements": [],
+  "implemented": [],
+  "prefix": "HomeConnectDiscovery"
+}
