@@ -56,23 +56,23 @@
                   "name" => "Devices",
                   "caption" => "Devices",
                   "rowCount" => 8,
-                  "add" => true,
-                  "delete" => true,
+                  "add" => false,
+                  "delete" => false,
                   "sort" => [
                       "column" => "Name",
-                      "direction" => "acending",
+                      "direction" => "ascending",
                   ],
                   "columns" => [
                       [
                           "caption" => "Device",
                           "name" => "Device",
-                          "width" => "auto",
+                          "width" => "100px",
                           "add" => "",
                       ],
                       [
                           "caption" => "Company",
                           "name" => "Company",
-                          "width" => "auto",
+                          "width" => "120px",
                           "add" => "",
                       ],
                       [
@@ -84,7 +84,7 @@
                       [
                           "caption" => "Status",
                           "name" => "Status",
-                          "width" => "auto",
+                          "width" => "75px",
                           "add" => "",
                       ]
                   ],
@@ -92,10 +92,10 @@
                       [
                           "Device" => "Test",
                           "Company" => "Wow GmbH",
-                          "Status" => "Connected",
                           "haid" => "1098247c1ß9u1ß98udc29ßhß19dcß1ndu12ß0h",
-                      ]
-                  ]
+                          "Status" => "Connected",
+                      ],
+                  ],
               ],
           ];
 
