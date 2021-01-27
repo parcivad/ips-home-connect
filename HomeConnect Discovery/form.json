@@ -15,7 +15,7 @@
       "columns": [{
         "caption": "InstanceID",
         "name": "InstanceID",
-        "width": "75px",
+        "width": "90px",
         "add": 0,
         "edit": {
           "type": "SelectInstance"
@@ -39,13 +39,6 @@
           "type": "NumberSpinner",
           "digits": 2
         }
-      }],
-      "values": [{
-        "InstanceID": 12435,
-        "Name": "ABCD",
-        "State": "OK!",
-        "Temperature": 23.31,
-        "rowColor": "#ff0000"
       }]
     }
   ],
