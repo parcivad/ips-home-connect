@@ -26,7 +26,7 @@
           // return current form
           $Form = json_encode([
               'elements' => $this->FormElements(),
-              'actions'  => $this->FormActions(),
+              //'actions'  => $this->FormActions(),
               'status'   => $this->FormStatus(),
           ]);
           $this->SendDebug('FORM', $Form, 0);
@@ -54,51 +54,93 @@
       protected function FormElements() {
           $form = [
               [
-                  "type" => "List",
-                  "name" => "Devices",
-                  "caption" => "Devices",
-                  "rowCount" => 8,
-                  "add" => false,
-                  "delete" => false,
-                  "sort" => [
-                      "column" => "Name",
-                      "direction" => "ascending",
-                  ],
-                  "columns" => [
+                  "type"=> "Configurator",
+                  "name"=> "Configuration",
+                  "caption"=> "Configuration",
+                  "delete"=> true,
+                  "values"=> [
                       [
-                          "caption" => "Device",
-                          "name" => "Device",
-                          "width" => "100px",
-                          "add" => "",
-                      ],
-                      [
-                          "caption" => "Company",
-                          "name" => "Company",
-                          "width" => "120px",
-                          "add" => "",
-                      ],
-                      [
-                          "caption" => "haid",
-                          "name" => "haid",
-                          "width" => "auto",
-                          "add" => "",
-                      ],
-                      [
-                          "caption" => "Status",
-                          "name" => "Status",
-                          "width" => "200px",
-                          "add" => "",
-                      ],
-                  ],
-                  "values" => [
-                      [
-                          "Device" => "Test",
-                          "Company" => "Wow GmbH",
-                          "haid" => "1098247c1ß9u1ß98udc29ßhß19dcß1ndu12ß0h",
-                          "Status" => "Connected",
-                      ],
-                  ],
-              ],
+                          "id"=> 1,
+                          "name"=> "Kategorie",
+                          "address"=> ""
+                      ],[
+                          "parent"=> 1,
+                          "name"=> "Rechenmodul - Minimum",
+                          "address"=> "2",
+                          "create"=> [
+                              "moduleID"=> "[A7B0B43B-BEB0-4452-B55E-CD8A9A56B052]",
+                              "configuration"=> [
+                                  "Calculation"=> 2,
+                                  "Variables"=> "[]"
+                              ]
+                          ]
+                      ],[
+                          "parent"=> 1,
+                          "name"=> "Rechenmodul im Wohnzimmer",
+                          "address"=> "2",
+                          "create"=> [
+                              "moduleID"=> "[A7B0B43B-BEB0-4452-B55E-CD8A9A56B052]",
+                              "configuration"=> [
+                                  "Calculation"=> 2,
+                                  "Variables"=> "[]"
+                              ],
+                              "location"=> [
+                                  "Erdgeschoss",
+                                  "Wohnzimmer"
+                              ]
+                          ]
+                      ],[
+                          "parent"=> 1,
+                          "instanceID"=> 53398,
+                          "name"=> "Fehlerhafte Instanz",
+                          "address"=> "4"
+                      ],[
+                          "parent"=> 1,
+                          "name"=> "Rechenmodul - Auswahl",
+                          "address"=> "2",
+                          "create"=> [
+                              "Maximum"=> [
+                                  "moduleID"=> "[A7B0B43B-BEB0-4452-B55E-CD8A9A56B052]",
+                                  "configuration"=> [
+                                      "Calculation"=> 3,
+                                      "Variables"=> "[]"
+                                  ]
+                              ],
+                              "Average"=> [
+                                  "moduleID"=> "[A7B0B43B-BEB0-4452-B55E-CD8A9A56B052]",
+                                  "configuration"=> [
+                                      "Calculation"=> 4,
+                                      "Variables"=> "[]"
+                                  ]
+                              ]
+                          ]
+                      ], [
+                          "parent"=> 1,
+                          "name"=> "OZW772 IP-Interface",
+                          "address"=> "00=>A0=>03=>FD=>14=>BB",
+                          "create"=> [
+                              [
+                                  "moduleID"=> "[33765ABB-CFA5-40AA-89C0-A7CEA89CFE7A]",
+                                  "configuration"=> []
+                              ],
+                              [
+                                  "moduleID"=> "[1C902193-B044-43B8-9433-419F09C641B8]",
+                                  "configuration"=> [
+                                      "GatewayMode"=>1
+                                  ]
+                              ],
+                              [
+                                  "moduleID"=> "[82347F20-F541-41E1-AC5B-A636FD3AE2D8]",
+                                  "configuration"=> [
+                                      "Host"=>"172.17.31.95",
+                                      "Port"=>3671,
+                                      "Open"=>true
+                                  ]
+                              ]
+                          ]
+                      ]
+                  ]
+              ]
           ];
 
           return $form;
