@@ -23,7 +23,7 @@
               return;
           }
 
-          $this->SetStatus(102);
+          $this->WriteAttributeString("user", $this->ReadAttributeString("user_input"));
       }
 
       /*
@@ -69,12 +69,12 @@
           $form = [
               [
                   "type" => "ValidationTextBox",
-                  "name" => "user",
+                  "name" => "user_input",
                   "caption" => "HomeConnect - User",
               ],
               [
                   "type" => "PasswordTextBox",
-                  "name" => "password",
+                  "name" => "password_input",
                   "caption" => "HomeConnect - Password",
               ],
               [
