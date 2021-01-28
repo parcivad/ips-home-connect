@@ -54,8 +54,10 @@
       protected function FormElements() {
           $form = [
               [
-                  "type"=> "Configurator",
-                  "caption"=> "Configuration",
+                  "type" => "Configurator",
+                  "name" => "Home-Connect Discovery",
+                  "caption" => "HomeConnect Discovery",
+                  "rowCount" => 20,
                   "add" => false,
                   "delete"=> true,
                   "sort" => [
@@ -87,12 +89,6 @@
                           "width" => "100px",
                           "add" => false,
                       ],
-                      [
-                          "caption" => "#InstanceID",
-                          "name" => "#InstanceID",
-                          "width" => "75px",
-                          "add" => false,
-                      ],
                   ],
                   "values" => [
                       [
@@ -100,7 +96,9 @@
                           "Company" => "BOSCH",
                           "haid" => "BOSCH-ASDO2034N-3OI2D7H2QD-ASDHIB2349A",
                           "Status" => "Not Configured",
-                          "#InstanceID" => "#55123",
+                          "create" => [
+                              "module" => "{5899C50B-7033-9DA4-BD0A-D8ED2BF227B9}"
+                          ]
                       ],
                   ],
               ],
