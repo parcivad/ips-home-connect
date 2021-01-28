@@ -8,6 +8,8 @@
       public function Create() {
           // Overwrite ips function
           parent::Create();
+
+          $this->RegisterAttributeString("user", "test");
       }
 
       /*
@@ -21,8 +23,6 @@
               return;
           }
 
-          $this->ModulUpdate();
-
           $this->SetStatus(102);
       }
 
@@ -32,10 +32,7 @@
       protected function ModulUpdate() {
           // Getting
 
-          $this->SetValue($this->GetIDForIdent("user"), $this->GetValue($this->GetIDForIdent("user")));
       }
-
-
 
 
       public function GetConfigurationForm()
