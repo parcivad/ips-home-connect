@@ -54,6 +54,14 @@
       protected function FormElements() {
           $form = [
               [
+                  "type" => "label",
+                  "caption" => "HomeConnect - User",
+              ],
+              [
+                  "type" => "label",
+                  "caption" => "HomeConnect - Password",
+              ],
+              [
                   "type" => "Configurator",
                   "name" => "Home-Connect Discovery",
                   "caption" => "HomeConnect Discovery",
