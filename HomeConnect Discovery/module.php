@@ -20,11 +20,7 @@
           // Overwrite ips function
           parent::ApplyChanges();
 
-          if (IPS_GetKernelRunlevel() !== KR_READY) {
-              return;
-          }
-
-          $this->RequireParent("{6179ED6A-FC31-413C-BB8E-1204150CF376}");
+          $this->RequireParent("{C479F9CC-ED6C-14D5-623B-A43D659849F2}");
       }
 
       /*
