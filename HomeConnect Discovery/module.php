@@ -20,7 +20,7 @@
           // Overwrite ips function
           parent::ApplyChanges();
 
-         $this->WriteAttributeString("user", $this->ReadAttributeString("user"));
+          $this->RequireParent("{9108A921-498A-A7ED-627D-4A5DBB222835}");
       }
 
 
