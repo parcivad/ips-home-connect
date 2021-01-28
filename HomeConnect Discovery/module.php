@@ -69,7 +69,7 @@
                   "add" => false,
                   "delete"=> true,
                   "sort" => [
-                    "column" => "Name",
+                    "column" => "name",
                     "direction" => "ascending",
                   ],
                   "columns" => [
