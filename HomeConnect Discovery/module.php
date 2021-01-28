@@ -40,7 +40,9 @@
        */
       protected function FormActions() {
           $form = [
+              [
 
+              ],
           ];
 
           return $form;
@@ -84,9 +86,9 @@
                       [
                           "caption" => "Status",
                           "name" => "Status",
-                          "width" => "75px",
+                          "width" => "200px",
                           "add" => "",
-                      ]
+                      ],
                   ],
                   "values" => [
                       [
