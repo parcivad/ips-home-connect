@@ -24,8 +24,7 @@
               return;
           }
 
-          $user = $this->ReadPropertyString("user");
-          $this->SetValue($this->GetIDForIdent("user"), $user);
+          $this->RequireParent("{6179ED6A-FC31-413C-BB8E-1204150CF376}");
       }
 
       /*
