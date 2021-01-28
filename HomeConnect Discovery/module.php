@@ -34,7 +34,7 @@
           $password = $this->ReadPropertyString("password");
 
           $this->SetValue($this->GetIDForIdent("user"), $user);
-          $this->SetValue($this->GetIDForIdent("password"), $password)
+          $this->SetValue($this->GetIDForIdent("password"), $password);
 
       }
 
