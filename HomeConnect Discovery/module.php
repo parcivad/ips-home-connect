@@ -68,10 +68,6 @@
                   "rowCount" => 20,
                   "add" => false,
                   "delete"=> true,
-                  "sort" => [
-                    "column" => "name",
-                    "direction" => "ascending",
-                  ],
                   "columns" => [
                       [
                           "caption" => "Device",
