@@ -19,6 +19,8 @@
       public function ApplyChanges() {
           // Overwrite ips function
           parent::ApplyChanges();
+
+         $this->WriteAttributeString("user", $this->ReadAttributeString("user"));
       }
 
 
