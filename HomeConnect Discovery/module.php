@@ -55,92 +55,55 @@
           $form = [
               [
                   "type"=> "Configurator",
-                  "name"=> "Configuration",
                   "caption"=> "Configuration",
+                  "add" => false,
                   "delete"=> true,
-                  "values"=> [
+                  "sort" => [
+                    "column" => "Name",
+                    "direction" => "ascending",
+                  ],
+                  "columns" => [
                       [
-                          "id"=> 1,
-                          "name"=> "Kategorie",
-                          "address"=> ""
-                      ],[
-                          "parent"=> 1,
-                          "name"=> "Rechenmodul - Minimum",
-                          "address"=> "2",
-                          "create"=> [
-                              "moduleID"=> "[A7B0B43B-BEB0-4452-B55E-CD8A9A56B052]",
-                              "configuration"=> [
-                                  "Calculation"=> 2,
-                                  "Variables"=> "[]"
-                              ]
-                          ]
-                      ],[
-                          "parent"=> 1,
-                          "name"=> "Rechenmodul im Wohnzimmer",
-                          "address"=> "2",
-                          "create"=> [
-                              "moduleID"=> "[A7B0B43B-BEB0-4452-B55E-CD8A9A56B052]",
-                              "configuration"=> [
-                                  "Calculation"=> 2,
-                                  "Variables"=> "[]"
-                              ],
-                              "location"=> [
-                                  "Erdgeschoss",
-                                  "Wohnzimmer"
-                              ]
-                          ]
-                      ],[
-                          "parent"=> 1,
-                          "instanceID"=> 53398,
-                          "name"=> "Fehlerhafte Instanz",
-                          "address"=> "4"
-                      ],[
-                          "parent"=> 1,
-                          "name"=> "Rechenmodul - Auswahl",
-                          "address"=> "2",
-                          "create"=> [
-                              "Maximum"=> [
-                                  "moduleID"=> "[A7B0B43B-BEB0-4452-B55E-CD8A9A56B052]",
-                                  "configuration"=> [
-                                      "Calculation"=> 3,
-                                      "Variables"=> "[]"
-                                  ]
-                              ],
-                              "Average"=> [
-                                  "moduleID"=> "[A7B0B43B-BEB0-4452-B55E-CD8A9A56B052]",
-                                  "configuration"=> [
-                                      "Calculation"=> 4,
-                                      "Variables"=> "[]"
-                                  ]
-                              ]
-                          ]
-                      ], [
-                          "parent"=> 1,
-                          "name"=> "OZW772 IP-Interface",
-                          "address"=> "00=>A0=>03=>FD=>14=>BB",
-                          "create"=> [
-                              [
-                                  "moduleID"=> "[33765ABB-CFA5-40AA-89C0-A7CEA89CFE7A]",
-                                  "configuration"=> []
-                              ],
-                              [
-                                  "moduleID"=> "[1C902193-B044-43B8-9433-419F09C641B8]",
-                                  "configuration"=> [
-                                      "GatewayMode"=>1
-                                  ]
-                              ],
-                              [
-                                  "moduleID"=> "[82347F20-F541-41E1-AC5B-A636FD3AE2D8]",
-                                  "configuration"=> [
-                                      "Host"=>"172.17.31.95",
-                                      "Port"=>3671,
-                                      "Open"=>true
-                                  ]
-                              ]
-                          ]
-                      ]
-                  ]
-              ]
+                          "caption" => "Device",
+                          "name" => "Device",
+                          "width" => "100px",
+                          "add" => false,
+                      ],
+                      [
+                          "caption" => "Company",
+                          "name" => "Company",
+                          "width" => "120px",
+                          "add" => false,
+                      ],
+                      [
+                          "caption" => "haid",
+                          "name" => "haid",
+                          "width" => "auto",
+                          "add" => false,
+                      ],
+                      [
+                          "caption" => "Status",
+                          "name" => "Status",
+                          "width" => "100px",
+                          "add" => false,
+                      ],
+                      [
+                          "caption" => "#InstanceID",
+                          "name" => "#InstanceID",
+                          "width" => "75px",
+                          "add" => false,
+                      ],
+                  ],
+                  "values" => [
+                      [
+                          "Device" => "Oven",
+                          "Company" => "BOSCH",
+                          "haid" => "BOSCH-ASDO2034N-3OI2D7H2QD-ASDHIB2349A",
+                          "Status" => "Not Configured",
+                          "#InstanceID" => "#55123",
+                      ],
+                  ],
+              ],
           ];
 
           return $form;
