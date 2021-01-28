@@ -54,12 +54,12 @@
       protected function FormElements() {
           $form = [
               [
-                  "type" => "label",
-                  "caption" => "HomeConnect - User",
+                  "type" => "Label",
+                  "label" => "HomeConnect - User",
               ],
               [
-                  "type" => "label",
-                  "caption" => "HomeConnect - Password",
+                  "type" => "Label",
+                  "label" => "HomeConnect - Password",
               ],
               [
                   "type" => "Configurator",
