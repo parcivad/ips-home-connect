@@ -8,6 +8,9 @@
       public function Create() {
           // Overwrite ips function
           parent::Create();
+
+          $this->RegisterAttributeString("user", "");
+          $this->RegisterAttributeString("password", "");
       }
 
       /*
@@ -54,12 +57,14 @@
       protected function FormElements() {
           $form = [
               [
-                  "type" => "Label",
-                  "label" => "HomeConnect - User",
+                  "type" => "ValidationTextBox",
+                  "name" => "user",
+                  "caption" => "HomeConnect - User",
               ],
               [
-                  "type" => "Label",
-                  "label" => "HomeConnect - Password",
+                  "type" => "PasswordTextBox",
+                  "name" => "password",
+                  "caption" => "HomeConnect - Password",
               ],
               [
                   "type" => "Configurator",
@@ -96,7 +101,7 @@
                   ],
                   "values" => [
                       [
-                          "Device" => "Oven",
+                          "Device" => $this->ReadAttributeString("user"),
                           "Company" => "BOSCH",
                           "haid" => "BOSCH-ASDO2034N-3OI2D7H2QD-ASDHIB2349A",
                           "Status" => "Not Configured",
