@@ -9,8 +9,8 @@
           // Overwrite ips function
           parent::Create();
 
-          $this->RegisterAttributeString("user", "");
-          $this->RegisterAttributeString("password", "");
+          $this->RegisterPropertyString("user", "");
+          $this->RegisterPropertyString("password", "");
       }
 
       /*
@@ -20,7 +20,22 @@
           // Overwrite ips function
           parent::ApplyChanges();
 
-          $this->RequireParent("{9108A921-498A-A7ED-627D-4A5DBB222835}");
+
+
+      }
+
+      /*
+       * Update Function
+       */
+      protected function ModulUpdate() {
+
+          // Getting
+          $user = $this->ReadPropertyString("user");
+          $password = $this->ReadPropertyString("password");
+
+          $this->SetValue($this->GetIDForIdent("user"), $user);
+          $this->SetValue($this->GetIDForIdent("password"), $password)
+
       }
 
 
