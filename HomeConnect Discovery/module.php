@@ -9,7 +9,8 @@
           // Overwrite ips function
           parent::Create();
 
-          $this->RegisterAttributeString("user", "test");
+          $this->RegisterPropertyString("user", "test");
+          $this->RegisterPropertyString("password", "test");
       }
 
       /*
@@ -23,7 +24,8 @@
               return;
           }
 
-          $this->WriteAttributeString("user", $this->ReadAttributeString("user_input"));
+          $user = $this->ReadPropertyString("user");
+          $this->SetValue($this->GetIDForIdent("user"), $user);
       }
 
       /*
@@ -69,12 +71,12 @@
           $form = [
               [
                   "type" => "ValidationTextBox",
-                  "name" => "user_input",
+                  "name" => "user",
                   "caption" => "HomeConnect - User",
               ],
               [
                   "type" => "PasswordTextBox",
-                  "name" => "password_input",
+                  "name" => "password",
                   "caption" => "HomeConnect - Password",
               ],
               [
