@@ -9,8 +9,8 @@
           // Overwrite ips function
           parent::Create();
 
-          $this->RegisterPropertyString("user", "");
-          $this->RegisterPropertyString("password", "");
+          $this->RegisterAttributeString("user", "");
+          $this->RegisterAttributeString("password", "");
       }
 
       /*
@@ -20,21 +20,25 @@
           // Overwrite ips function
           parent::ApplyChanges();
 
+          if (IPS_GetKernelRunlevel() != KR_READY ) {
+              return;
+          }
 
+          $this->ModulUpdate();
 
+          $this->SetStatus(102);
       }
 
       /*
        * Update Function
        */
       protected function ModulUpdate() {
-
           // Getting
-          $user = $this->ReadPropertyString("user");
-          $password = $this->ReadPropertyString("password");
+          $user = $this->ReadAttributeString("user");
+          $password = $this->ReadAttributeString("password");
 
-          $this->SetValue($this->GetIDForIdent("user"), $user);
-          $this->SetValue($this->GetIDForIdent("password"), $password);
+          $this->WriteAttributeString("user", $user);
+          $this->WriteAttributeString("password", $password);
 
       }
 
