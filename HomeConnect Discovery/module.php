@@ -9,8 +9,8 @@
           // Overwrite ips function
           parent::Create();
 
-          $this->RegisterPropertyString("user", "test");
-          $this->RegisterPropertyString("password", "test");
+          $this->RegisterPropertyString("user", "");
+          $this->RegisterPropertyString("password", "");
       }
 
       /*
@@ -19,18 +19,7 @@
       public function ApplyChanges() {
           // Overwrite ips function
           parent::ApplyChanges();
-
-          $this->RequireParent("{C479F9CC-ED6C-14D5-623B-A43D659849F2}");
       }
-
-      /*
-       * Update Function
-       */
-      protected function ModulUpdate() {
-          // Getting
-
-      }
-
 
       public function GetConfigurationForm()
       {
