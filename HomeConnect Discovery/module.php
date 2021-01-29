@@ -14,6 +14,7 @@
           $this->RegisterPropertyString("password", "");
           // Use Home Conenct Simulator
           $this->RegisterPropertyBoolean("simulator", false);
+          $this->RegisterPropertyBoolean("simulatorInfo", false);
       }
 
       /*
@@ -22,11 +23,6 @@
       public function ApplyChanges() {
           // Overwrite ips function
           parent::ApplyChanges();
-
-          // Check if the Discovery is in Simulator Mode. For the simulator Login the password must be password
-          if ( $this->ReadPropertyBoolean("simulator") ) {
-              $this->SetValue($this->GetIDForIdent("password"), "password");
-          }
       }
 
       public function GetConfigurationForm()
@@ -75,6 +71,12 @@
                   "type" => "CheckBox",
                   "name" => "simulator",
                   "caption" => "HomeConnect Simulation verwenden."
+              ],
+              [
+                  "type" => "Label",
+                  "label" => "For the simulator the password must be password! Please use this function only when you know about Developer HomeConnect Api!",
+                  "caption" => "Simulator Info",
+                  "visible" => $this->ReadPropertyBoolean("simulatorInfo"),
               ],
               [
                   "type" => "Configurator",
