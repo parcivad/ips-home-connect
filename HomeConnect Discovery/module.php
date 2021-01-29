@@ -64,6 +64,11 @@
                   "caption" => "HomeConnect - Password",
               ],
               [
+                  "type" => "CheckBox",
+                  "name" => "simulator",
+                  "caption" => "HomeConnect Simulation verwenden (Dev-Tool!)"
+              ],
+              [
                   "type" => "Configurator",
                   "name" => "Home-Connect Discovery",
                   "caption" => "HomeConnect Discovery",
