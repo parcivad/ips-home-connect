@@ -104,17 +104,17 @@
                           "add" => false,
                       ],
                   ],
-              ],
-              "values" => [
-                  [
-                      "Device" => $this->ReadAttributeString("user"),
-                      "Company" => "BOSCH",
-                      "haid" => "BOSCH-ASDO2034N-3OI2D7H2QD-ASDHIB2349A",
-                      "Status" => "Not Configured",
-                      "create" => [
-                          "moduleID" => "{5899C50B-7033-9DA4-BD0A-D8ED2BF227B9}",
-                          "configuration" => [],
-                      ]
+                  "values" => [
+                      [
+                          "Device" => "Oven",
+                          "Company" => "BOSCH",
+                          "haid" => "BOSCH-ASDO2034N-3OI2D7H2QD-ASDHIB2349A",
+                          "Status" => "Not Configured",
+                          "create" => [
+                              "moduleID" => "{5899C50B-7033-9DA4-BD0A-D8ED2BF227B9}",
+                              "configuration" => [],
+                          ]
+                      ],
                   ],
               ],
           ];
