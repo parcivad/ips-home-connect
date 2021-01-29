@@ -22,6 +22,11 @@
       public function ApplyChanges() {
           // Overwrite ips function
           parent::ApplyChanges();
+
+          // Check if the Discovery is in Simulator Mode. For the simulator Login the password must be password
+          if ( $this->ReadPropertyBoolean("simulator") ) {
+              $this->SetValue($this->GetIDForIdent("password"), "password");
+          }
       }
 
       public function GetConfigurationForm()
@@ -59,7 +64,7 @@
               [
                   "type" => "ValidationTextBox",
                   "name" => "user",
-                  "caption" => "HomeConnect - User",
+                  "caption" => "HomeConnect - User-Email",
               ],
               [
                   "type" => "PasswordTextBox",
@@ -69,7 +74,7 @@
               [
                   "type" => "CheckBox",
                   "name" => "simulator",
-                  "caption" => "HomeConnect Simulation verwenden (Dev-Tool!)"
+                  "caption" => "HomeConnect Simulation verwenden."
               ],
               [
                   "type" => "Configurator",
