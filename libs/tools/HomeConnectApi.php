@@ -69,7 +69,7 @@
 
           $tokens = json_decode($result, true);
 
-          return $tokens['access_token'];
+          return $tokens;
       }
 
       /** Function to authorize the application the first time or in case of no token!

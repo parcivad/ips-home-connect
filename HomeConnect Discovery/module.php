@@ -17,13 +17,14 @@
           parent::Create();
 
           // User Data
-          $this->RegisterPropertyString("user", "");
-          $this->RegisterPropertyString("password", "");
+          $this->RegisterPropertyString("user", "your@mail.com");
+          $this->RegisterPropertyString("password", "password");
+          $this->RegisterPropertyBoolean("simulator", true);
           // HomeConnect Api
-          $this->RegisterPropertyString('refresh_token', "");
-          $this->RegisterPropertyString('token', $this->GetToken("test@test.de", "password", true));
-          // Use Home Conenct Simulator
-          $this->RegisterPropertyBoolean("simulator", false);
+          $tokens = $this->GetToken( $this->GetValue('user'), $this->GetValue('password'), $this->GetValue('simulator'));
+
+          $this->RegisterPropertyString('refresh_token', $tokens['refresh_token']);
+          $this->RegisterPropertyString('token', $tokens['access_token'] );
       }
 
       /*
