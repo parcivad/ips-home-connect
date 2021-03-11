@@ -61,11 +61,21 @@ print_r($tokens);
        */
       public function GetToken( $user = "", $password = "", $simulator = false ) {
 
+          if ( $simulator ) {
+              // using simulator
+              $connect = 'simulator';
+              $client = '8CB8468BC84F6E2C6AA1378BAE73BDF9864A32038D8EEF327CBB99936B74848D';
+          } else {
+              // If the User is using real api
+              $connect = 'api';
+              $client = '35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5';
+          }
+
           //----------------------------------------< Building Url with parameters >-------------
           $params_array = array(
               'Content-Type' => 'application/x-www-form-urlencoded',
               'grant_type' => 'authorization_code',
-              'client_id' => '35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5',
+              'client_id' => $client,
               'client_secret' => 'EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7',
               'redirect_uri' => 'https://api-docs.home-connect.com/quickstart/',
               'code' => $this->Authorize($user, $password, $simulator)
@@ -74,7 +84,7 @@ print_r($tokens);
           // define endpoint for authorization
           $endpoint = "/security/oauth/token?";
           // build url
-          $url = "https://simulator.home-connect.com" . $endpoint;
+          $url = "https://" . $connect . ".home-connect.com" . $endpoint;
           //-------------------------------------------------------------------------------------
 
           // configure curl curl options in array
@@ -110,15 +120,19 @@ print_r($tokens);
       public function Authorize( $user="", $password="", $simulator = false ) {
 
           if ( $simulator ) {
+              // using simulator
               $connect = 'simulator';
+              $client = '8CB8468BC84F6E2C6AA1378BAE73BDF9864A32038D8EEF327CBB99936B74848D';
           } else {
+              // If the User is using real api
               $connect = 'api';
+              $client = '35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5';
           }
 
           //----------------------------------------< Building Url with parameters >-------------
           $params_array = array(
               'response_type' => 'code',
-              'client_id' => '35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5',
+              'client_id' => $client,
               'scope' => 'IdentifyAppliance',
               'redirect_uri' => 'https://api-docs.home-connect.com/quickstart/',
               'user' => $user,
