@@ -21,11 +21,7 @@
           $this->RegisterPropertyString("password", "password");
           $this->RegisterPropertyBoolean("simulator", true);
           // HomeConnect Api
-          $user = $this->GetValue( $this->ReadPropertyString("user" ) );
-          $password = $this->GetValue( $this->ReadPropertyString("password" ) );
-          $simulator = $this->GetValue( $this->ReadPropertyBoolean("simulator" ) ) ;
-
-          $tokens = $this->GetToken( $user, $password, $simulator );
+          $tokens = $this->GetToken( "your@mail.com", "password", true );
 
           $this->RegisterPropertyString('refresh_token', $tokens['refresh_token']);
           $this->RegisterPropertyString('token', $tokens['access_token'] );
