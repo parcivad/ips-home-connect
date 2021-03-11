@@ -19,7 +19,7 @@
           // User Data
           $this->RegisterPropertyString("user", "");
           $this->RegisterPropertyString("password", "");
-          $this->RegisterPropertyString("token", $this->Authorize("test@test.de", "password", true));
+          $this->RegisterPropertyString("token", $this->GetToken("test@test.de", "password", true));
           // Use Home Conenct Simulator
           $this->RegisterPropertyBoolean("simulator", false);
       }
@@ -30,8 +30,6 @@
       public function ApplyChanges() {
           // Overwrite ips function
           parent::ApplyChanges();
-
-          $this->SetValue("token", "bla bla");
       }
 
       public function GetConfigurationForm()
