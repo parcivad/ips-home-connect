@@ -21,7 +21,10 @@
           $this->RegisterPropertyString("password", "password");
           $this->RegisterPropertyBoolean("simulator", true);
           // HomeConnect Api
-          $tokens = $this->GetToken( $this->GetValue('user'), $this->GetValue('password'), $this->GetValue('simulator'));
+          $tokens = $this->GetToken( $this->GetValue( $this->GetIDForIdent( 'user' ) ),
+                                     $this->GetValue( $this->GetIDForIdent( 'password' ) ),
+                                     $this->GetValue( $this->GetIDForIdent( 'simulator' ) ));
+
 
           $this->RegisterPropertyString('refresh_token', $tokens['refresh_token']);
           $this->RegisterPropertyString('token', $tokens['access_token'] );
@@ -33,6 +36,14 @@
       public function ApplyChanges() {
           // Overwrite ips function
           parent::ApplyChanges();
+
+          // HomeConnect Api
+          $tokens = $this->GetToken( $this->GetValue( $this->GetIDForIdent( 'user' ) ),
+              $this->GetValue( $this->GetIDForIdent( 'password' ) ),
+              $this->GetValue( $this->GetIDForIdent( 'simulator' ) ));
+
+          $this->SetValue( $this->GetIDForIdent( 'refresh_token' ), $tokens['refresh_token'] );
+          $this->SetValue( $this->GetIDForIdent( 'token' ), $tokens['access_token'] );
       }
 
       public function GetConfigurationForm()
