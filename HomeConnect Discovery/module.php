@@ -45,8 +45,6 @@
           $this->SendDebug('FORM', $Form, 0);
           $this->SendDebug('FORM', json_last_error_msg(), 0);
 
-          $this->CreateToken("test@test.de", "password", true);
-
           return $Form;
       }
 
