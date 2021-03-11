@@ -21,14 +21,14 @@
           $this->RegisterPropertyString("password", "password");
           $this->RegisterPropertyBoolean("simulator", true);
           // HomeConnect Api
-          $tokens = $this->GetToken( GetValueString($this->ReadPropertyString("user" ) ),
-                                     GetValueString($this->ReadPropertyString("password" ) ),
-                                     GetValueBoolean($this->ReadPropertyBoolean("simulator" ) ) );
+          $tokens = $this->GetToken( $this->GetValue( $this->ReadPropertyString("user" ) ),
+                                     $this->GetValue( $this->ReadPropertyString("password" ) ),
+                                     $this->GetValue( $this->ReadPropertyBoolean("simulator" ) ) );
 
           $this->RegisterPropertyString('refresh_token', $tokens['refresh_token']);
           $this->RegisterPropertyString('token', $tokens['access_token'] );
-      }
 
+      }
       /*
        * Internal function of SDK
        */
