@@ -2,10 +2,13 @@
 
   class HomeConnectDiscovery extends IPSModule {
 
+      use HomeConnectApi;
+
       /*
        * Internal function of SDK
        */
-      public function Create() {
+      public function Create()
+      {
           // Overwrite ips function
           parent::Create();
 
@@ -14,7 +17,9 @@
           $this->RegisterPropertyString("password", "");
           // Use Home Conenct Simulator
           $this->RegisterPropertyBoolean("simulator", false);
-          $this->RegisterPropertyBoolean("simulatorInfo", false);
+
+          // Home Connect Api Data
+          $this->RegisterPropertyString("token", "");
       }
 
       /*
@@ -36,8 +41,16 @@
           $this->SendDebug('FORM', $Form, 0);
           $this->SendDebug('FORM', json_last_error_msg(), 0);
 
+          $this->CreateToken("test@test.de", "password", true);
+
           return $Form;
       }
+
+
+
+
+
+
 
       /**
        * @return array[] Form Actions
@@ -71,12 +84,6 @@
                   "type" => "CheckBox",
                   "name" => "simulator",
                   "caption" => "HomeConnect Simulation verwenden."
-              ],
-              [
-                  "type" => "Label",
-                  "label" => "For the simulator the password must be password! Please use this function only when you know about Developer HomeConnect Api!",
-                  "caption" => "Simulator Info",
-                  "visible" => $this->ReadPropertyBoolean("simulatorInfo"),
               ],
               [
                   "type" => "Configurator",
