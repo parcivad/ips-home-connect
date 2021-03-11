@@ -1,6 +1,5 @@
 <?php
 
-
   trait HomeConnectApi{
 
 
@@ -61,7 +60,7 @@
           // define endpoint for authorization
           $endpoint = "/security/oauth/authorize?";
           // build url
-          $url = "https://" . $connect . "simulator.home-connect.com" . $endpoint;
+          $url = "https://" . $connect . ".home-connect.com" . $endpoint;
           //-------------------------------------------------------------------------------------
 
           // configure curl curl options in array
