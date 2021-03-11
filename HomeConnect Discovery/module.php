@@ -1,6 +1,9 @@
 <?php
 
+  require_once("../libs/tools/HomeConnectApi.php");
+
   class HomeConnectDiscovery extends IPSModule {
+
 
       use HomeConnectApi;
 
