@@ -1,38 +1,7 @@
 <?php
 
-$data_array = array(
-    'response_type' => 'code',
-    'client_id' => '8CB8468BC84F6E2C6AA1378BAE73BDF9864A32038D8EEF327CBB99936B74848D',
-    'scope' => 'IdentifyAppliance',
-    'redirect_uri' => 'https://api-docs.home-connect.com/quickstart/',
-    'user' => 'test@test.de'
-);
-$data = http_build_query($data_array);
 
-$endpoint = "https://simulator.home-connect.com/security/oauth/authorize?";
-
-// setting curl options in array
-$curloptions = array(
-    CURLOPT_URL => $endpoint . $data,
-    CURLOPT_FOLLOWLOCATION => true,
-    CURLOPT_RETURNTRANSFER => true,
-);
-
-// initialse curl
-$ch = curl_init();
-// setting curl options
-curl_setopt_array($ch, $curloptions);
-
-// run curl
-$result = curl_exec($ch);
-$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-// close curl
-curl_close($ch);
-// printout curl
-print_r($url);
-
-
-  trait HomeConnectApi {
+  trait HomeConnectApi{
 
 
 
@@ -65,8 +34,57 @@ print_r($url);
 
       }
 
-      public function RefreshToken( $user, $password, $simulator ) {
+      /** Function to authorize the application the first time or in case of no token!
+       * @param string $user Email of the account
+       * @param string $password Password of the account
+       * @param boolean $simulator Real Api or simulator
+       * @return mixed|string Authorize token
+       */
+      public function Authorize( $user="", $password="", $simulator = false ) {
 
+          if ( $simulator ) {
+              $connect = 'simulator';
+          } else {
+              $connect = 'api';
+          }
+
+          //----------------------------------------< Building Url with parameters >-------------
+          $params_array = array(
+              'response_type' => 'code',
+              'client_id' => '35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5',
+              'scope' => 'IdentifyAppliance',
+              'redirect_uri' => 'https://api-docs.home-connect.com/quickstart/',
+              'user' => $user,
+              'password' => $password
+          );
+          $params = http_build_query($params_array);
+          // define endpoint for authorization
+          $endpoint = "/security/oauth/authorize?";
+          // build url
+          $url = "https://" . $connect . "simulator.home-connect.com" . $endpoint;
+          //-------------------------------------------------------------------------------------
+
+          // configure curl curl options in array
+          $curloptions = array(
+              CURLOPT_URL => $url . $params,
+              CURLOPT_TIMEOUT => 10,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_RETURNTRANSFER => true,
+          );
+
+          // initialse curl
+          $ch = curl_init();
+          // setting curl options
+          curl_setopt_array($ch, $curloptions);
+          // run curl
+          $result = curl_exec($ch);
+          $redirected_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+          // close curl
+          curl_close($ch);
+
+          $token = explode( '=', $redirected_url)[1];
+
+          return $token;
       }
 
   }

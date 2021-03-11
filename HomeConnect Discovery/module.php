@@ -15,11 +15,9 @@
           // User Data
           $this->RegisterPropertyString("user", "");
           $this->RegisterPropertyString("password", "");
+          $this->RegisterPropertyString("token", $this->Authorize("test@test.de", "password", true));
           // Use Home Conenct Simulator
           $this->RegisterPropertyBoolean("simulator", false);
-
-          // Home Connect Api Data
-          $this->RegisterPropertyString("token", "");
       }
 
       /*
@@ -79,6 +77,11 @@
                   "type" => "PasswordTextBox",
                   "name" => "password",
                   "caption" => "HomeConnect - Password",
+              ],
+              [
+                  "type" => "ValidationTextBox",
+                  "name" => "token",
+                  "caption" => "Current Token",
               ],
               [
                   "type" => "CheckBox",
