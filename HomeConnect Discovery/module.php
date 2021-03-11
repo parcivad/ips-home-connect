@@ -30,6 +30,8 @@
       public function ApplyChanges() {
           // Overwrite ips function
           parent::ApplyChanges();
+
+          $this->SetValue("token", "bla bla");
       }
 
       public function GetConfigurationForm()
