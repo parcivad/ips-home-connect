@@ -19,7 +19,9 @@
           // User Data
           $this->RegisterPropertyString("user", "");
           $this->RegisterPropertyString("password", "");
-          $this->RegisterPropertyString("token", $this->GetToken("test@test.de", "password", true));
+          // HomeConnect Api
+          $this->RegisterPropertyString('refresh_token', "");
+          $this->RegisterPropertyString('token', $this->GetToken("test@test.de", "password", true));
           // Use Home Conenct Simulator
           $this->RegisterPropertyBoolean("simulator", false);
       }

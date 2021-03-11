@@ -1,47 +1,5 @@
 <?php
 
-//----------------------------------------< Building Url with parameters >-------------
-$params_array = array(
-    'Content-Type' => 'application/x-www-form-urlencoded',
-    'grant_type' => 'authorization_code',
-    'client_id' => '35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5',
-    'client_secret' => 'EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7',
-    'redirect_uri' => 'https://api-docs.home-connect.com/quickstart/',
-    'code' => "eyJ4LWVudiI6IlNJTSIsIngtcmVnIjoiRVUiLCJ0b2tlbiI6IjU1N2MwMDE5LWM5NmQtNDg4NC1iNWRiLTJlMTEwNGEyNzQ4YyJ9",
-);
-$params = http_build_query($params_array);
-// define endpoint for authorization
-$endpoint = "/security/oauth/token?";
-// build url
-$url = "https://simulator.home-connect.com" . $endpoint;
-//-------------------------------------------------------------------------------------
-
-// configure curl curl options in array
-$curloptions = array(
-    CURLOPT_URL => $url,
-    CURLOPT_POST => true,
-    CURLOPT_POSTFIELDS => $params,
-    CURLOPT_TIMEOUT => 10,
-    CURLOPT_FOLLOWLOCATION => true,
-    CURLOPT_RETURNTRANSFER => true,
-);
-
-// initialse curl
-$ch = curl_init();
-// setting curl options
-curl_setopt_array($ch, $curloptions);
-// run curl
-$result = curl_exec($ch);
-// close curl
-curl_close($ch);
-
-$tokens = json_decode($result);
-
-print_r($tokens);
-
-
-
-
   trait HomeConnectApi{
 
 
@@ -78,7 +36,7 @@ print_r($tokens);
               'client_id' => $client,
               'client_secret' => 'EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7',
               'redirect_uri' => 'https://api-docs.home-connect.com/quickstart/',
-              'code' => $this->Authorize($user, $password, $simulator)
+              'code' => $this->Authorize($this->$user, $this->$password, $this->$simulator)
           );
           $params = http_build_query($params_array);
           // define endpoint for authorization
