@@ -28,20 +28,6 @@
           parent::ApplyChanges();
       }
 
-      public function GetConfigurationForm()
-      {
-          // return current form
-          $Form = json_encode([
-              'elements' => $this->FormElements(),
-              //'actions'  => $this->FormActions(),
-              'status'   => $this->FormStatus(),
-          ]);
-          $this->SendDebug('FORM', $Form, 0);
-          $this->SendDebug('FORM', json_last_error_msg(), 0);
-
-          return $Form;
-      }
-
       public function GetDevices() {
 
           $api = new HomeConnectApi();
@@ -82,7 +68,23 @@
               }
           }
 
-          return json_encode( $config_list );
+          return $config_list;
+      }
+
+
+
+      public function GetConfigurationForm()
+      {
+          // return current form
+          $Form = json_encode([
+              'elements' => $this->FormElements(),
+              //'actions'  => $this->FormActions(),
+              'status'   => $this->FormStatus(),
+          ]);
+          $this->SendDebug('FORM', $Form, 0);
+          $this->SendDebug('FORM', json_last_error_msg(), 0);
+
+          return $Form;
       }
 
 
