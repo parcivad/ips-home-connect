@@ -21,6 +21,11 @@
        */
       public function Api($endpoint="") {
 
+          if ( !isset( $this->user ) || !isset( $this->password ) ) {
+              $this->loginstate = false;
+              return null;
+          }
+
           if ( !isset( $this->access_token ) ) {
               $this->GetToken();
           }
@@ -105,7 +110,7 @@
 
           if ( !isset( $this->user ) || !isset( $this->password ) ) {
               $this->loginstate = false;
-              return;
+              return null;
           }
 
           if ( $this->CheckToken() ) {
@@ -201,7 +206,7 @@
 
           if ( !isset( $this->user ) || !isset( $this->password ) ) {
               $this->loginstate = false;
-              return false;
+              return null;
           }
 
           if ( $this->simulator ) {
