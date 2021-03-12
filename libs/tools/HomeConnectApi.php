@@ -1,6 +1,6 @@
 <?php
 
-  trait HomeConnectApi
+  class HomeConnectApi
   {
 
       // define vars ---------------------------------------------------------
@@ -14,13 +14,59 @@
       private $password; // password
       private $simulator = false;
 
-
+      private $loginstate;
 
       /**
        * @param $command String Sending this command to the Api of HomeConnect
+       * @return array Return the API output
        */
-      public function Api($command = "", $token = null, $imulator = false) {
-          return false;
+      public function Api($endpoint="") {
+
+          if ( !isset( $this->access_token ) ) {
+              $this->GetToken();
+          }
+
+          if ( $this->simulator ) {
+              // using simulator
+              $connect = 'simulator';
+          } else {
+              // If the User is using real api
+              $connect = 'api';
+          }
+
+          //----------------------------------------< Building Url with parameters >-------------
+          $header_array = array(
+              'content-type: application/vnd.bsh.sdk.v1+json',
+              'authorization: Bearer ' . $this->access_token,
+          );
+          // build url
+          $url = "https://" . $connect . ".home-connect.com/api/" . $endpoint . "?";
+          //-------------------------------------------------------------------------------------
+
+          // configure curl curl options in array
+          $curloptions = array(
+              CURLOPT_URL => $url,
+              CURLOPT_HEADER => true,
+              CURLOPT_HTTPHEADER => $header_array,
+              CURLOPT_TIMEOUT => 10,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_RETURNTRANSFER => true,
+          );
+
+          // initialse curl
+          $ch = curl_init();
+          // setting curl options
+          curl_setopt_array($ch, $curloptions);
+          // run curl
+          $result = curl_exec($ch);
+          // setting that the token got refreshed
+          // close curl
+          curl_close($ch);
+          // Format
+          $result_formatted = explode('Origin', $result)[1];
+          $result_array = json_decode($result_formatted, true);
+
+          return $result_array;
       }
 
 
@@ -45,6 +91,13 @@
           $this->simulator = $simulator;
       }
 
+      /** Check if the Account could log in
+       * @return mixed return bool
+       */
+      public function GetLoginstate() {
+          return $this->loginstate;
+      }
+
 
       /**
        * @return mixed return token ( but not needed )
@@ -60,13 +113,11 @@
               $connect = 'simulator';
               $client = '8CB8468BC84F6E2C6AA1378BAE73BDF9864A32038D8EEF327CBB99936B74848D';
               $client_secret = '';
-              $sim = true;
           } else {
               // If the User is using real api
               $connect = 'api';
               $client = '35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5';
               $client_secret = 'EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7';
-              $sim = false;
           }
 
           //----------------------------------------< Building Url with parameters >-------------
@@ -143,7 +194,12 @@
       /** Function to authorize the application the first time or in case of no token!
        * @return string return authorization code
        */
-      public function Authorize() {
+      public function Authorize( $perms="IdentifyAppliance") {
+
+          if ( !isset( $this->user ) || !isset( $this->password ) ) {
+              $this->loginstate = false;
+              return false;
+          }
 
           if ( $this->simulator ) {
               // using simulator
@@ -155,16 +211,19 @@
               $client = '35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5';
           }
 
+          $scopes = $perms;
+
           //----------------------------------------< Building Url with parameters >-------------
           $params_array = array(
               'response_type' => 'code',
               'client_id' => $client,
-              'scope' => 'IdentifyAppliance',
+              'scope' => $scopes,
               'redirect_uri' => 'https://api-docs.home-connect.com/quickstart/',
               'user' => $this->user,
               'password' => $this->password
           );
           $params = http_build_query($params_array);
+          $params = str_replace( "+", "%20", $params );
           // define endpoint for authorization
           $endpoint = "/security/oauth/authorize?";
           // build url
@@ -190,6 +249,8 @@
           curl_close($ch);
 
           $code = explode('=', $redirected_url)[1];
+
+          $this->loginstate = true;
 
           return strval($code);
       }

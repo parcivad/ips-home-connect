@@ -6,8 +6,6 @@
   class HomeConnectDiscovery extends IPSModule {
 
 
-      use HomeConnectApi;
-
       /*
        * Internal function of SDK
        */
@@ -17,9 +15,10 @@
           parent::Create();
 
           // User Data
-          $this->RegisterPropertyString("user", "your@mail.com");
-          $this->RegisterPropertyString("password", "password");
+          $this->RegisterPropertyString("user", "");
+          $this->RegisterPropertyString("password", "");
           $this->RegisterPropertyBoolean("simulator", true);
+          $this->RegisterAttributeString( 'loginstate', "");
       }
       /*
        * Internal function of SDK
@@ -45,25 +44,39 @@
 
       public function GetDevices() {
 
-          // Configure HomeConnect Api
-          $this->SetUser( $this->ReadPropertyString('user' ) );
-          $this->SetPassword( $this->ReadPropertyString( 'password' ) );
-          $this->SetSimulator( $this->ReadPropertyBoolean( 'simulator' ) );
+          $api = new HomeConnectApi();
 
-          $this->GetToken();
+          $data = $api->Api("homeappliances")['data']['homeappliances'];
+          $len = count($data);
 
-          $return = [
-              "Device" => "Oven",
-              "Company" => "BOSCH",
-              "haid" => '{asdüiojaüsoidmva+9p3jasdvasd}',
-              "Status" => "Not Configured",
-              "create" => [
-                  "moduleID" => "{5899C50B-7033-9DA4-BD0A-D8ED2BF227B9}",
-                  "configuration" => [],
-              ]
-          ];
+          var_dump($data);
 
-          return $return;
+          $devices = [];
+
+          for ($i = 0; $i <= $len; $i++) {
+              $name = $data[$i]['name'];
+              $brand = $data[$i]['brand'];
+              $connected = $data[$i]['connected'];
+              $type = $data[$i]['type'];
+              $haId = $data[$i]['haId'];
+
+              $device = [
+                  "Device" => $type,
+                  "Company" => $brand,
+                  "haid" => $haId,
+                  "Status" => $connected,
+                  "create" => [
+                      "moduleID" => "{5899C50B-7033-9DA4-BD0A-D8ED2BF227B9}",
+                      "configuration" => [],
+                  ]
+              ];
+
+              $devices = $devices + $device;
+          }
+
+          $this->WriteAttributeString( "loginstate", $api->GetLoginstate() );
+
+          return $devices;
       }
 
 
@@ -99,6 +112,11 @@
                   "type" => "PasswordTextBox",
                   "name" => "password",
                   "caption" => "HomeConnect - Password",
+              ],
+              [
+                  "type" => "ValidationTextBox",
+                  "name" => "loginstate",
+                  "caption" => "connection",
               ],
               [
                   "type" => "CheckBox",
