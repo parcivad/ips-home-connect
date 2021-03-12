@@ -152,7 +152,7 @@
                       ],
                   ],
                   "values" => [
-                      substr( $this->GetDevices(), 1),
+                      $this->GetDevices(),
                   ],
               ],
           ];
