@@ -54,6 +54,12 @@
                   $type = $device['type'];
                   $haId = $device['haId'];
 
+                  if ( $connected ) {
+                      $color = "#C0FFC0";
+                  } else {
+                      $color = '#FFFFC0';
+                  }
+
 
                   $config_list[] = [
                       'name' => $name,
@@ -61,6 +67,7 @@
                       'company' => $brand,
                       'haId' => $haId,
                       'connected' => $connected,
+                      'rowColor' => $color,
                       'create'     => [
                           'moduleID'      => '{09AEFA0B-1494-CB8B-A7C0-1982D0D99C7E}',
                           'configuration' => [],
@@ -138,7 +145,7 @@
                       [
                           "caption" => "Name",
                           "name" => "name",
-                          "width" => "150px",
+                          "width" => "200px",
                           "add" => false,
                       ],
                       [
@@ -150,7 +157,7 @@
                       [
                           "caption" => "Company",
                           "name" => "company",
-                          "width" => "125px",
+                          "width" => "120px",
                           "add" => false,
                       ],
                       [
