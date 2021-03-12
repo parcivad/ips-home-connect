@@ -5,7 +5,7 @@
 
   class HomeConnectDiscovery extends IPSModule {
 
-      /*
+       /*
        * Internal function of SDK
        */
       public function Create()
@@ -18,10 +18,6 @@
           $this->RegisterPropertyString("password", "password");
           $this->RegisterPropertyBoolean("simulator", true);
           $this->RegisterAttributeString( 'loginstate', "");
-
-          $api->SetUser( $this->ReadPropertyString('user') );
-          $api->SetPassword( $this->ReadPropertyString('password') );
-          $api->SetSimulator( $this->ReadPropertyBoolean('simulator') );
       }
       /*
        * Internal function of SDK
@@ -100,10 +96,6 @@
 
 
 
-
-
-
-
       /**
        * @return array[] Form Actions
        */
@@ -121,6 +113,12 @@
        * @return array[] Form Elements
        */
       protected function FormElements() {
+          $api = new HomeConnectApi();
+          $api->SetUser( $this->ReadPropertyString('user') );
+          $api->SetPassword( $this->ReadPropertyString('password') );
+          $api->SetSimulator( $this->ReadPropertyBoolean('simulator') );
+
+
           $form = [
               [
                   "type" => "ValidationTextBox",
@@ -135,7 +133,7 @@
               [
                   "type" => "Label",
                   "name" => 'loginstate',
-                  "caption" => $this->ReadAttributeString('loginstate'),
+                  "caption" => $api->GetLoginstate(),
               ],
               [
                   "type" => "CheckBox",
