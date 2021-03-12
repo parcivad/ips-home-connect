@@ -170,8 +170,6 @@
           $this->expires_in = $tokens['expires_in'];
           $this->scope = $tokens['scope'];
 
-          $this->loginstate = true;
-
           return $tokens;
       }
 

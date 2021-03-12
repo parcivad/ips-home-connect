@@ -45,13 +45,12 @@
       public function GetDevices() {
 
           $api = new HomeConnectApi();
+          $api->SetUser( $this->ReadPropertyString("user") );
+          $api->SetPassword( $this->ReadPropertyString("password") );
+          $api->SetSimulator( $this->ReadPropertyBoolean("simulator") );
 
           $data = $api->Api("homeappliances")['data']['homeappliances'];
           $len = count($data);
-
-          var_dump($data);
-
-          $devices = [];
 
           for ($i = 0; $i <= $len; $i++) {
               $name = $data[$i]['name'];
@@ -71,12 +70,12 @@
                   ]
               ];
 
-              $devices = $devices + $device;
+              $devices = $devices + json_encode( $device, JSON_FORCE_OBJECT );
           }
 
           $this->WriteAttributeString( "loginstate", $api->GetLoginstate() );
 
-          return $devices;
+          return( $devices );
       }
 
 
