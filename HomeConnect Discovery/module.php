@@ -34,9 +34,11 @@
           $api->SetPassword( $this->ReadPropertyString('password') );
           $api->SetSimulator( $this->ReadPropertyBoolean('simulator') );
 
-          $data = $api->Api("homeappliances")['data']['homeappliances'];
+          $data = $api->Api("homeappliances");
           // catch null exception
           if ( $data == null ) { $error_return = [[ 'name' => 'Login failed [Token/Auth]', 'rowColor' => '#ff0000']]; return $error_return;}
+          // else set data source
+          $data = $data['data']['homeappliances'];
 
           $len = count($data);
 
