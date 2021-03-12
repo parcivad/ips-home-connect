@@ -82,7 +82,7 @@
               }
           }
 
-          return  $config_list;
+          return json_encode( $config_list );
       }
 
 
