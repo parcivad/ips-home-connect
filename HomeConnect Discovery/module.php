@@ -17,7 +17,7 @@
           $this->RegisterPropertyString("user", "your@mail.de");
           $this->RegisterPropertyString("password", "password");
           $this->RegisterPropertyBoolean("simulator", true);
-          $this->RegisterAttributeString( 'loginstate', false);
+          $this->RegisterAttributeString( 'loginstate', "");
 
           $api->SetUser( $this->ReadPropertyString('user') );
           $api->SetPassword( $this->ReadPropertyString('password') );
@@ -121,13 +121,6 @@
        * @return array[] Form Elements
        */
       protected function FormElements() {
-          $api = new HomeConnectApi();
-          $api->SetUser( $this->ReadPropertyString('user') );
-          $api->SetPassword( $this->ReadPropertyString('password') );
-          $api->SetSimulator( $this->ReadPropertyBoolean('simulator') );
-
-          $loginstate = $api->GetLoginstate();
-
           $form = [
               [
                   "type" => "ValidationTextBox",
@@ -141,7 +134,8 @@
               ],
               [
                   "type" => "Label",
-                  "caption" => $loginstate,
+                  "name" => 'loginstate',
+                  "caption" => $this->ReadAttributeString('loginstate'),
               ],
               [
                   "type" => "CheckBox",
