@@ -52,6 +52,7 @@
                   $connected = $device['connected'];
                   $type = $device['type'];
                   $haId = $device['haId'];
+                  $color = '#FFFFC0';
 
                   if ( $connected == "true" ) {
                       $color = "#C0FFC0";
@@ -66,11 +67,11 @@
                       'company' => $brand,
                       'haId' => $haId,
                       'connected' => $connected,
-                      'rowColor' => $color,
                       'create'     => [
                           'moduleID'      => '{09AEFA0B-1494-CB8B-A7C0-1982D0D99C7E}',
                           'configuration' => [],
                       ],
+                      'rowColor' => $color,
                   ];
               }
           }
@@ -133,7 +134,7 @@
                   "type" => "Configurator",
                   "name" => "Home-Connect Discovery",
                   "caption" => "HomeConnect Discovery",
-                  "rowCount" => 20,
+                  "rowCount" => 14,
                   "add" => false,
                   "delete"=> true,
                   "columns" => [
