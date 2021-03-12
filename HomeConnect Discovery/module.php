@@ -151,7 +151,7 @@
                           "add" => false,
                       ],
                   ],
-                  "values" => $api->Api("homeappliances")['data']['homeappliances'],
+                  "values" => [],
               ],
           ];
 
