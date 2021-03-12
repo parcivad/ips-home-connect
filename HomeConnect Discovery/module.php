@@ -52,31 +52,37 @@
           $data = $api->Api("homeappliances")['data']['homeappliances'];
           $len = count($data);
 
-          $return = [];
+          $devices = [];
 
           for ($i = 0; $i < $len; $i++) {
-              $name = $data[$i]['name'];
-              $brand = $data[$i]['brand'];
-              $connected = $data[$i]['connected'];
-              $type = $data[$i]['type'];
-              $haId = $data[$i]['haId'];
-
-              $device = [
-                  "Device" => $type,
-                  "Company" => $brand,
-                  "haid" => $haId,
-                  "Connected" => $connected,
-                  "create" => [
-                      "moduleID" => "{5899C50B-7033-9DA4-BD0A-D8ED2BF227B9}",
-                      "configuration" => [],
-                  ]
-              ];
-
-              $return[] = $device;
+              array_push($devices, $data[$i] );
           }
 
-          // Return String (json)
-          return $device;
+          $config_list = [];
+
+          if (!empty($devices)) {
+              foreach ($devices as $device) {
+                  $name = $data[$i]['name'];
+                  $brand = $data[$i]['brand'];
+                  $connected = $data[$i]['connected'];
+                  $type = $data[$i]['type'];
+                  $haId = $data[$i]['haId'];
+
+
+                  $config_list[] = [
+                      'Device' => $type,
+                      'Company' => $brand,
+                      'haid' => $haId,
+                      'Connected' => $connected,
+                      'create'     => [
+                          'moduleID'      => '{09AEFA0B-1494-CB8B-A7C0-1982D0D99C7E}',
+                          'configuration' => [],
+                      ],
+                  ];
+              }
+          }
+
+          return $config_list;
       }
 
 
@@ -127,6 +133,12 @@
                   "delete"=> true,
                   "columns" => [
                       [
+                          "caption" => "Name",
+                          "name" => "Name",
+                          "width" => "150px",
+                          "add" => false,
+                      ],
+                      [
                           "caption" => "Device",
                           "name" => "Device",
                           "width" => "120px",
@@ -151,9 +163,7 @@
                           "add" => false,
                       ],
                   ],
-                  "values" => [
-                      $this->GetDevices(),
-                      ],
+                  "values" => $this->GetDevices(),
               ],
           ];
 
