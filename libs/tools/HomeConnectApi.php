@@ -29,7 +29,10 @@
           }
 
           // Checking for errors after GetToken/Authorizaition
-          if ( !$this->loginstate ) {
+          if ( !$this->tokenstate ) {
+              // A error appeared while trying to get token
+              return [];
+          } else if ( !$this->loginstate ) {
               // A error appeared while trying to authorize or get token, Check function for more detail
               return [];
           }
@@ -159,10 +162,17 @@
 
           $tokens = json_decode($result, true);
 
+          if ( isset($tokens['error'] ) ) {
+              $this->tokenstate = false;
+              return null;
+          }
+
           // Setting token (private vars)
           $this->access_token = $tokens['access_token'];
           $this->refresh_token = $tokens['refresh_token'];
           $this->expires_in = $tokens['expires_in'];
+
+          $this->tokenstate = true;
 
           return $tokens;
       }
