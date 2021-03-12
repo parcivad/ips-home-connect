@@ -12,19 +12,11 @@
       private $user; // user
       private $password; // password
       private $simulator = false;
-
-      private $loginstate = false;
-
       /**
        * @param $command String Sending this command to the Api of HomeConnect
        * @return array Return the API output
        */
       public function Api($endpoint="") {
-
-          if ( !isset( $this->user ) || !isset( $this->password ) ) {
-              $this->loginstate = false;
-              return null;
-          }
 
           if ( !isset( $this->access_token ) ) {
               $this->GetToken();
@@ -95,27 +87,10 @@
           $this->simulator = $simulator;
       }
 
-      /** Check if the Account could log in
-       * @return mixed return bool
-       */
-      public function GetLoginstate() {
-          if ( $this->loginstate ) {
-              return 'Login erfolgt und token geholt.';
-          } else {
-              return 'Login fehler!';
-          }
-      }
-
-
       /**
        * @return mixed return token ( but not needed )
        */
       public function GetToken() {
-
-          if ( !isset( $this->user ) || !isset( $this->password ) ) {
-              $this->loginstate = false;
-              return null;
-          }
 
           if ( $this->CheckToken() ) {
               return $this->access_token;
@@ -207,11 +182,6 @@
        * @return string return authorization code
        */
       public function Authorize( $perms="IdentifyAppliance") {
-
-          if ( !isset( $this->user ) || !isset( $this->password ) ) {
-              $this->loginstate = false;
-              return false;
-          }
 
           if ( $this->simulator ) {
               // using simulator

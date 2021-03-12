@@ -53,9 +53,9 @@
                   $type = $device['type'];
                   $haId = $device['haId'];
 
-                  if ( $connected == true ) {
+                  if ( $connected == "true" ) {
                       $color = "#C0FFC0";
-                  } else {
+                  } else if ( $connected == "false" ) {
                       $color = '#FFFFC0';
                   }
 
@@ -113,12 +113,6 @@
        * @return array[] Form Elements
        */
       protected function FormElements() {
-          $api = new HomeConnectApi();
-          $api->SetUser( $this->ReadPropertyString('user') );
-          $api->SetPassword( $this->ReadPropertyString('password') );
-          $api->SetSimulator( $this->ReadPropertyBoolean('simulator') );
-
-
           $form = [
               [
                   "type" => "ValidationTextBox",
@@ -129,11 +123,6 @@
                   "type" => "PasswordTextBox",
                   "name" => "password",
                   "caption" => "HomeConnect - Password",
-              ],
-              [
-                  "type" => "Label",
-                  "name" => 'loginstate',
-                  "caption" => $api->GetLoginstate(),
               ],
               [
                   "type" => "CheckBox",
