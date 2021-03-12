@@ -28,6 +28,52 @@
           parent::ApplyChanges();
       }
 
+      public function GetDevices() {
+
+          $api = new HomeConnectApi();
+          $api->SetUser( "your@mail.de" );
+          $api->SetPassword( "password" );
+          $api->SetSimulator( true );
+
+          $data = $api->Api("homeappliances")['data']['homeappliances'];
+          $len = count($data);
+
+          $devices = [];
+
+          for ($i = 0; $i < $len; $i++) {
+              array_push($devices, $data[$i] );
+          }
+
+          $config_list = [];
+
+          if (!empty($devices)) {
+              foreach ($devices as $device) {
+                  $name = $device['name'];
+                  $brand = $device['brand'];
+                  $connected = $device['connected'];
+                  $type = $device['type'];
+                  $haId = $device['haId'];
+
+
+                  $config_list[] = [
+                      'name' => $name,
+                      'device' => $type,
+                      'company' => $brand,
+                      'haId' => $haId,
+                      'connected' => $connected,
+                      'create'     => [
+                          'moduleID'      => '{09AEFA0B-1494-CB8B-A7C0-1982D0D99C7E}',
+                          'configuration' => [],
+                      ],
+                  ];
+              }
+          }
+
+          return  $config_list;
+      }
+
+
+
       public function GetConfigurationForm()
       {
           // return current form
@@ -65,12 +111,7 @@
        * @return array[] Form Elements
        */
       protected function FormElements() {
-          $api = new HomeConnectApi();
-          $api->SetUser( "your@mail.de" );
-          $api->SetPassword( "password" );
-          $api->SetSimulator( true );
-
-          $form = [
+          $form[] = [
               [
                   "type" => "ValidationTextBox",
                   "name" => "user",
@@ -95,20 +136,20 @@
                   "delete"=> true,
                   "columns" => [
                       [
-                          "caption" => "name",
+                          "caption" => "Name",
                           "name" => "name",
                           "width" => "150px",
                           "add" => false,
                       ],
                       [
                           "caption" => "Device",
-                          "name" => "Device",
+                          "name" => "device",
                           "width" => "120px",
                           "add" => false,
                       ],
                       [
                           "caption" => "Company",
-                          "name" => "Company",
+                          "name" => "company",
                           "width" => "125px",
                           "add" => false,
                       ],
@@ -119,13 +160,13 @@
                           "add" => false,
                       ],
                       [
-                          "caption" => "Connected",
-                          "name" => "Status",
+                          "caption" => "Connection",
+                          "name" => "connected",
                           "width" => "100px",
                           "add" => false,
                       ],
                   ],
-                  "values" => $api->Api("homeappliances")['data']['homeappliances'],
+                  "values" => $this->GetDevices(),
               ],
           ];
 
@@ -136,7 +177,7 @@
        * @return array[] Form Status
        */
       protected function FormStatus() {
-          $form = [
+          $form[] = [
               [
                   'code'    => 101,
                   'icon'    => 'inactive',
