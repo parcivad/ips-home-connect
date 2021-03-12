@@ -1,12 +1,5 @@
 <?php
 
-$api = new HomeConnectApi();
-$api->SetUser( "test@test.de" );
-$api->SetPassword( "password");
-$api->SetSimulator( false );
-
-var_dump( $api->Api("homeappliances") );
-
 
   class HomeConnectApi
   {
