@@ -5,7 +5,6 @@
 
   class HomeConnectDiscovery extends IPSModule {
 
-
       /*
        * Internal function of SDK
        */
@@ -19,6 +18,10 @@
           $this->RegisterPropertyString("password", "password");
           $this->RegisterPropertyBoolean("simulator", true);
           $this->RegisterAttributeString( 'loginstate', false);
+
+          $api->SetUser( $this->ReadPropertyString('user') );
+          $api->SetPassword( $this->ReadPropertyString('password') );
+          $api->SetSimulator( $this->ReadPropertyBoolean('simulator') );
       }
       /*
        * Internal function of SDK
@@ -36,27 +39,6 @@
           $api->SetSimulator( $this->ReadPropertyBoolean('simulator') );
 
           $data = $api->Api("homeappliances")['data']['homeappliances'];
-          if ( !$data ) {
-
-              $error = [];
-
-              $error_module[] = [
-                  'name' => '-',
-                  'device' => '-',
-                  'company' => '-',
-                  'haId' => 'LOGIN FAILED!',
-                  'connected' => '-',
-                  'rowColor' => '#FF0000',
-                  'create'     => [
-                      'moduleID'      => '{09AEFA0B-1494-CB8B-A7C0-1982D0D99C7E}',
-                      'configuration' => [],
-                  ],
-              ];
-
-              array_push( $error, $error_module );
-
-              return $error;
-          }
           $len = count($data);
 
           $devices = [];
@@ -139,6 +121,11 @@
        * @return array[] Form Elements
        */
       protected function FormElements() {
+          $api = new HomeConnectApi();
+          $api->SetUser( $this->ReadPropertyString('user') );
+          $api->SetPassword( $this->ReadPropertyString('password') );
+          $api->SetSimulator( $this->ReadPropertyBoolean('simulator') );
+
           $form = [
               [
                   "type" => "ValidationTextBox",
@@ -149,6 +136,10 @@
                   "type" => "PasswordTextBox",
                   "name" => "password",
                   "caption" => "HomeConnect - Password",
+              ],
+              [
+                  "type" => "Label",
+                  "caption" => $api->GetLoginstate(),
               ],
               [
                   "type" => "CheckBox",

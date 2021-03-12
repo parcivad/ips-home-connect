@@ -99,7 +99,11 @@
        * @return mixed return bool
        */
       public function GetLoginstate() {
-          return $this->loginstate;
+          if ( $this->loginstate ) {
+              return 'Login erfolgt und token geholt.';
+          } else {
+              return 'Login fehler!';
+          }
       }
 
 
