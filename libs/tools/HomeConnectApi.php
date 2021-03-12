@@ -1,5 +1,13 @@
 <?php
 
+$api = new HomeConnectApi();
+$api->SetUser( "test@test.de" );
+$api->SetPassword( "password");
+$api->SetSimulator( false );
+
+var_dump( $api->Api("homeappliances") );
+
+
   class HomeConnectApi
   {
 
@@ -12,14 +20,25 @@
       private $user; // user
       private $password; // password
       private $simulator = false;
+
+      private $loginstate = false; // Error analysis in Authorization
+      private $tokenstate = false; // Error analysis in GetToken
+
       /**
        * @param $command String Sending this command to the Api of HomeConnect
        * @return array Return the API output
        */
       public function Api($endpoint="") {
 
+          // Checking for access token
           if ( !isset( $this->access_token ) ) {
-              $this->GetToken();
+              $tokens = $this->GetToken();
+          }
+
+          // Checking for errors after GetToken/Authorizaition
+          if ( !$this->loginstate ) {
+              // A error appeared while trying to authorize or get token, Check function for more detail
+              return [];
           }
 
           if ( $this->simulator ) {
@@ -183,6 +202,11 @@
        */
       public function Authorize( $perms="IdentifyAppliance") {
 
+          // Catch if login data is missing
+          if ( !isset( $this->user) || !isset( $this->password ) ) {
+              return "Login Data is missing (User or password)";
+          }
+
           if ( $this->simulator ) {
               // using simulator
               $connect = 'simulator';
@@ -230,11 +254,18 @@
           // close curl
           curl_close($ch);
 
-          $code = explode('=', $redirected_url)[1];
+          $code = explode('=', $redirected_url);
+
+
+          // Catch mistake that could appear when login
+          if ( $code[0] != 'https://api-docs.home-connect.com/quickstart/?code' ) {
+              $this->loginstate = false;
+              return "A error appeared!";
+              return strval($code[1]);
+          }
 
           $this->loginstate = true;
-
-          return strval($code);
+          return strval($code[1]);
       }
   }
 ?>
