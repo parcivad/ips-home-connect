@@ -36,39 +36,20 @@
           $api->SetSimulator( true );
 
           $data = $api->Api("homeappliances")['data']['homeappliances'];
-          $len = count($data);
 
-          $devices = [];
+          /*
+          $config_list[] = [
+              'Device' => $type,
+              'Company' => $brand,
+              'haid' => $haId,
+              'Connected' => $connected,
+              'create'     => [
+                  'moduleID'      => '{09AEFA0B-1494-CB8B-A7C0-1982D0D99C7E}',
+                  'configuration' => [],
+              ],
+          ];
+          */
 
-          for ($i = 0; $i < $len; $i++) {
-              array_push($devices, $data[$i] );
-          }
-
-          $config_list = [];
-
-          if (!empty($devices)) {
-              foreach ($devices as $device) {
-                  $name = $device['name'];
-                  $brand = $device['brand'];
-                  $connected = $device['connected'];
-                  $type = $device['type'];
-                  $haId = $device['haId'];
-
-
-                  $config_list[] = [
-                      'Device' => $type,
-                      'Company' => $brand,
-                      'haid' => $haId,
-                      'Connected' => $connected,
-                      'create'     => [
-                          'moduleID'      => '{09AEFA0B-1494-CB8B-A7C0-1982D0D99C7E}',
-                          'configuration' => [],
-                      ],
-                  ];
-              }
-          }
-
-          return $config_list;
       }
 
 
@@ -110,6 +91,11 @@
        * @return array[] Form Elements
        */
       protected function FormElements() {
+          $api = new HomeConnectApi();
+          $api->SetUser( "your@mail.de" );
+          $api->SetPassword( "password" );
+          $api->SetSimulator( true );
+
           $form[] = [
               [
                   "type" => "ValidationTextBox",
@@ -135,8 +121,8 @@
                   "delete"=> true,
                   "columns" => [
                       [
-                          "caption" => "Name",
-                          "name" => "Name",
+                          "caption" => "name",
+                          "name" => "name",
                           "width" => "150px",
                           "add" => false,
                       ],
@@ -153,8 +139,8 @@
                           "add" => false,
                       ],
                       [
-                          "caption" => "haid",
-                          "name" => "haid",
+                          "caption" => "haId",
+                          "name" => "haId",
                           "width" => "auto",
                           "add" => false,
                       ],
@@ -165,7 +151,7 @@
                           "add" => false,
                       ],
                   ],
-                  "values" => $this->GetDevices(),
+                  "values" => $api->Api("homeappliances")['data']['homeappliances'],
               ],
           ];
 
