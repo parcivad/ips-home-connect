@@ -52,7 +52,7 @@
           $data = $api->Api("homeappliances")['data']['homeappliances'];
           $len = count($data);
 
-          $devices = array();
+          $return = [];
 
           for ($i = 0; $i < $len; $i++) {
               $name = $data[$i]['name'];
@@ -72,6 +72,7 @@
                   ]
               ];
 
+              $return[] = $device;
           }
 
           // Return String (json)
