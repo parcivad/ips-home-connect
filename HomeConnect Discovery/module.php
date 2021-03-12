@@ -75,8 +75,8 @@
               array_push($devices, $device);
           }
 
-// Return String (json)
-          return (  json_encode( $devices ) );
+          // Return String (json)
+          return $devices;
       }
 
 
@@ -102,7 +102,7 @@
        * @return array[] Form Elements
        */
       protected function FormElements() {
-          $form = [
+          $form[] = [
               [
                   "type" => "ValidationTextBox",
                   "name" => "user",
@@ -112,11 +112,6 @@
                   "type" => "PasswordTextBox",
                   "name" => "password",
                   "caption" => "HomeConnect - Password",
-              ],
-              [
-                  "type" => "ValidationTextBox",
-                  "name" => "loginstate",
-                  "caption" => "connection",
               ],
               [
                   "type" => "CheckBox",
@@ -134,13 +129,13 @@
                       [
                           "caption" => "Device",
                           "name" => "Device",
-                          "width" => "100px",
+                          "width" => "120px",
                           "add" => false,
                       ],
                       [
                           "caption" => "Company",
                           "name" => "Company",
-                          "width" => "120px",
+                          "width" => "125px",
                           "add" => false,
                       ],
                       [
@@ -169,7 +164,7 @@
        * @return array[] Form Status
        */
       protected function FormStatus() {
-          $form = [
+          $form[] = [
               [
                   'code'    => 101,
                   'icon'    => 'inactive',
