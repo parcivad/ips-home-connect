@@ -36,7 +36,7 @@
 
           $data = $api->Api("homeappliances");
           // catch null exception
-          if ( $data == null ) { $error_return = [[ 'name' => 'Login failed [Token/Auth]', 'device' => ' ', 'company' => ' ', 'haId' => 'Überprüfe dein Passwort oder Nutzer/Check your passwort or user','rowColor' => '#FF0000']]; return $error_return;}
+          if ( $data == null ) { $error_return = [[ 'name' => 'Login failed [Token/Auth]', 'device' => ' ', 'company' => ' ', 'haId' => 'Überprüfe dein Passwort oder Nutzer/Check your passwort or user', 'connected' => ' ', 'rowColor' => '#ff0000']]; return $error_return;}
           // else set data source
           $data = $data['data']['homeappliances'];
 
@@ -59,9 +59,9 @@
                   $haId = $device['haId'];
 
                   if ( $connected == true ) {
-                      $color = "#C0FFC0";
+                      $color = "#c0ffc0";
                   } else if ( $connected == false ) {
-                      $color = '#FFFFC0';
+                      $color = '#ffffc0';
                   }
 
 
