@@ -167,7 +167,6 @@
           $this->access_token = $tokens['access_token'];
           $this->refresh_token = $tokens['refresh_token'];
           $this->expires_in = $tokens['expires_in'];
-          $this->scope = $tokens['scope'];
 
           return $tokens;
       }

@@ -15,10 +15,10 @@
           parent::Create();
 
           // User Data
-          $this->RegisterPropertyString("user", "");
-          $this->RegisterPropertyString("password", "");
+          $this->RegisterPropertyString("user", "your@mail.de");
+          $this->RegisterPropertyString("password", "password");
           $this->RegisterPropertyBoolean("simulator", true);
-          $this->RegisterAttributeString( 'loginstate', "");
+          $this->RegisterAttributeString( 'loginstate', false);
       }
       /*
        * Internal function of SDK
