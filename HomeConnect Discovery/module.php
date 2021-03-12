@@ -111,7 +111,7 @@
        * @return array[] Form Elements
        */
       protected function FormElements() {
-          $form[] = [
+          $form = [
               [
                   "type" => "ValidationTextBox",
                   "name" => "user",
@@ -177,7 +177,7 @@
        * @return array[] Form Status
        */
       protected function FormStatus() {
-          $form[] = [
+          $form = [
               [
                   'code'    => 101,
                   'icon'    => 'inactive',
