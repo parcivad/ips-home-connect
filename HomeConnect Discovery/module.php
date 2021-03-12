@@ -20,12 +20,6 @@
           $this->RegisterPropertyString("user", "your@mail.com");
           $this->RegisterPropertyString("password", "password");
           $this->RegisterPropertyBoolean("simulator", true);
-          // HomeConnect Api
-          $tokens = $this->GetToken( "your@mail.com", "password", true );
-
-          $this->RegisterPropertyString('refresh_token', $tokens['refresh_token']);
-          $this->RegisterPropertyString('token', $tokens['access_token'] );
-
       }
       /*
        * Internal function of SDK
@@ -51,23 +45,12 @@
 
       public function GetDevices() {
 
+          // Configure HomeConnect Api
+          $this->SetUser( $this->ReadPropertyString('user' ) );
+          $this->SetPassword( $this->ReadPropertyString( 'password' ) );
+          $this->SetSimulator( $this->ReadPropertyBoolean( 'simulator' ) );
 
-          // HomeConnect Api
-          $tokens = $this->GetToken( $this->ReadPropertyString('user'),
-                                     $this->ReadPropertyString('password'),
-                                     $this->ReadPropertyBoolean('simulator'));
-
-
-          $return = [
-              "Device" => "Oven",
-              "Company" => "BOSCH",
-              "haid" => $tokens['access_token'],
-              "Status" => "Not Configured",
-              "create" => [
-                  "moduleID" => "{5899C50B-7033-9DA4-BD0A-D8ED2BF227B9}",
-                  "configuration" => [],
-              ]
-          ];
+          $this->GetToken();
 
           return $return;
       }
@@ -105,11 +88,6 @@
                   "type" => "PasswordTextBox",
                   "name" => "password",
                   "caption" => "HomeConnect - Password",
-              ],
-              [
-                  "type" => "ValidationTextBox",
-                  "name" => "token",
-                  "caption" => "Current Token",
               ],
               [
                   "type" => "CheckBox",

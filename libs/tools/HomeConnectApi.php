@@ -3,6 +3,19 @@
   trait HomeConnectApi
   {
 
+      // define vars ---------------------------------------------------------
+      private $access_token; // current access token for home connect
+      private $refresh_token; // current refresh token for refresh
+      private $expires_in; // expire time in seconds ( normal case 1 day )
+      private $last_refresh; // When did the Module get the $access_token
+      private $scope;
+
+      private $user; // user
+      private $password; // password
+      private $simulator = false;
+
+
+
       /**
        * @param $command String Sending this command to the Api of HomeConnect
        */
@@ -10,15 +23,39 @@
           return false;
       }
 
-      /**
-       * @param string $user Email of the account
-       * @param string $password Password of the account
-       * @param false $simulator Real Api or simulator
-       * @return mixed|string Device Token
-       */
-      public function GetToken($user = "", $password = "", $simulator = false) {
 
-          if ($simulator) {
+      /** Set the User of the API
+       * @param string $user Email of the account
+       */
+      public function SetUser( $user="" ) {
+          $this->user = $user;
+      }
+
+      /** Set the Password of the User API
+       * @param string $password Password of the account
+       */
+      public function SetPassword( $password="" ) {
+          $this->password = $password;
+      }
+
+      /** Set if the Api should work with the simulator
+       * @param false $simulator
+       */
+      public function SetSimulator( $simulator=false ) {
+          $this->simulator = $simulator;
+      }
+
+
+      /**
+       * @return mixed return token ( but not needed )
+       */
+      public function GetToken() {
+
+          if ( $this->CheckToken() ) {
+              return $this->access_token;
+          }
+
+          if ( $this->simulator ) {
               // using simulator
               $connect = 'simulator';
               $client = '8CB8468BC84F6E2C6AA1378BAE73BDF9864A32038D8EEF327CBB99936B74848D';
@@ -39,7 +76,7 @@
               'client_id' => $client,
               'client_secret' => $client_secret,
               'redirect_uri' => 'https://api-docs.home-connect.com/quickstart/',
-              'code' => $this->Authorize($user, $password, $sim)
+              'code' => $this->Authorize()
           );
           $params = http_build_query($params_array);
           // define endpoint for authorization
@@ -64,23 +101,51 @@
           curl_setopt_array($ch, $curloptions);
           // run curl
           $result = curl_exec($ch);
+          // setting that the token got refreshed
+          $this->last_refresh = time();
           // close curl
           curl_close($ch);
 
           $tokens = json_decode($result, true);
 
+          // Setting token (private vars)
+          $this->access_token = $tokens['access_token'];
+          $this->refresh_token = $tokens['refresh_token'];
+          $this->expires_in = $tokens['expires_in'];
+          $this->scope = $tokens['scope'];
+
           return $tokens;
       }
 
-      /** Function to authorize the application the first time or in case of no token!
-       * @param string $user Email of the account
-       * @param string $password Password of the account
-       * @param boolean $simulator Real Api or simulator
-       * @return mixed|string Authorize code
+      /** Function will check if the token is still working
+       * @param $token
+       * @return boolean True for active and False for expired!
        */
-      public function Authorize($user = "", $password = "", $simulator = false) {
+      private function CheckToken() {
 
-          if ($simulator) {
+          if ( isset( $this->access_token ) ) {
+
+              $lastrefresh = $this->last_refresh;
+              $expire = $this->expires_in;
+              $time = time();
+
+              $timeSinceLastRefresh = $time - $lastrefresh;
+              $shouldupdate = $expire - 3600;
+
+              if ( $timeSinceLastRefresh < $shouldupdate ) {
+                  return true;
+              }
+          }
+
+          return false;
+      }
+
+      /** Function to authorize the application the first time or in case of no token!
+       * @return string return authorization code
+       */
+      public function Authorize() {
+
+          if ( $this->simulator ) {
               // using simulator
               $connect = 'simulator';
               $client = '8CB8468BC84F6E2C6AA1378BAE73BDF9864A32038D8EEF327CBB99936B74848D';
@@ -96,8 +161,8 @@
               'client_id' => $client,
               'scope' => 'IdentifyAppliance',
               'redirect_uri' => 'https://api-docs.home-connect.com/quickstart/',
-              'user' => $user,
-              'password' => $password
+              'user' => $this->user,
+              'password' => $this->password
           );
           $params = http_build_query($params_array);
           // define endpoint for authorization
