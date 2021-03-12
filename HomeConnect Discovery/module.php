@@ -36,7 +36,7 @@
 
           $data = $api->Api("homeappliances")['data']['homeappliances'];
           // catch null exception
-          if ( $data == null ) { $error_return = [[ 'name' => 'Login failed [Token/Auth]', 'rowColor' => '#ff0000']; return $error_return;}
+          if ( $data == null ) { $error_return = [[ 'name' => 'Login failed [Token/Auth]', 'rowColor' => '#ff0000']]; return $error_return;}
 
           $len = count($data);
 
