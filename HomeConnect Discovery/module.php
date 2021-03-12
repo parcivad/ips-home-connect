@@ -54,7 +54,7 @@
                   $type = $device['type'];
                   $haId = $device['haId'];
 
-                  if ( $connected ) {
+                  if ( $connected == true ) {
                       $color = "#C0FFC0";
                   } else {
                       $color = '#FFFFC0';
