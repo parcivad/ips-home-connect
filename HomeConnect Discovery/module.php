@@ -126,6 +126,8 @@
           $api->SetPassword( $this->ReadPropertyString('password') );
           $api->SetSimulator( $this->ReadPropertyBoolean('simulator') );
 
+          $loginstate = $api->GetLoginstate();
+
           $form = [
               [
                   "type" => "ValidationTextBox",
@@ -139,7 +141,7 @@
               ],
               [
                   "type" => "Label",
-                  "caption" => $api->GetLoginstate(),
+                  "caption" => $loginstate,
               ],
               [
                   "type" => "CheckBox",
