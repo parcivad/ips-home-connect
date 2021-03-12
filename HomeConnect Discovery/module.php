@@ -52,6 +52,17 @@
 
           $this->GetToken();
 
+          $return = [
+              "Device" => "Oven",
+              "Company" => "BOSCH",
+              "haid" => '{asdüiojaüsoidmva+9p3jasdvasd}',
+              "Status" => "Not Configured",
+              "create" => [
+                  "moduleID" => "{5899C50B-7033-9DA4-BD0A-D8ED2BF227B9}",
+                  "configuration" => [],
+              ]
+          ];
+
           return $return;
       }
 
@@ -88,6 +99,11 @@
                   "type" => "PasswordTextBox",
                   "name" => "password",
                   "caption" => "HomeConnect - Password",
+              ],
+              [
+                  "type" => "ValidationTextBox",
+                  "name" => "token",
+                  "caption" => "Current Token",
               ],
               [
                   "type" => "CheckBox",
