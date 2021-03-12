@@ -151,9 +151,7 @@
                           "add" => false,
                       ],
                   ],
-                  "values" => [
-                      $this->GetDevices(),
-                  ],
+                  "values" => $this->GetDevices(),
               ],
           ];
 
