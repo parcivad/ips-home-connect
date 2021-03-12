@@ -72,11 +72,10 @@
                   ]
               ];
 
-              array_push($devices, $device);
           }
 
           // Return String (json)
-          return $devices;
+          return $device;
       }
 
 
