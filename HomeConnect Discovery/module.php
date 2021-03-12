@@ -61,7 +61,7 @@
               $type = $data[$i]['type'];
               $haId = $data[$i]['haId'];
 
-              $device = array(
+              $device = [
                   "Device" => $type,
                   "Company" => $brand,
                   "haid" => $haId,
@@ -70,16 +70,11 @@
                       "moduleID" => "{5899C50B-7033-9DA4-BD0A-D8ED2BF227B9}",
                       "configuration" => [],
                   ]
-              );
-
-              // right format for Configuration form
-              $out = str_replace( ":", "=>", str_replace( "}", "]", str_replace( "{", "[", json_encode( $device ) ) ) ) . ",";
-
-              $devices = $devices . $out;
+              ];
           }
 
           // Return String (json)
-          return $devices;
+          return $device;
       }
 
 
