@@ -62,11 +62,11 @@
 
           if (!empty($devices)) {
               foreach ($devices as $device) {
-                  $name = $data[$i]['name'];
-                  $brand = $data[$i]['brand'];
-                  $connected = $data[$i]['connected'];
-                  $type = $data[$i]['type'];
-                  $haId = $data[$i]['haId'];
+                  $name = $device['name'];
+                  $brand = $device['brand'];
+                  $connected = $device['connected'];
+                  $type = $device['type'];
+                  $haId = $device['haId'];
 
 
                   $config_list[] = [
@@ -82,7 +82,7 @@
               }
           }
 
-          return $config_list;
+          return  $config_list;
       }
 
 
