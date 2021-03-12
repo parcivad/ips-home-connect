@@ -4,16 +4,16 @@
   {
 
       // define vars ---------------------------------------------------------
-      private string $access_token; // current access token for home connect
-      private string $refresh_token; // current refresh token for refresh
-      private string $expires_in; // expire time in seconds ( normal case 1 day )
-      private int $last_refresh; // When did the Module get the $access_token
+      private $access_token; // current access token for home connect
+      private $refresh_token; // current refresh token for refresh
+      private $expires_in; // expire time in seconds ( normal case 1 day )
+      private $last_refresh; // When did the Module get the $access_token
 
-      private string $user; // user
-      private string $password; // password
-      private bool $simulator = false;
+      private $user; // user
+      private $password; // password
+      private $simulator = false;
 
-      private bool $loginstate = false;
+      private $loginstate = false;
 
       /**
        * @param $command String Sending this command to the Api of HomeConnect

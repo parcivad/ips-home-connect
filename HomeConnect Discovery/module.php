@@ -45,21 +45,23 @@
       public function GetDevices() {
 
           $api = new HomeConnectApi();
-          $api->SetUser( $this->ReadPropertyString("user") );
-          $api->SetPassword( $this->ReadPropertyString("password") );
-          $api->SetSimulator( $this->ReadPropertyBoolean("simulator") );
+          $api->SetUser( "your@mail.de" );
+          $api->SetPassword( "password" );
+          $api->SetSimulator( true );
 
           $data = $api->Api("homeappliances")['data']['homeappliances'];
           $len = count($data);
 
-          for ($i = 0; $i <= $len; $i++) {
+          $devices = "";
+
+          for ($i = 0; $i < $len; $i++) {
               $name = $data[$i]['name'];
               $brand = $data[$i]['brand'];
               $connected = $data[$i]['connected'];
               $type = $data[$i]['type'];
               $haId = $data[$i]['haId'];
 
-              $device = [
+              $device = array(
                   "Device" => $type,
                   "Company" => $brand,
                   "haid" => $haId,
@@ -68,14 +70,16 @@
                       "moduleID" => "{5899C50B-7033-9DA4-BD0A-D8ED2BF227B9}",
                       "configuration" => [],
                   ]
-              ];
+              );
 
-              $devices = $devices + json_encode( $device, JSON_FORCE_OBJECT );
+              // right format for Configuration form
+              $out = str_replace( ":", "=>", str_replace( "}", "]", str_replace( "{", "[", json_encode( $device ) ) ) ) . ",";
+
+              $devices = $devices . $out;
           }
 
-          $this->WriteAttributeString( "loginstate", $api->GetLoginstate() );
-
-          return( $devices );
+          // Return String (json)
+          return $devices;
       }
 
 
@@ -156,7 +160,7 @@
                       ],
                   ],
                   "values" => [
-                      $this->GetDevices(),
+                      $this->GetDevices()
                   ],
               ],
           ];
