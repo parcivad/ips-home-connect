@@ -52,7 +52,7 @@
           $data = $api->Api("homeappliances")['data']['homeappliances'];
           $len = count($data);
 
-          $devices = "";
+          $devices = array();
 
           for ($i = 0; $i < $len; $i++) {
               $name = $data[$i]['name'];
@@ -65,16 +65,18 @@
                   "Device" => $type,
                   "Company" => $brand,
                   "haid" => $haId,
-                  "Status" => $connected,
+                  "Connected" => $connected,
                   "create" => [
                       "moduleID" => "{5899C50B-7033-9DA4-BD0A-D8ED2BF227B9}",
                       "configuration" => [],
                   ]
               ];
+
+              array_push($devices, $device);
           }
 
-          // Return String (json)
-          return $device;
+// Return String (json)
+          return (  json_encode( $devices ) );
       }
 
 
@@ -148,14 +150,14 @@
                           "add" => false,
                       ],
                       [
-                          "caption" => "Status",
+                          "caption" => "Connected",
                           "name" => "Status",
                           "width" => "100px",
                           "add" => false,
                       ],
                   ],
                   "values" => [
-                      $this->GetDevices()
+                      $this->GetDevices(),
                   ],
               ],
           ];
