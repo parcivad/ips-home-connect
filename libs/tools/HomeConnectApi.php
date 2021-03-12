@@ -206,7 +206,7 @@
 
           if ( !isset( $this->user ) || !isset( $this->password ) ) {
               $this->loginstate = false;
-              return null;
+              return false;
           }
 
           if ( $this->simulator ) {

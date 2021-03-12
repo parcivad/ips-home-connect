@@ -36,6 +36,27 @@
           $api->SetSimulator( $this->ReadPropertyBoolean('simulator') );
 
           $data = $api->Api("homeappliances")['data']['homeappliances'];
+          if ( !$data ) {
+
+              $error = [];
+
+              $error_module[] = [
+                  'name' => '-',
+                  'device' => '-',
+                  'company' => '-',
+                  'haId' => 'LOGIN FAILED!',
+                  'connected' => '-',
+                  'rowColor' => '#FF0000',
+                  'create'     => [
+                      'moduleID'      => '{09AEFA0B-1494-CB8B-A7C0-1982D0D99C7E}',
+                      'configuration' => [],
+                  ],
+              ];
+
+              array_push( $error, $error_module );
+
+              return $error;
+          }
           $len = count($data);
 
           $devices = [];
