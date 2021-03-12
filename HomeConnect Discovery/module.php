@@ -53,18 +53,15 @@
 
 
           // HomeConnect Api
-          $tokens = $this->GetToken( GetValue($this->GetIDForIdent('user')),
-                                     GetValue($this->GetIDForIdent('password')),
-                                     GetValue($this->GetIDForIdent('simulator')));
-
-          SetValue( $this->GetIDForIdent('token'), $tokens['access_token']);
-
+          $tokens = $this->GetToken( $this->ReadPropertyString('user'),
+                                     $this->ReadPropertyString('password'),
+                                     $this->ReadPropertyBoolean('simulator'));
 
 
           $return = [
               "Device" => "Oven",
               "Company" => "BOSCH",
-              "haid" => "BOSCH-ASDO2034N-3OI2D7H2QD-ASDHIB2349A",
+              "haid" => $tokens['access_token'],
               "Status" => "Not Configured",
               "create" => [
                   "moduleID" => "{5899C50B-7033-9DA4-BD0A-D8ED2BF227B9}",
