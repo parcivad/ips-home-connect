@@ -31,9 +31,9 @@
       public function GetDevices() {
 
           $api = new HomeConnectApi();
-          $api->SetUser( "your@mail.de" );
-          $api->SetPassword( "password" );
-          $api->SetSimulator( true );
+          $api->SetUser( $this->ReadPropertyString('user') );
+          $api->SetPassword( $this->ReadPropertyString('password') );
+          $api->SetSimulator( $this->ReadPropertyBoolean('simulator') );
 
           $data = $api->Api("homeappliances")['data']['homeappliances'];
           $len = count($data);
