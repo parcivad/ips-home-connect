@@ -101,11 +101,6 @@
                   "caption" => "HomeConnect - Password",
               ],
               [
-                  "type" => "ValidationTextBox",
-                  "name" => "token",
-                  "caption" => "Current Token",
-              ],
-              [
                   "type" => "CheckBox",
                   "name" => "simulator",
                   "caption" => "HomeConnect Simulation verwenden."
@@ -143,7 +138,9 @@
                           "add" => false,
                       ],
                   ],
-                  "values" => $this->GetDevices(),
+                  "values" => [
+                      $this->GetDevices(),
+                  ],
               ],
           ];
 
