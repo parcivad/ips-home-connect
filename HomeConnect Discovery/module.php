@@ -35,6 +35,9 @@
           $api->SetSimulator( $this->ReadPropertyBoolean('simulator') );
 
           $data = $api->Api("homeappliances")['data']['homeappliances'];
+          // catch null exception
+          if ( !isset( $data) ) { return [ 'name' => 'Login failed [Token/Auth]', 'rowColor' => '#ff0000']; }
+
           $len = count($data);
 
           $devices = [];

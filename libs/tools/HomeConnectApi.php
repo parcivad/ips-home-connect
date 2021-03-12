@@ -31,10 +31,10 @@
           // Checking for errors after GetToken/Authorizaition
           if ( !$this->tokenstate ) {
               // A error appeared while trying to get token
-              return [];
+              return null;
           } else if ( !$this->loginstate ) {
               // A error appeared while trying to authorize or get token, Check function for more detail
-              return [];
+              return null;
           }
 
           if ( $this->simulator ) {
