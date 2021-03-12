@@ -104,6 +104,11 @@
        */
       public function GetToken() {
 
+          if ( !isset( $this->user ) || !isset( $this->password ) ) {
+              $this->loginstate = false;
+              return false;
+          }
+
           if ( $this->CheckToken() ) {
               return $this->access_token;
           }
@@ -164,6 +169,8 @@
           $this->refresh_token = $tokens['refresh_token'];
           $this->expires_in = $tokens['expires_in'];
           $this->scope = $tokens['scope'];
+
+          $this->loginstate = true;
 
           return $tokens;
       }
