@@ -28,32 +28,6 @@
           parent::ApplyChanges();
       }
 
-      public function GetDevices() {
-
-          $api = new HomeConnectApi();
-          $api->SetUser( "your@mail.de" );
-          $api->SetPassword( "password" );
-          $api->SetSimulator( true );
-
-          $data = $api->Api("homeappliances")['data']['homeappliances'];
-
-          /*
-          $config_list[] = [
-              'Device' => $type,
-              'Company' => $brand,
-              'haid' => $haId,
-              'Connected' => $connected,
-              'create'     => [
-                  'moduleID'      => '{09AEFA0B-1494-CB8B-A7C0-1982D0D99C7E}',
-                  'configuration' => [],
-              ],
-          ];
-          */
-
-      }
-
-
-
       public function GetConfigurationForm()
       {
           // return current form
@@ -96,7 +70,7 @@
           $api->SetPassword( "password" );
           $api->SetSimulator( true );
 
-          $form[] = [
+          $form = [
               [
                   "type" => "ValidationTextBox",
                   "name" => "user",
@@ -151,7 +125,7 @@
                           "add" => false,
                       ],
                   ],
-                  "values" => [],
+                  "values" => $api->Api("homeappliances")['data']['homeappliances'],
               ],
           ];
 
@@ -162,7 +136,7 @@
        * @return array[] Form Status
        */
       protected function FormStatus() {
-          $form[] = [
+          $form = [
               [
                   'code'    => 101,
                   'icon'    => 'inactive',
