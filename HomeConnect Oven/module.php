@@ -17,6 +17,9 @@
 
           // Erstellt einen Timer mit dem Namen "Update" und einem Intervall von 5 Sekunden.
           $this->RegisterTimer("refresh", 1000, "Refresh();");
+
+          // Register Variable
+          $this->RegisterVariableInteger('test', 0);
       }
 
       public function ApplyChanges()
@@ -30,7 +33,7 @@
       }
 
       public function Refresh() {
-          echo "refresh!";
+          $this->SetValue( 'test', 1 );
       }
 
       // BUILDING FORM
