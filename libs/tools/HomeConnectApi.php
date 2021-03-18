@@ -1,5 +1,13 @@
 <?php
 
+$api = new HomeConnectApi();
+$api->SetUser( 'test@test' );
+$api->SetPassword( 'mh' );
+$api->SetSimulator( true );
+
+var_dump( $api->Api( 'homeappliances'));
+
+
   class HomeConnectApi
   {
 
@@ -209,9 +217,6 @@
               return "Login Data is missing (User or password)";
           }
 
-          // if empty
-          $header_array = [];
-
           if ( $this->simulator ) {
               // If the User is using the simulator
               //------------------------------< Configure parameters for Simulator connection >-----
@@ -267,8 +272,6 @@
           $redirected_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
           // close curl
           curl_close($ch);
-
-          print_r( $url . $params );
 
           $code = explode('=', $redirected_url);
 
