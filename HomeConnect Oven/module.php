@@ -84,7 +84,7 @@
           $DoorState = $data['data']['status'][3]['value'];
           $Temperature = $data['data']['status'][4]['value'];
 
-          $this->SetValue("door", $DoorState );
+          $this->SetValue("door", boolval( $DoorState ) );
           $this->SetValue("temperature", $Temperature );
       }
 
