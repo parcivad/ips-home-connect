@@ -1,26 +1,5 @@
 <?php
 
-$api = new HomeConnectApi();
-
-$api->SetUser('HomeConnect.timur@4stegmanns.de');
-$api->SetPassword('v)3Jh\cb^Yr;t)bXy');
-$api->SetSimulator( false );
-
-print_r( $api->Authorize() );
-
-
-/*
- * aborted: false
-client_id: 35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5
-accept_language: de
-region: EU
-environment: PRD
-email: HomeConnect.timur%404stegmanns.de
-password: v%293Jh%5Ccb%5EYr%3Bt%29bXy
- */
-
-
-
   class HomeConnectApi
   {
 
@@ -36,6 +15,28 @@ password: v%293Jh%5Ccb%5EYr%3Bt%29bXy
 
       private $loginstate = false; // Error analysis in Authorization
       private $tokenstate = false; // Error analysis in GetToken
+
+
+      /** Set the User of the API
+       * @param string $user Email of the account
+       */
+      public function SetUser( $user="" ) {
+          $this->user = $user;
+      }
+
+      /** Set the Password of the User API
+       * @param string $password Password of the account
+       */
+      public function SetPassword( $password="" ) {
+          $this->password = $password;
+      }
+
+      /** Set if the Api should work with the simulator
+       * @param false $simulator
+       */
+      public function SetSimulator( $simulator=false ) {
+          $this->simulator = $simulator;
+      }
 
       /**
        * @param $command String Sending this command to the Api of HomeConnect
@@ -98,28 +99,6 @@ password: v%293Jh%5Ccb%5EYr%3Bt%29bXy
           $result_array = json_decode($result_formatted, true);
 
           return $result_array;
-      }
-
-
-      /** Set the User of the API
-       * @param string $user Email of the account
-       */
-      public function SetUser( $user="" ) {
-          $this->user = $user;
-      }
-
-      /** Set the Password of the User API
-       * @param string $password Password of the account
-       */
-      public function SetPassword( $password="" ) {
-          $this->password = $password;
-      }
-
-      /** Set if the Api should work with the simulator
-       * @param false $simulator
-       */
-      public function SetSimulator( $simulator=false ) {
-          $this->simulator = $simulator;
       }
 
       /**
@@ -266,16 +245,14 @@ password: v%293Jh%5Ccb%5EYr%3Bt%29bXy
           $params = http_build_query($params_array);
           $params = str_replace( "+", "%20", $params );
           // define endpoint for authorization
-          $endpoint = "/security/oauth/login?";
+          $endpoint = "/security/oauth/authorize?";
           // build url
           $url = "https://" . $connect . ".home-connect.com" . $endpoint;
           //-------------------------------------------------------------------------------------
 
           // configure curl curl options in array
           $curloptions = array(
-              CURLOPT_URL => $url,
-              CURLOPT_POST => true,
-              CURLOPT_POSTFIELDS => $params,
+              CURLOPT_URL => $url . $params,
               CURLOPT_TIMEOUT => 10,
               CURLOPT_FOLLOWLOCATION => true,
               CURLOPT_RETURNTRANSFER => true,
