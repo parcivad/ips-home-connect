@@ -1,0 +1,15 @@
+{
+  "id": "{F8AE3556-6835-DD3C-E8E0-F686BE81850D}",
+  "name": "HomeConnect Dryer",
+  "type": 3,
+  "vendor": "HomeConnect GmbH",
+  "aliases":
+  [
+    "HomeConnect Dryer"
+  ],
+  "url": "https://github.com/LegendDragon11",
+  "parentRequirements": [],
+  "childRequirements": [],
+  "implemented": [],
+  "prefix": "HomeConnectDevice"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "{D5EF280F-8F60-C250-008F-8B17C4B69FD2}",
+  "name": "HomeConnect CoffeeMaker",
+  "type": 3,
+  "vendor": "HomeConnect GmbH",
+  "aliases":
+  [
+    "HomeConnect CoffeeMaker"
+  ],
+  "url": "https://github.com/LegendDragon11",
+  "parentRequirements": [],
+  "childRequirements": [],
+  "implemented": [],
+  "prefix": "HomeConnectDevice"
+}
