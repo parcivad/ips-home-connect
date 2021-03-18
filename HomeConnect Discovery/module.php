@@ -68,6 +68,9 @@
                       case "CoffeeMaker":
                           $module = "{D5EF280F-8F60-C250-008F-8B17C4B69FD2}";
                           break;
+                      case "FridgeFreezer":
+                          $module = "{B03C2C23-A59C-026C-AD0B-CEA47312A5AB}";
+                          break;
                   }
 
 
