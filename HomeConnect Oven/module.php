@@ -19,7 +19,15 @@
           $this->RegisterTimer("refresh", 1000, "HomeConnectDevice_Refresh( $this->InstanceID );");
 
           // Register Variable
-          $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -1);
+          $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -1 );
+
+          $this->RegisterVariableBoolean("connected", "Connected", "", 0 );
+          $this->RegisterVariableBoolean("power", "Powerstate", "", 0 );
+          $this->RegisterVariableBoolean("door", "Doorstate", "", 0 );
+          $this->RegisterVariableBoolean("heating", "Heating Mode", "", 0);
+          $this->RegisterVariableInteger("temperature", "Temperature", "", 0 );
+          $this->RegisterVariableInteger("timer", "Timer", "UnixTimestampTime", 0);
+          $this->RegisterVariableBoolean("Programm", "Programm running", "", 0 );
       }
 
       public function ApplyChanges()
