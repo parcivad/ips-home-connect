@@ -74,7 +74,9 @@
                       'connected' => $connected,
                       'create'     => [
                           'moduleID'      => '{5899C50B-7033-9DA4-BD0A-D8ED2BF227B9}',
-                          'configuration' => [],
+                          'configuration' => [
+                              'user' => $this->ReadPropertyString('user'),
+                          ],
                       ],
                   ];
               }
