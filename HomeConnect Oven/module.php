@@ -53,8 +53,7 @@
           $form = [
               [
                   "type" => "Label",
-                  "name" => "user",
-                  "caption" => "HomeConnect - User-Email",
+                  "caption" => $this->ReadPropertyString('user'),
               ],
           ];
 
