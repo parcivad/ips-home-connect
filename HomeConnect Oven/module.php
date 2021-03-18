@@ -16,7 +16,7 @@
           $this->RegisterPropertyInteger("refreshRate", 5 );
 
           // timer
-          $this->RegisterTimer("Update", 5000, "echo 'Hallo Welt';");
+          $this->RegisterTimer("Update", 5000, "Check();");
       }
 
       public function ApplyChanges()
@@ -25,6 +25,9 @@
           parent::ApplyChanges();
       }
 
+      public function Check() {
+          $this->SendDebug("timer running");
+      }
 
       // BUILDING FORM
       public function GetConfigurationForm()
