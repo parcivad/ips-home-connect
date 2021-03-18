@@ -1,5 +1,8 @@
 <?php
 
+  define('__ROOT__', dirname(dirname(__FILE__)));
+  require_once(__ROOT__ . "/libs/tools/HomeConnectApi.php");
+
   class HomeConnectOven extends IPSModule {
 
       public function Create() {
