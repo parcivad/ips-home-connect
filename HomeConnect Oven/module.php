@@ -6,7 +6,7 @@
           // Overwrite ips function
           parent::Create();
 
-          $this->RegisterAttributeString('user', '');
+          $this->RegisterPropertyString('user', '');
       }
 
       public function ApplyChanges()
