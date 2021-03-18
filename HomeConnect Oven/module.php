@@ -16,7 +16,9 @@
           $this->RegisterPropertyInteger("refreshRate", 5 );
 
           // timer
-          $this->RegisterTimer("Update", 5000, "$this->SendDebug('wow');echo 'Hallo Welt';");
+          $this->RegisterTimer("Update", 5000, "echo 'Hallo Welt';");
+
+          $this->SendDebug("Module creating done!");
       }
 
       public function ApplyChanges()
