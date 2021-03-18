@@ -14,6 +14,9 @@
 
           // Set by User
           $this->RegisterPropertyInteger("refreshRate", 5 );
+
+          // timer
+          $this->RegisterTimer("Update", 5000, "echo 'Hallo Welt';");
       }
 
       public function ApplyChanges()
@@ -114,13 +117,6 @@
                   "suffix" => "min",
                   "visible" => true,
               ],
-              [
-                  "type" => "HorizontalSlider",
-                  "name" => "Slider",
-                  "caption" => "ID-Schieberegler",
-                  "minimum" => 0,
-                  "maximum" => 16,
-              ]
           ];
 
           return $form;
