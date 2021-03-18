@@ -16,13 +16,21 @@
           $this->RegisterPropertyInteger("refreshRate", 5 );
 
           // Erstellt einen Timer mit dem Namen "Update" und einem Intervall von 5 Sekunden.
-          $this->RegisterTimer("Update", 1000, "echo 'Hallo Welt';");
+          $this->RegisterTimer("refresh", 1000, "Refresh();");
       }
 
       public function ApplyChanges()
       {
           // Overwrite ips function
           parent::ApplyChanges();
+
+          // Change Timer
+          $rate = ( $this->ReadPropertyInteger("refreshRate") * 1000 ) * 60;
+          $this->SetTimerInterval("refresh", $rate );
+      }
+
+      public function Refresh() {
+          echo "refresh!";
       }
 
       // BUILDING FORM
