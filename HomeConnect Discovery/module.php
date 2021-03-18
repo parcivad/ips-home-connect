@@ -58,6 +58,18 @@
                   $type = $device['type'];
                   $haId = $device['haId'];
 
+                  switch ( $type ) {
+                      case "Dryer":
+                          $module = "{F8AE3556-6835-DD3C-E8E0-F686BE81850D}";
+                          break;
+                      case "Oven":
+                          $module = "{5899C50B-7033-9DA4-BD0A-D8ED2BF227B9}";
+                          break;
+                      case "CoffeeMaker":
+                          $module = "{D5EF280F-8F60-C250-008F-8B17C4B69FD2}";
+                          break;
+                  }
+
 
                   $config_list[] = [
                       'name' => $name,
@@ -66,7 +78,7 @@
                       'haId' => $haId,
                       'connected' => $connected,
                       'create'     => [
-                          'moduleID'      => '{5899C50B-7033-9DA4-BD0A-D8ED2BF227B9}',
+                          'moduleID'      => $module,
                           'configuration' => [
                               'name' => $name,
                               'device' => $type,
