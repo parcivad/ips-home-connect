@@ -19,7 +19,7 @@
           $this->RegisterTimer("refresh", 1000, "HomeConnectDevice_Refresh( $this->InstanceID );");
 
           // Register Variable
-          $this->RegisterVariableInteger('test', "test", "", -1);
+          $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -1);
       }
 
       public function ApplyChanges()
@@ -29,11 +29,8 @@
 
           // Change Timer
           $rate = ( $this->ReadPropertyInteger("refreshRate") * 1000 ) * 60;
-          $this->SetTimerInterval("refresh", $rate );
-      }
+          $this->SetTimerInterval("LastRefresh", $rate );
 
-      public function Refresh() {
-          $this->SetValue( 'test', 1 );
       }
 
       // BUILDING FORM
@@ -49,6 +46,10 @@
           $this->SendDebug('FORM', json_last_error_msg(), 0);
 
           return $Form;
+      }
+
+      public function Refresh() {
+          $this->SetValue( 'LastRefresh', time() );
       }
 
 
