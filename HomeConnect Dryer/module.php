@@ -1,5 +1,7 @@
 <?php
 
+  define('__ROOT__', dirname(dirname(__FILE__)));
+
   class HomeConnectCoffeeMaker extends IPSModule {
 
       public function Create() {
@@ -53,10 +55,12 @@
        * @return array[] Form Elements
        */
       protected function FormElements() {
+          include(__ROOT__ . "/libs/img/imgs.php");
+
           $form = [
               [
                   "type" => "Image",
-                  "image" => "",
+                  "image" => $DryerImg,
               ],
           ];
 
@@ -95,5 +99,6 @@
 
 
   }
+
 
 ?>
