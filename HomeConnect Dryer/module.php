@@ -60,6 +60,48 @@
                   "type" => "Image",
                   "image" => DryerImg,
               ],
+              [
+                  "type" => "List",
+                  "name" => "DeviceInfo",
+                  "caption" => "Informationen zu dem Home Connect Gerät [ Trockner ]",
+                  "rowCount" => 1,
+                  "add" => false,
+                  "delete" => false,
+                  "columns" => [
+                      [
+                          "caption" => "Name",
+                          "name" => "name",
+                          "width" => "200px",
+                          "add" => false,
+                      ],
+                      [
+                          "caption" => "Device",
+                          "name" => "device",
+                          "width" => "120px",
+                          "add" => false,
+                      ],
+                      [
+                          "caption" => "Company",
+                          "name" => "company",
+                          "width" => "120px",
+                          "add" => false,
+                      ],
+                      [
+                          "caption" => "haId",
+                          "name" => "haId",
+                          "width" => "auto",
+                          "add" => false,
+                      ],
+                  ],
+                  "values" => [
+                      [
+                          "name" => $this->ReadPropertyString("name"),
+                          "device" => $this->ReadPropertyString( "device"),
+                          "company" => $this->ReadPropertyString( "company"),
+                          "haId" => $this->ReadPropertyString( "haId"),
+                      ],
+                  ],
+              ],
           ];
 
           return $form;
