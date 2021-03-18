@@ -26,7 +26,7 @@
       }
 
       public function Check() {
-          $this->SendDebug("timer running");
+          $this->SendDebug("timer running", "Wow", 0);
       }
 
       // BUILDING FORM
