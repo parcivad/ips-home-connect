@@ -58,15 +58,8 @@
                   $type = $device['type'];
                   $haId = $device['haId'];
 
-                  if ( $connected == true ) {
-                      $color = "#c0ffc0";
-                  } else if ( $connected == false ) {
-                      $color = '#ffffc0';
-                  }
-
 
                   $config_list[] = [
-                      'rowColor' => $color,
                       'name' => $name,
                       'device' => $type,
                       'company' => $brand,
@@ -75,7 +68,10 @@
                       'create'     => [
                           'moduleID'      => '{5899C50B-7033-9DA4-BD0A-D8ED2BF227B9}',
                           'configuration' => [
-                              'user' => $this->ReadPropertyString('user'),
+                              'name' => $name,
+                              'device' => $type,
+                              'company' => $brand,
+                              'haId' => $haId,
                           ],
                       ],
                   ];

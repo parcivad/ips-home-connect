@@ -6,7 +6,10 @@
           // Overwrite ips function
           parent::Create();
 
-          $this->RegisterPropertyString('user', '');
+          $this->RegisterPropertyString('name', '');
+          $this->RegisterPropertyString('device', '');
+          $this->RegisterPropertyString('company', '');
+          $this->RegisterPropertyString('haId', '');
       }
 
       public function ApplyChanges()
@@ -50,10 +53,12 @@
        * @return array[] Form Elements
        */
       protected function FormElements() {
+          $imgs = file_get_contents(__ROOT__ . "/libs/img/imgs.json");
+
           $form = [
               [
-                  "type" => "Label",
-                  "caption" => $this->ReadPropertyString('user'),
+                  "type" => "Image",
+                  "image" => $imgs['Oven'],
               ],
           ];
 
