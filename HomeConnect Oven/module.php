@@ -16,7 +16,7 @@
           $this->RegisterPropertyInteger("refreshRate", 5 );
 
           // Erstellt einen Timer mit dem Namen "Update" und einem Intervall von 5 Sekunden.
-          $this->RegisterTimer("Update", 5000, "echo 'Hallo Welt';");
+          $this->RegisterTimer("Update", 1000, "echo 'Hallo Welt';");
       }
 
       public function ApplyChanges()
