@@ -52,7 +52,7 @@
       protected function FormElements() {
           $form = [
               [
-                  "type" => "TextBox",
+                  "type" => "Label",
                   "name" => "user",
                   "caption" => "HomeConnect - User-Email",
               ],
