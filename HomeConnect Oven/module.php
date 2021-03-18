@@ -18,7 +18,7 @@
           // timer
           $this->RegisterTimer("Update", 5000, "echo 'Hallo Welt';");
 
-          $this->SendDebug("Module creating done!");
+          $this->SendDebug("Module creating done!", "", 0);
       }
 
       public function ApplyChanges()
