@@ -6,10 +6,14 @@
           // Overwrite ips function
           parent::Create();
 
+          // Device Information, set by Configurator
           $this->RegisterPropertyString('name', '');
           $this->RegisterPropertyString('device', '');
           $this->RegisterPropertyString('company', '');
           $this->RegisterPropertyString('haId', '');
+
+          // Set by User
+          $this->RegisterPropertyInteger("refreshRate", 5 );
       }
 
       public function ApplyChanges()
@@ -61,7 +65,7 @@
               [
                   "type" => "List",
                   "name" => "DeviceInfo",
-                  "caption" => "Informationen zu dem Home Connect Gerät [ Ofen ]",
+                  "caption" => "Information to the Home Connect Device [ Oven ]",
                   "rowCount" => 1,
                   "add" => false,
                   "delete" => false,
@@ -100,6 +104,16 @@
                       ],
                   ],
               ],
+              [
+                  "type" => "Numberspinner",
+                  "name" => "refreshRate",
+                  "caption" => "Refresh Rate",
+                  "enable" => true,
+                  "maximum" => 60,
+                  "minimum" => 1,
+                  "suffix" => "min",
+                  "visible" => true,
+              ]
           ];
 
           return $form;
