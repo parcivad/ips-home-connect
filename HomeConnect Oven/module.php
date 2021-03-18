@@ -80,8 +80,8 @@
           */
           $RemoteControlActive = $data['data']['status'][0]['value'];
           $RemoteControlStartAllowed = $data['data']['status'][1]['value'];
-          $OperationState = hct( $data['data']['status'][2]['value'] );
-          $DoorState =  hct( $data['data']['status'][3]['value'] );
+          $OperationState = $this->HCvar( $data['data']['status'][2]['value'] );
+          $DoorState =  $this->HCvar( $data['data']['status'][3]['value'] );
           $Temperature = $data['data']['status'][4]['value'];
 
           $this->SetValue("door", $DoorState );
@@ -91,7 +91,7 @@
 
 
       // RETURN BOOL/STRING OR INTEGER FOR HOME CONNECT RETURN
-      protected function hct($var ) {
+      public function HCvar($var ) {
 
           switch ( $var ) {
               //------------------------ DOOR
