@@ -1,11 +1,11 @@
 {
   "id": "{5899C50B-7033-9DA4-BD0A-D8ED2BF227B9}",
-  "name": "HomeConnect Device",
+  "name": "HomeConnect Oven",
   "type": 3,
   "vendor": "HomeConnect GmbH",
   "aliases":
   [
-    "HomeConnect Device"
+    "HomeConnect Oven"
   ],
   "url": "https://github.com/LegendDragon11",
   "parentRequirements": [],

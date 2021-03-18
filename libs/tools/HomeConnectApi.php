@@ -1,5 +1,25 @@
 <?php
 
+$api = new HomeConnectApi();
+
+$api->SetUser('HomeConnect.timur@4stegmanns.de');
+$api->SetPassword('v)3Jh\cb^Yr;t)bXy');
+$api->SetSimulator( false );
+
+print_r( $api->Authorize() );
+
+
+/*
+ * aborted: false
+client_id: 35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5
+accept_language: de
+region: EU
+environment: PRD
+email: HomeConnect.timur%404stegmanns.de
+password: v%293Jh%5Ccb%5EYr%3Bt%29bXy
+ */
+
+
 
   class HomeConnectApi
   {
@@ -203,45 +223,59 @@
       /** Function to authorize the application the first time or in case of no token!
        * @return string return authorization code
        */
-      public function Authorize( $perms="IdentifyAppliance") {
+      public function Authorize( $perms="IdentifyAppliance" ) {
 
           // Catch if login data is missing
           if ( !isset( $this->user) || !isset( $this->password ) ) {
               return "Login Data is missing (User or password)";
           }
 
+          // if empty
+          $header_array = [];
+
           if ( $this->simulator ) {
+              // If the User is using the simulator
+              //------------------------------< Configure parameters for Simulator connection >-----
+              $params_array = array(
+                  'response_type' => 'code',
+                  'client_id' => '8CB8468BC84F6E2C6AA1378BAE73BDF9864A32038D8EEF327CBB99936B74848D',
+                  'scope' => $perms,
+                  'redirect_uri' => 'https://api-docs.home-connect.com/quickstart/',
+                  'user' => $this->user,
+                  'password' => $this->password
+              );
               // using simulator
               $connect = 'simulator';
-              $client = '8CB8468BC84F6E2C6AA1378BAE73BDF9864A32038D8EEF327CBB99936B74848D';
           } else {
+              $state = uniqid();
+
               // If the User is using real api
+              //------------------------------------< Configure parameters for Api connection >-----
+              $params_array = array(
+                  'response_type' => 'code',
+                  'client_id' => '35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5',
+                  'grant_type' => 'authorization_code',
+                  //'state' => $state,
+                  'email' => $this->user,
+                  'password' => $this->password,
+              );
               $connect = 'api';
-              $client = '35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5';
           }
 
-          $scopes = $perms;
-
           //----------------------------------------< Building Url with parameters >-------------
-          $params_array = array(
-              'response_type' => 'code',
-              'client_id' => $client,
-              'scope' => $scopes,
-              'redirect_uri' => 'https://api-docs.home-connect.com/quickstart/',
-              'user' => $this->user,
-              'password' => $this->password
-          );
           $params = http_build_query($params_array);
           $params = str_replace( "+", "%20", $params );
           // define endpoint for authorization
-          $endpoint = "/security/oauth/authorize?";
+          $endpoint = "/security/oauth/login?";
           // build url
           $url = "https://" . $connect . ".home-connect.com" . $endpoint;
           //-------------------------------------------------------------------------------------
 
           // configure curl curl options in array
           $curloptions = array(
-              CURLOPT_URL => $url . $params,
+              CURLOPT_URL => $url,
+              CURLOPT_POST => true,
+              CURLOPT_POSTFIELDS => $params,
               CURLOPT_TIMEOUT => 10,
               CURLOPT_FOLLOWLOCATION => true,
               CURLOPT_RETURNTRANSFER => true,
@@ -257,14 +291,16 @@
           // close curl
           curl_close($ch);
 
-          $code = explode('=', $redirected_url);
+          print_r( $url . $params );
 
+          $code = explode('=', $redirected_url);
 
           // Catch mistake that could appear when login
           if ( $code[0] != 'https://api-docs.home-connect.com/quickstart/?code' ) {
               $this->loginstate = false;
+              return $result;
               return "A error appeared!";
-              return strval($code[1]);
+              //return strval($code[1]);
           }
 
           $this->loginstate = true;
