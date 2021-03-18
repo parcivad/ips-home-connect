@@ -16,10 +16,10 @@
           $this->RegisterPropertyInteger("refreshRate", 5 );
 
           // Erstellt einen Timer mit dem Namen "Update" und einem Intervall von 5 Sekunden.
-          $this->RegisterTimer("refresh", 1000, "Refresh();");
+          $this->RegisterTimer("refresh", 1000, "HomeConnectDevice_Refresh();");
 
           // Register Variable
-          $this->RegisterVariableInteger('test', 0);
+          $this->RegisterVariableInteger('test', "test", "", -1);
       }
 
       public function ApplyChanges()
