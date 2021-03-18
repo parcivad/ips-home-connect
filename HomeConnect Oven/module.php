@@ -113,6 +113,13 @@
                   "minimum" => 1,
                   "suffix" => "min",
                   "visible" => true,
+              ],
+              [
+                  "type" => "HorizontalSlider",
+                  "name" => "Slider",
+                  "caption" => "ID-Schieberegler",
+                  "minimum" => 0,
+                  "maximum" => 16,
               ]
           ];
 
