@@ -16,17 +16,13 @@
           $this->RegisterPropertyInteger("refreshRate", 5 );
 
           // timer
-          $this->RegisterTimer("Update", 5000, "Check();");
+          $this->RegisterTimer("Update", 5000, "$this->SendDebug('wow');echo 'Hallo Welt';");
       }
 
       public function ApplyChanges()
       {
           // Overwrite ips function
           parent::ApplyChanges();
-      }
-
-      public function Check() {
-          $this->SendDebug("timer running", "Wow", 0);
       }
 
       // BUILDING FORM
