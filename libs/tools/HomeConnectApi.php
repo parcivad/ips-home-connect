@@ -1,5 +1,49 @@
 <?php
 
+$api = new HomeConnectApi();
+$api->SetUser( 'user@mail.de' );
+$api->SetPassword( 'password' );
+$api->SetSimulator( true );
+
+$data = $api->Api("homeappliances/BOSCH-HCS01OVN1-319994D4D470/status");
+
+// catch null exception
+if ( $data == null ) { $error_return = "error"; return $error_return;}
+/* ARRAY BUILD ['data']['status']
+ *
+ * [0]['value']   BSH.Common.Status.RemoteControlActive
+ * [1]['value']   BSH.Common.Status.RemoteControlStartAllowed
+ * [2]['value']   BSH.Common.Status.OperationState
+ * [3]['value']   BSH.Common.Status.DoorState
+ * [4]['value']   Cooking.Oven.Status.CurrentCavityTemperature
+ *
+*/
+$RemoteControlActive = $data['data']['status'][0]['value'];
+$RemoteControlStartAllowed = $data['data']['status'][1]['value'];
+$OperationState = $data['data']['status'][2]['value'];
+$DoorState = $data['data']['status'][3]['value'];
+$Temperature = $data['data']['status'][4]['value'];
+
+var_dump($RemoteControlStartAllowed);
+
+switch ($OperationState) {
+    //------------------------ DOOR
+    // Return for Open Door
+    case "BSH.Common.EnumType.DoorState.Open":
+        return true;
+    // Return for Close Door
+    case "BSH.Common.EnumType.DoorState.Closed":
+        return false;
+        break;
+    //------------------------ OPERATION STATE
+    // Return for Operation Ready
+    case "BSH.Common.EnumType.OperationState.Ready":
+        return false;
+    // Return for Operation Running
+    case "BSH.Common.EnumType.OperationState.Run":
+        return true;
+        break;
+}
 
   class HomeConnectApi
   {
