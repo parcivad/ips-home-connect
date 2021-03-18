@@ -57,9 +57,33 @@
       }
 
       public function Refresh() {
-          $this->SetValue( 'LastRefresh', time() );
-      }
+          $api = new HomeConnectApi();
+          $api->SetUser( 'user@mail.de' );
+          $api->SetPassword( 'password' );
+          $api->SetSimulator( true );
 
+          $data = $api->Api("homeappliances/BOSCH-HCS01OVN1-319994D4D470/status");
+
+          // catch null exception
+          if ( $data == null ) { $error_return = "error"; return $error_return;}
+          /* ARRAY BUILD ['data']['status']
+           *
+           * [0]['value']   BSH.Common.Status.RemoteControlActive
+           * [1]['value']   BSH.Common.Status.RemoteControlStartAllowed
+           * [2]['value']   BSH.Common.Status.OperationState
+           * [3]['value']   BSH.Common.Status.DoorState
+           * [4]['value']   Cooking.Oven.Status.CurrentCavityTemperature
+           *
+          */
+          $RemoteControlActive = $data['data']['status'][0]['value'];
+          $RemoteControlStartAllowed = $data['data']['status'][1]['value'];
+          $OperationState = $data['data']['status'][2]['value'];
+          $DoorState = $data['data']['status'][3]['value'];
+          $Temperature = $data['data']['status'][4]['value'];
+
+          $this->SetValue("door", $DoorState );
+          $this->SetValue("temperature", $Temperature );
+      }
 
 
       /**

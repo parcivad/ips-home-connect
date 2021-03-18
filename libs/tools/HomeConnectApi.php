@@ -1,5 +1,6 @@
 <?php
 
+
   class HomeConnectApi
   {
 
@@ -202,7 +203,7 @@
       /** Function to authorize the application the first time or in case of no token!
        * @return string return authorization code
        */
-      public function Authorize( $perms="IdentifyAppliance" ) {
+      public function Authorize( $perms="IdentifyAppliance Monitor" ) {
 
           // Catch if login data is missing
           if ( !isset( $this->user) || !isset( $this->password ) ) {
