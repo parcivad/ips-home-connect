@@ -29,7 +29,7 @@
 
           // Change Timer
           $rate = ( $this->ReadPropertyInteger("refreshRate") * 1000 ) * 60;
-          $this->SetTimerInterval("LastRefresh", $rate );
+          $this->SetTimerInterval("refresh", $rate );
 
       }
 
