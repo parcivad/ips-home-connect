@@ -275,9 +275,7 @@
           // Catch mistake that could appear when login
           if ( $code[0] != 'https://api-docs.home-connect.com/quickstart/?code' ) {
               $this->loginstate = false;
-              return $result;
               return "A error appeared!";
-              //return strval($code[1]);
           }
 
           $this->loginstate = true;
