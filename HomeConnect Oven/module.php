@@ -105,7 +105,7 @@
                   ],
               ],
               [
-                  "type" => "Numberspinner",
+                  "type" => "NumberSpinner",
                   "name" => "refreshRate",
                   "caption" => "Refresh Rate",
                   "enable" => true,
