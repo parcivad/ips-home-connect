@@ -71,6 +71,22 @@
           $DoorState =  $this->HCvar( $data['data']['status'][3]['value'] );
           $Temperature = $data['data']['status'][4]['value'];
 
+          // Remote Control
+          if ( $RemoteControlStartAllowed ) {
+              $RemoteControlStartAllowed = "Device allowing RemoteControlStart";
+          } else {
+              $RemoteControlStartAllowed = "Device cancelled RemoteControlStart";
+          }
+
+          // Remote Control
+          if ( $RemoteControlAllowed ) {
+              $RemoteControlAllowed = "Device allowing RemoteControl";
+          } else {
+              $RemoteControlAllowed = "Device cancelled RemoteControl";
+          }
+
+
+
           // put data into IP Symcon Vars or Attribute
           $this->WriteAttributeBoolean( 'remoteControlAllowed', $RemoteControlAllowed );
           $this->WriteAttributeBoolean( 'remoteStartAllowed', $RemoteControlStartAllowed );
@@ -219,6 +235,22 @@
                           "device" => $this->ReadPropertyString( "device"),
                           "company" => $this->ReadPropertyString( "company"),
                           "haId" => $this->ReadPropertyString( "haId"),
+                      ],
+                  ],
+              ],
+              [
+                  "type" => "ExpansionPanel",
+                  "caption" => "System Device Information [IMPORTANT]",
+                  "items" => [
+                      [
+                          "type" => "Label",
+                          "name" => "remoteControlAllowed",
+                          "caption" => $this->ReadAttributeString('remoteControlAllowed'),
+                      ],
+                      [
+                          "type" => "Label",
+                          "name" => "remoteStartAllowed",
+                          "caption" => $this->ReadAttributeString('remoteStartAllowed'),
                       ],
                   ],
               ],
