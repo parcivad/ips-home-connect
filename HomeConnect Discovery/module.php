@@ -96,8 +96,6 @@
           return  $config_list;
       }
 
-
-
       public function GetConfigurationForm()
       {
           // return current form
@@ -111,8 +109,6 @@
 
           return $Form;
       }
-
-
 
       /**
        * @return array[] Form Actions

@@ -2,6 +2,12 @@
 
   define( 'database', json_decode( file_get_contents("database.json"), true ) );
 
+$api = new HomeConnectApi();
+
+$data = $api->Api("homeappliances/BOSCH-HCS01OVN1-319994D4D470/status");
+
+var_dump($data);
+
   class HomeConnectApi
   {
 

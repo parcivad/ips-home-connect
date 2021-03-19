@@ -62,21 +62,17 @@
 
           // catch null exception
           if ( $data == null ) { $error_return = "error"; return $error_return;}
-          /* ARRAY BUILD ['data']['status']
-           *
-           * [0]['value']   BSH.Common.Status.RemoteControlActive
-           * [1]['value']   BSH.Common.Status.RemoteControlStartAllowed
-           * [2]['value']   BSH.Common.Status.OperationState
-           * [3]['value']   BSH.Common.Status.DoorState
-           * [4]['value']   Cooking.Oven.Status.CurrentCavityTemperature
-           *
-          */
-          $RemoteControlActive = $data['data']['status'][0]['value'];
+
+          // Getting each data into variables
+          $RemoteControlAllowed = $data['data']['status'][0]['value'];
           $RemoteControlStartAllowed = $data['data']['status'][1]['value'];
           $OperationState = $this->HCvar( $data['data']['status'][2]['value'] );
           $DoorState =  $this->HCvar( $data['data']['status'][3]['value'] );
           $Temperature = $data['data']['status'][4]['value'];
 
+          // put data into IP Symcon Vars or Attribute
+          $this->WriteAttributeBoolean( 'remoteControlAllowed', $RemoteControlAllowed );
+          $this->WriteAttributeBoolean( 'remoteStartAllowed', $RemoteControlStartAllowed );
           $this->SetValue("door", $DoorState );
           $this->SetValue("temperature", $Temperature );
           $this->SetValue("program", $OperationState );
@@ -101,22 +97,16 @@
                   return false;
                   break;
               //------------------------ OPERATION STATE
-              // Return for Operation Ready
+              case "BSH.Common.EnumType.OperationState.Inactive":
+                  return 0;
               case "BSH.Common.EnumType.OperationState.Ready":
-                  return false;
-              // Return for Operation Running
+                  return 1;
               case "BSH.Common.EnumType.OperationState.Run":
-                  return true;
+                  return 2;
                   break;
           }
 
       }
-
-
-
-
-
-
 
       /** This Function will set the IP Symcon Form.json
        * @return false|string Form json
