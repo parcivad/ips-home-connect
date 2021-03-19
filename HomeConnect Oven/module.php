@@ -5,6 +5,9 @@
 
   class HomeConnectOven extends IPSModule {
 
+      /** This function will be called on the creation of this Module
+       * @return bool|void
+       */
       public function Create() {
           // Overwrite ips function
           parent::Create();
@@ -15,6 +18,10 @@
           $this->RegisterPropertyString('company', '');
           $this->RegisterPropertyString('haId', '');
 
+          // Register Information Panel
+          $this->RegisterAttributeBoolean("remoteControlAllowed", false );
+          $this->RegisterAttributeBoolean("remoteStartAllowed", false );
+
           // Set by User
           $this->RegisterPropertyInteger("refreshRate", 5 );
 
@@ -23,8 +30,6 @@
 
           // Register Variable
           $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -1 );
-
-          $this->RegisterVariableBoolean("connected", "Connected", "", 0 );
           $this->RegisterVariableBoolean("power", "Powerstate", "", 0 );
           $this->RegisterVariableBoolean("door", "Doorstate", "", 0 );
           $this->RegisterVariableBoolean("heating", "Heating Mode", "", 0);
@@ -33,32 +38,23 @@
           $this->RegisterVariableBoolean("program", "Program State", "", 0 );
       }
 
+      /** This function will be called by IP Symcon when the User change vars in the Module Interface
+       * @return bool|void
+       */
       public function ApplyChanges()
       {
           // Overwrite ips function
           parent::ApplyChanges();
 
           // Change Timer
-          $rate = ( $this->ReadPropertyInteger("refreshRate") * 1000 ) * 60;
+          $rate = ( $this->ReadPropertyInteger("refreshRate") * 1000 );
           $this->SetTimerInterval("refresh", $rate );
 
       }
 
-      // BUILDING FORM
-      public function GetConfigurationForm()
-      {
-          // return current form
-          $Form = json_encode([
-              'elements' => $this->FormElements(),
-              //'actions'  => $this->FormActions(),
-              'status'   => $this->FormStatus(),
-          ]);
-          $this->SendDebug('FORM', $Form, 0);
-          $this->SendDebug('FORM', json_last_error_msg(), 0);
-
-          return $Form;
-      }
-
+      /** This Function will refresh the IP Symcon Variables with data from the Home Connect Cloud
+       * @return string setting
+       */
       public function Refresh() {
           $api = new HomeConnectApi();
 
@@ -89,7 +85,10 @@
       }
 
 
-      // RETURN BOOL/STRING OR INTEGER FOR HOME CONNECT RETURN
+      /**
+       * @param string $var that should be analyse
+       * @return bool returns true or false for HomeConnect Api result
+       */
       public function HCvar($var ) {
 
           switch ( $var ) {
@@ -114,6 +113,27 @@
       }
 
 
+
+
+
+
+
+      /** This Function will set the IP Symcon Form.json
+       * @return false|string Form json
+       */
+      public function GetConfigurationForm()
+      {
+          // return current form
+          $Form = json_encode([
+              'elements' => $this->FormElements(),
+              //'actions'  => $this->FormActions(),
+              'status'   => $this->FormStatus(),
+          ]);
+          $this->SendDebug('FORM', $Form, 0);
+          $this->SendDebug('FORM', json_last_error_msg(), 0);
+
+          return $Form;
+      }
 
       /**
        * @return array[] Form Actions
@@ -184,9 +204,9 @@
                   "name" => "refreshRate",
                   "caption" => "Refresh Rate",
                   "enable" => true,
-                  "maximum" => 60,
-                  "minimum" => 1,
-                  "suffix" => "min",
+                  "maximum" => 86400,
+                  "minimum" => 5,
+                  "suffix" => "sec",
                   "visible" => true,
               ],
           ];
