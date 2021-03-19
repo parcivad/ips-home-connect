@@ -88,8 +88,8 @@
 
 
           // put data into IP Symcon Vars or Attribute
-          $this->WriteAttributeBoolean( 'remoteControlAllowed', $RemoteControlAllowed );
-          $this->WriteAttributeBoolean( 'remoteStartAllowed', $RemoteControlStartAllowed );
+          $this->WriteAttributeString( 'remoteControlAllowed', $RemoteControlAllowed );
+          $this->WriteAttributeString( 'remoteStartAllowed', $RemoteControlStartAllowed );
           $this->SetValue("door", $DoorState );
           $this->SetValue("temperature", $Temperature );
           $this->SetValue("state", $OperationState );
