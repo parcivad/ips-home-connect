@@ -195,7 +195,7 @@
                   "caption" => "Refresh Rate",
                   "enable" => true,
                   "maximum" => 86400,
-                  "minimum" => 5,
+                  "minimum" => 1,
                   "suffix" => "sec",
                   "visible" => true,
               ],

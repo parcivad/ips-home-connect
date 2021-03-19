@@ -5,7 +5,6 @@
   class HomeConnectApi
   {
 
-
       // define vars ---------------------------------------------------------
       private $access_token = database['access_token']; // current access token for home connect
       private $refresh_token = database['refresh_token']; // current refresh token for refresh
