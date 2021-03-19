@@ -30,12 +30,11 @@
 
           // Register Variable
           $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -1 );
-          $this->RegisterVariableBoolean("power", "Powerstate", "", 0 );
-          $this->RegisterVariableBoolean("door", "Doorstate", "", 0 );
-          $this->RegisterVariableBoolean("heating", "Heating Mode", "", 0);
-          $this->RegisterVariableInteger("temperature", "Temperature", "", 0 );
-          $this->RegisterVariableInteger("timer", "Timer", "UnixTimestampTime", 0);
-          $this->RegisterVariableBoolean("program", "Program State", "", 0 );
+          $this->RegisterVariableInteger("state", "Device State", "HC_OvenState", 0 );
+          $this->RegisterVariableBoolean("door", "Doorstate", "", 1 );
+          $this->RegisterVariableBoolean("heating", "Heating Mode", "", 1 );
+          $this->RegisterVariableInteger("temperature", "Temperature", "", 1 );
+          $this->RegisterVariableInteger("timer", "Timer", "UnixTimestampTime", 9);
       }
 
       /** This function will be called by IP Symcon when the User change vars in the Module Interface
@@ -108,6 +107,24 @@
 
       }
 
+
+      /** This Function will register all Profiles for the Module
+       */
+      protected function registerProfiles()
+      {
+          // Generate Variable Profiles
+          if (!IPS_VariableProfileExists('HC_OvenState')) {
+              IPS_CreateVariableProfile('HC_OvenState', 1);
+              IPS_SetVariableProfileIcon('HC_OvenState', 'Power');
+              IPS_SetVariableProfileAssociation("HC_OvenState", 1, "Standby", "", 0xFFFFFF);
+              IPS_SetVariableProfileAssociation("HC_OvenState", 2, "Ready", "", 0xFFFFFF);
+              IPS_SetVariableProfileAssociation("HC_OvenState", 3, "Running", "", 0xFFFFFF);
+          }
+      }
+
+
+
+      //-----------------------------------------------------< Setting Form.json >-----------
       /** This Function will set the IP Symcon Form.json
        * @return false|string Form json
        */
