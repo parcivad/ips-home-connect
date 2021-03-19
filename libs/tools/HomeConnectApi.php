@@ -2,6 +2,7 @@
 
   define( 'database', json_decode( file_get_contents("database.json", __ROOT__ . "/libs/tools/database.json" ), true ) );
 
+
   class HomeConnectApi
   {
 
@@ -16,7 +17,7 @@
       private $simulator = database['simulator'];
 
       private $loginstate = database['loginstate']; // Error analysis in Authorization
-      private $tokenstate = database['loginstate']; // Error analysis in GetToken
+      private $tokenstate = database['tokenstate']; // Error analysis in GetToken
 
 
       /** Set the User of the API
@@ -104,7 +105,7 @@
           $result_array = json_decode($result_formatted, true);
 
           $this->refreshDatabase();
-          return $result_array;
+          return $result;
       }
 
       /**

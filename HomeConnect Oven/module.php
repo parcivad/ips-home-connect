@@ -33,9 +33,9 @@
 
           $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -1 );
           $this->RegisterVariableInteger("state", "Device State", "HC_OvenState", 0 );
-          $this->RegisterVariableBoolean("door", "Doorstate", "", 1 );
-          $this->RegisterVariableBoolean("heating", "Heating Mode", "", 1 );
-          $this->RegisterVariableInteger("temperature", "Temperature", "", 1 );
+          $this->RegisterVariableBoolean("door", "Doorstate", "HC_DoorState", 1 );
+          $this->RegisterVariableBoolean("heating", "Heating Mode", "HC_HeatMode", 7 );
+          $this->RegisterVariableInteger("temperature", "Temperature", "Temperature", 8 );
           $this->RegisterVariableInteger("timer", "Timer", "UnixTimestampTime", 9);
       }
 
@@ -121,6 +121,20 @@
               IPS_SetVariableProfileAssociation("HC_OvenState", 0, "Standby", "", 0x828282 );
               IPS_SetVariableProfileAssociation("HC_OvenState", 1, "Ready", "", 0x22ff00 );
               IPS_SetVariableProfileAssociation("HC_OvenState", 2, "Program running", "", 0xfc0303 );
+          }
+          if (!IPS_VariableProfileExists('HC_DoorState')) {
+              IPS_CreateVariableProfile('HC_DoorState', 0);
+              IPS_SetVariableProfileIcon('HC_DoorState', 'Lock');
+              IPS_SetVariableProfileAssociation("HC_DoorState", false, "Closed", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DoorState", true, "Open", "", 0xcf0000 );
+          }
+          if (!IPS_VariableProfileExists('HC_HeatMode')) {
+              IPS_CreateVariableProfile('HC_HeatMode', 1);
+              IPS_SetVariableProfileIcon('HC_HeatMode', 'Temperature');
+              IPS_SetVariableProfileAssociation("HC_HeatMode", 0, "Top/Bottom", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_HeatMode", 1, "Circulation air", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_HeatMode", 2, "Pre heat", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_HeatMode", 3, "Pizza Mode", "", 0x828282 );
           }
       }
 
