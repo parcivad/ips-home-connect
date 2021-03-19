@@ -2,15 +2,6 @@
 
   define( 'database', json_decode( file_get_contents("database.json", __ROOT__ . "/libs/tools/database.json" ), true ) );
 
-$api = new HomeConnectApi();
-$api->SetUser( 'your@mail.de' );
-$api->SetPassword( 'password' );
-$api->SetSimulator( true );
-
-$data = $api->Api("homeappliances");
-
-var_dump( $data );
-
   class HomeConnectApi
   {
 
@@ -113,7 +104,7 @@ var_dump( $data );
           $result_array = json_decode($result_formatted, true);
 
           $this->refreshDatabase();
-          return $result;
+          return $result_array;
       }
 
       /**
