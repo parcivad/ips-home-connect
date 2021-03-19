@@ -34,7 +34,7 @@
           $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -1 );
           $this->RegisterVariableInteger("state", "Device State", "HC_OvenState", 0 );
           $this->RegisterVariableBoolean("door", "Doorstate", "HC_DoorState", 1 );
-          $this->RegisterVariableBoolean("heating", "Heating Mode", "HC_HeatMode", 7 );
+          $this->RegisterVariableInteger("heating", "Heating Mode", "HC_HeatMode", 7 );
           $this->RegisterVariableFloat("temperature", "Temperature", "Temperature", 8 );
           $this->RegisterVariableInteger("timer", "Timer", "UnixTimestampTime", 9);
       }
