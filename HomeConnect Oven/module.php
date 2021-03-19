@@ -28,7 +28,9 @@
           // Erstellt einen Timer mit dem Namen "Update" und einem Intervall von 5 Sekunden.
           $this->RegisterTimer("refresh", 1000, "HomeConnectDevice_Refresh( $this->InstanceID );");
 
-          // Register Variable
+          // Register Variable and Profiles
+          $this->registerProfiles();
+
           $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -1 );
           $this->RegisterVariableInteger("state", "Device State", "HC_OvenState", 0 );
           $this->RegisterVariableBoolean("door", "Doorstate", "", 1 );
