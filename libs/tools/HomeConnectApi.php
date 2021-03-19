@@ -1,6 +1,7 @@
 <?php
 
-  define( 'database', json_decode( file_get_contents("database.json"), true ) );
+  define('__ROOT__', dirname(dirname(__FILE__)));
+  define( 'database', json_decode( file_get_contents("database.json", __ROOT__ . "/libs/tools/database.json"), true ) );
 
 $api = new HomeConnectApi();
 
@@ -309,7 +310,7 @@ var_dump($data);
           $json['loginstate'] = $this->loginstate;
           $json['tokenstate'] = $this->tokenstate;
 
-          file_put_contents("database.json", json_encode( $json ) );
+          file_put_contents("database.json", json_encode( $json ));
       }
   }
 ?>
