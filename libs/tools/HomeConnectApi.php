@@ -1,20 +1,23 @@
 <?php
 
+  define( 'database', json_decode( file_get_contents("database.json"), true ) );
+
   class HomeConnectApi
   {
 
+
       // define vars ---------------------------------------------------------
-      private $access_token; // current access token for home connect
-      private $refresh_token; // current refresh token for refresh
-      private $expires_in; // expire time in seconds ( normal case 1 day )
-      private $last_refresh; // When did the Module get the $access_token
+      private $access_token = database['access_token']; // current access token for home connect
+      private $refresh_token = database['refresh_token']; // current refresh token for refresh
+      private $expires_in = database['expires_in']; // expire time in seconds ( normal case 1 day )
+      private $last_refresh = database['last_refresh']; // When did the Module get the $access_token
 
-      private $user; // user
-      private $password; // password
-      private $simulator = false;
+      private $user = database['user']; // user
+      private $password = database['password']; // password
+      private $simulator = database['simulator'];
 
-      private $loginstate = false; // Error analysis in Authorization
-      private $tokenstate = false; // Error analysis in GetToken
+      private $loginstate = database['loginstate']; // Error analysis in Authorization
+      private $tokenstate = database['loginstate']; // Error analysis in GetToken
 
 
       /** Set the User of the API
@@ -22,6 +25,7 @@
        */
       public function SetUser( $user="" ) {
           $this->user = $user;
+          $this->refreshDatabase();
       }
 
       /** Set the Password of the User API
@@ -29,6 +33,7 @@
        */
       public function SetPassword( $password="" ) {
           $this->password = $password;
+          $this->refreshDatabase();
       }
 
       /** Set if the Api should work with the simulator
@@ -36,6 +41,7 @@
        */
       public function SetSimulator( $simulator=false ) {
           $this->simulator = $simulator;
+          $this->refreshDatabase();
       }
 
       /**
@@ -98,6 +104,7 @@
           $result_formatted = explode('Origin', $result)[1];
           $result_array = json_decode($result_formatted, true);
 
+          $this->refreshDatabase();
           return $result_array;
       }
 
@@ -167,12 +174,13 @@
           }
 
           // Setting token (private vars)
+
           $this->access_token = $tokens['access_token'];
           $this->refresh_token = $tokens['refresh_token'];
           $this->expires_in = $tokens['expires_in'];
 
           $this->tokenstate = true;
-
+          $this->refreshDatabase();
           return $tokens;
       }
 
@@ -274,7 +282,28 @@
           }
 
           $this->loginstate = true;
+          $this->refreshDatabase();
           return strval($code[1]);
+      }
+
+      /** Function to refresh the database/json in database.json
+       */
+      public function refreshDatabase() {
+          $json = database;
+
+          $json['access_token'] = $this->access_token;
+          $json['refresh_token'] = $this->refresh_token;
+          $json['expires_in'] = $this->expires_in;
+          $json['last_refresh'] = $this->last_refresh;
+
+          $json['user'] = $this->user;
+          $json['password'] = $this->password;
+          $json['simulator'] = $this->simulator;
+
+          $json['loginstate'] = $this->loginstate;
+          $json['tokenstate'] = $this->tokenstate;
+
+          file_put_contents("database.json", json_encode( $json ) );
       }
   }
 ?>

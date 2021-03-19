@@ -61,9 +61,6 @@
 
       public function Refresh() {
           $api = new HomeConnectApi();
-          $api->SetUser( 'user@mail.de' );
-          $api->SetPassword( 'password' );
-          $api->SetSimulator( true );
 
           $data = $api->Api("homeappliances/BOSCH-HCS01OVN1-319994D4D470/status");
 
@@ -87,6 +84,8 @@
           $this->SetValue("door", $DoorState );
           $this->SetValue("temperature", $Temperature );
           $this->SetValue("program", $OperationState );
+
+          $this->SetValue( "LastRefresh", time() );
       }
 
 
