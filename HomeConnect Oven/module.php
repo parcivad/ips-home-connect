@@ -119,8 +119,8 @@
               IPS_CreateVariableProfile('HC_OvenState', 1);
               IPS_SetVariableProfileIcon('HC_OvenState', 'Power');
               IPS_SetVariableProfileAssociation("HC_OvenState", 0, "Standby", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_OvenState", 1, "Ready", "", 0xffae00 );
-              IPS_SetVariableProfileAssociation("HC_OvenState", 2, "Running", "", 0x22ff00 );
+              IPS_SetVariableProfileAssociation("HC_OvenState", 1, "Ready", "", 0x22ff00 );
+              IPS_SetVariableProfileAssociation("HC_OvenState", 2, "Program running", "", 0xfc0303 );
           }
       }
 
