@@ -76,7 +76,7 @@
           $this->WriteAttributeBoolean( 'remoteStartAllowed', $RemoteControlStartAllowed );
           $this->SetValue("door", $DoorState );
           $this->SetValue("temperature", $Temperature );
-          $this->SetValue("program", $OperationState );
+          $this->SetValue("state", $OperationState );
 
           $this->SetValue( "LastRefresh", time() );
       }
@@ -118,9 +118,9 @@
           if (!IPS_VariableProfileExists('HC_OvenState')) {
               IPS_CreateVariableProfile('HC_OvenState', 1);
               IPS_SetVariableProfileIcon('HC_OvenState', 'Power');
-              IPS_SetVariableProfileAssociation("HC_OvenState", 1, "Standby", "", 0xFFFFFF);
-              IPS_SetVariableProfileAssociation("HC_OvenState", 2, "Ready", "", 0xFFFFFF);
-              IPS_SetVariableProfileAssociation("HC_OvenState", 3, "Running", "", 0xFFFFFF);
+              IPS_SetVariableProfileAssociation("HC_OvenState", 0, "Standby", "", 0xFFFFFF);
+              IPS_SetVariableProfileAssociation("HC_OvenState", 1, "Ready", "", 0xFFFFFF);
+              IPS_SetVariableProfileAssociation("HC_OvenState", 2, "Running", "", 0xFFFFFF);
           }
       }
 
