@@ -19,8 +19,8 @@
           $this->RegisterPropertyString('haId', '');
 
           // Register Information Panel
-          $this->RegisterAttributeBoolean("remoteControlAllowed", false );
-          $this->RegisterAttributeBoolean("remoteStartAllowed", false );
+          $this->RegisterAttributeString("remoteControlAllowed", false );
+          $this->RegisterAttributeString("remoteStartAllowed", false );
 
           // Set by User
           $this->RegisterPropertyInteger("refreshRate", 5 );
