@@ -1,13 +1,1 @@
-{
-  "access_token": null,
-  "refresh_token": null,
-  "expires_in": null,
-  "last_refresh": null,
-
-  "user": "test@test.de",
-  "password": "password",
-  "simulator": true,
-
-  "loginstate": false,
-  "tokenstate": false
-}
+{"access_token":"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6MTksIngtcmVnIjoiRVUiLCJ4LWVudiI6IlNJTSJ9.eyJzdWIiOjE0NDgzLCJleHAiOjE2MTYyMzUyMjcsInNjb3BlIjpbIklkZW50aWZ5QXBwbGlhbmNlIiwiTW9uaXRvciJdLCJhenAiOiI4Q0I4NDY4QkM4NEY2RTJDNkFBMTM3OEJBRTczQkRGOTg2NEEzMjAzOEQ4RUVGMzI3Q0JCOTk5MzZCNzQ4NDhEIiwiYXVkIjoiOENCODQ2OEJDODRGNkUyQzZBQTEzNzhCQUU3M0JERjk4NjRBMzIwMzhEOEVFRjMyN0NCQjk5OTM2Qjc0ODQ4RCIsInBybSI6W10sImlzcyI6ImV1OnNpbTpvYXV0aDoxIiwianRpIjoiMDk2Mzk5MGEtOGFmNS00ZTRmLTkyODgtYzY0NDUyM2IyYzFlIiwiaWF0IjoxNjE2MTQ4ODI3fQ.ExKIjjnDblXKkLuSMkWonNb_64qRuopAAGo_GmGSSUhGPjaMl4hsuxbtkWIsKNDcvYRky-5kQozw_BvCbJaN8w","refresh_token":"eyJ4LWVudiI6IlNJTSIsIngtcmVnIjoiRVUiLCJ0b2tlbiI6IjBhODNkZjVhLTZkYWEtNDUyYy05ZTczLTBjZGExMjlkMjNlOSJ9","expires_in":86400,"last_refresh":1616148826,"user":"your@mail.de","password":"password","simulator":true,"loginstate":true,"tokenstate":true}

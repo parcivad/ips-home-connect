@@ -48,7 +48,7 @@
           parent::ApplyChanges();
 
           // Change Timer
-          $rate = ( $this->ReadPropertyInteger("refreshRate") * 1000 );
+          $rate = ( $this->ReadPropertyInteger("refreshRate") * 1000 ) * 60;
           $this->SetTimerInterval("refresh", $rate );
 
       }
@@ -214,8 +214,8 @@
                   "caption" => "Refresh Rate",
                   "enable" => true,
                   "maximum" => 86400,
-                  "minimum" => 1,
-                  "suffix" => "sec",
+                  "minimum" => 2,
+                  "suffix" => "min",
                   "visible" => true,
               ],
           ];
