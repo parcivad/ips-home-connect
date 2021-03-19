@@ -1,6 +1,6 @@
 <?php
 
-  define( 'database', json_decode( file_get_contents("database.json" ), __ROOT__ . "database.json", true ) );
+  define( 'database', json_decode( file_get_contents("database.json", __ROOT__ . "/libs/tools/database.json" ), true ) );
 
   class HomeConnectApi
   {
