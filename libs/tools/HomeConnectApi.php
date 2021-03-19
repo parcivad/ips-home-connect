@@ -2,7 +2,6 @@
 
   define( 'database', json_decode( file_get_contents("database.json", __ROOT__ . "/libs/tools/database.json" ), true ) );
 
-
   class HomeConnectApi
   {
 
@@ -105,7 +104,7 @@
           $result_array = json_decode($result_formatted, true);
 
           $this->refreshDatabase();
-          return $result;
+          return $result_array;
       }
 
       /**
