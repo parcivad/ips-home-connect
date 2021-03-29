@@ -1,7 +1,7 @@
 <?php
 
   define( 'database', json_decode( file_get_contents("database.json", __ROOT__ . "/libs/tools/database.json" ), true ) );
-
+  
   class HomeConnectApi
   {
 
@@ -51,7 +51,9 @@
 
           // Checking for access token
           if ( !isset( $this->access_token ) ) {
-              $tokens = $this->GetToken();
+              $this->GetToken();
+          } else if ( !$this->GetToken() ) {
+              $this->GetToken();
           }
 
           // Checking for errors after GetToken/Authorizaition
@@ -178,6 +180,7 @@
           $this->refresh_token = $tokens['refresh_token'];
           $this->expires_in = $tokens['expires_in'];
 
+          $this->last_refresh = time();
           $this->tokenstate = true;
           $this->refreshDatabase();
           return $tokens;
@@ -193,9 +196,8 @@
 
               $lastrefresh = $this->last_refresh;
               $expire = $this->expires_in;
-              $time = time();
 
-              $timeSinceLastRefresh = $time - $lastrefresh;
+              $timeSinceLastRefresh = time() - $lastrefresh;
               $shouldupdate = $expire - 3600;
 
               if ( $timeSinceLastRefresh < $shouldupdate ) {
