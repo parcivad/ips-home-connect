@@ -144,16 +144,16 @@ class HomeConnectDiscovery extends IPSModule {
         $form = [
             [
                 "type" => "Button",
-                "caption" => "Login",
-                "visible" => $this->tm("login"),
-                "onClick" => 'HomeConnectDiscovery_tm( $id, "auth" );'
-            ],
-            [
-                "type" => "Button",
                 "caption" => "Logout",
                 "visible" => $this->tm("logout"),
                 "onClick" => 'HomeConnectDiscovery_tm( $id, "reset" );'
             ],
+            [
+                "type" => "Button",
+                "caption" => "Login",
+                "visible" => $this->tm("login"),
+                "onClick" => 'HomeConnectDiscovery_tm( $id, "auth" );'
+            ]
         ];
 
         return $form;
