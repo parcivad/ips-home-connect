@@ -7,8 +7,6 @@
 define('__ROOT__', dirname(dirname(__FILE__)));
 require_once(__ROOT__ . "/tm/tm.php");
 
-$tm = new tm();
-
 $redirect_params = explode("?", $_SERVER["REQUEST_URI"])[1];
 
 if ( isset( $redirect_params ) ) {
@@ -19,7 +17,7 @@ if ( isset( $redirect_params ) ) {
         // user feedback
         echo("<p>authorized!</p>");
         // save code
-        $tm->write( "code", $code, true);
+        write( "code", $code, true);
         // stop php server
         shell_exec("killall -9 php");
         // return code for developer
