@@ -81,13 +81,12 @@ class HomeConnectDiscovery extends IPSModule {
                         break;
                 }
 
-                //$haId
 
                 $config_list[] = [
                     'name' => $name,
                     'device' => $type,
                     'company' => $brand,
-                    'haId' => getAuthorizeCode(),
+                    'haId' => $haId,
                     'connected' => $connected,
                     'create'     => [
                         'moduleID'      => $module,
