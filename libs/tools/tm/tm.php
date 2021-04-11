@@ -3,8 +3,6 @@
 define( 'dir', explode("/tm.php", __FILE__)[0] );
 define( 'data', json_decode( file_get_contents("data.json", dir . "/data.json" ), true ) );
 
-echo getAuthorizeCode();
-
 /** Function to open urls in browser
  * @param string $url Url to open in the browser
  */
