@@ -1,8 +1,6 @@
 <?php
 // define data.json
 define( 'dir', explode("/tm.php", __FILE__)[0] );
-define( 'data', json_decode( file_get_contents("data.json", dir . "/data.json" ), true ) );
-
 
 /** Function to open urls in browser
  * @param string $url Url to open in the browser
@@ -107,7 +105,7 @@ function authorize( $url, $client_id, $scopes ) {
         "response_type" => "code",
         "client_id" => $client_id,
         "scope" => $scopes,
-        "redirect_uri" => "https://api-docs.home-connect.com/quickstart/",
+        "redirect_uri" => "http://localhost:8080",
     ];
 
     $params = http_build_query($params_array);
@@ -132,10 +130,12 @@ function authorize( $url, $client_id, $scopes ) {
  */
 function getToken( $url, $client_id, $client_secret ) {
 
-    // Check if there is a Authorization code
-    if ( data["authorize"]["code"] != null ) {
+    $data = json_decode( file_get_contents("data.json", dir . "/data.json" ), true );
 
-        if ( data["token"]["refresh_token"] != null && data["token"]["access_token"] != null) {
+    // Check if there is a Authorization code
+    if ( $data["authorize"]["code"] != null ) {
+
+        if ( $data["token"]["refresh_token"] != null && $data["token"]["access_token"] != null) {
             $distance = time() - getLastTokenCall();
             $limit = getExpiresIn() - 3600;
 
@@ -152,7 +152,7 @@ function getToken( $url, $client_id, $client_secret ) {
             "grant_type" => "authorization_code",
             "client_id" => $client_id,
             "client_secret" => $client_secret,
-            "redirect_uri" => "https://api-docs.home-connect.com/quickstart/",
+            "redirect_uri" => "http://localhost:8080",
             "code" => getAuthorizeCode()
         ];
 
@@ -218,8 +218,10 @@ function getToken( $url, $client_id, $client_secret ) {
  */
 function refreshToken( $url, $client_id, $client_secret, $scope ) {
 
+    $data = json_decode( file_get_contents("data.json", dir . "/data.json" ), true );
+
     // Check if there is a Authorization code
-    if ( data["authorize"]["code"] != null ) {
+    if ( $data["authorize"]["code"] != null ) {
 
         //================= Url build ===================
         $params_array = [

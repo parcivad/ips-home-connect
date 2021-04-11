@@ -36,10 +36,10 @@ class HomeConnectDiscovery extends IPSModule {
     public function tm($opt) {
         switch ($opt) {
             case "auth":
-                authorize("https://simulator.home-connect.com/security/oauth/authorize", "8CB8468BC84F6E2C6AA1378BAE73BDF9864A32038D8EEF327CBB99936B74848D", "IdentifyAppliance");
+                authorize("https://api.home-connect.com/security/oauth/authorize", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "IdentifyAppliance");
                 break;
             case "token":
-                return getToken("https://simulator.home-connect.com/security/oauth/token", "8CB8468BC84F6E2C6AA1378BAE73BDF9864A32038D8EEF327CBB99936B74848D", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
+                return getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
             case "reset":
                 resetData();
                 break;
@@ -53,7 +53,7 @@ class HomeConnectDiscovery extends IPSModule {
     public function GetDevices() {
 
         if ( getAuthorizeCode() != NULL ) {
-            getToken("https://simulator.home-connect.com/security/oauth/token", "8CB8468BC84F6E2C6AA1378BAE73BDF9864A32038D8EEF327CBB99936B74848D", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
+            getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
         }
 
         $data = Api("homeappliances");
