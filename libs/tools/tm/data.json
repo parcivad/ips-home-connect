@@ -1,1 +1,15 @@
-{"token":{"access_token":null,"refresh_token":null,"expires_in":null,"id_token":null,"token_type":null,"scope":null,"last_token_call":null},"authorize":{"code":"eyJ4LWVudiI6IlNJTSIsIngtcmVnIjoiRVUiLCJ0b2tlbiI6IjAyZDNhNzM0LWU0YzItNDYwYy1iODEzLTg4MDQwNzdiZWE4MyJ9"}}
+{
+  "token": {
+    "access_token": null,
+    "refresh_token": null,
+    "expires_in": null,
+    "id_token": null,
+
+    "token_type": null,
+    "scope": null,
+    "last_token_call": null
+  },
+  "authorize": {
+    "code": null
+  }
+}
