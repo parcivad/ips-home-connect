@@ -2,7 +2,7 @@
 
 define('__ROOT__', dirname(dirname(__FILE__)));
 require_once(__ROOT__ . "/libs/tools/HomeConnectApi.php");
-require_once( dirname(dirname(__FILE__) ) . "/tm/tm.php");
+require_once( dirname(dirname(__FILE__) ) . "/libs/tools/tm/tm.php");
 
 
 class HomeConnectDiscovery extends IPSModule {
