@@ -139,14 +139,12 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Button",
                 "caption" => "Logout",
-                "visible" => $this->tm("logout"),
                 "onClick" => 'HomeConnectDiscovery_tm( $id, "reset" );',
                 'confirm' => 'Are you sure to log out'
             ],
             [
                 "type" => "Button",
                 "caption" => "Login",
-                "visible" => $this->tm("login"),
                 "onClick" => 'HomeConnectDiscovery_tm( $id, "auth" );',
                 'confirm' => 'The Login window will appear in the browser of the server'
             ]
