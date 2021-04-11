@@ -1,6 +1,7 @@
 <?php
 // define data.json
 define( 'dir', explode("/tm.php", __FILE__)[0] );
+require_once( dirname(dirname(__FILE__) ) . "/HomeConnectApi.php");
 
 /** Function to open urls in browser
  * @param string $url Url to open in the browser
@@ -135,15 +136,14 @@ function getToken( $url, $client_id, $client_secret ) {
     // Check if there is a Authorization code
     if ( $data["authorize"]["code"] != null ) {
 
-        if ( $data["token"]["refresh_token"] != null && $data["token"]["access_token"] != null) {
+        if ( is_string( getRefreshToken() ) && is_string( getAccessToken() )) {
             $distance = time() - getLastTokenCall();
             $limit = getExpiresIn() - 3600;
 
             if ( $distance >= $limit ) {
-                refreshToken( $url, $client_id, $client_secret, "");
-            } else {
-                return getAccessToken();
+                return refreshToken( $url, $client_id, $client_secret, "");
             }
+            return getAccessToken();
         }
 
         //================= Url build ===================
