@@ -2,7 +2,7 @@
 
 define('__ROOT__', dirname(dirname(__FILE__)));
 require_once(__ROOT__ . "/libs/tools/HomeConnectApi.php");
-require_once(__ROOT__ . "/libs/tools/tm/tm.php");
+require_once( dirname(dirname(__FILE__) ) . "/tm/tm.php");
 
 
 class HomeConnectDiscovery extends IPSModule {
@@ -15,8 +15,6 @@ class HomeConnectDiscovery extends IPSModule {
         // Overwrite ips function
         parent::Create();
 
-        authorize("https://simulator.home-connect.com/security/oauth/authorize", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "IdentifyAppliance");
-
         // User Data
         $this->RegisterPropertyString("user", "your@mail.de");
         $this->RegisterPropertyString("password", "password");
@@ -28,6 +26,13 @@ class HomeConnectDiscovery extends IPSModule {
     public function ApplyChanges() {
         // Overwrite ips function
         parent::ApplyChanges();
+    }
+
+    /*
+     * Function for User Authorization
+     */
+    public function auth() {
+        authorize("https://simulator.home-connect.com/security/oauth/authorize", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "IdentifyAppliance");
     }
 
     public function GetDevices() {
@@ -135,7 +140,7 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Button",
                 "caption" => "Authorize your user",
-                "onClick" => 'authorize("https://simulator.home-connect.com/security/oauth/authorize", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "IdentifyAppliance");'
+                "onClick" => 'HomeConnectDiscovery_auth();'
             ],
             [
                 "type" => "ValidationTextBox",

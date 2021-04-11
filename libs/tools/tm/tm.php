@@ -36,6 +36,10 @@ function getRefreshToken() {
     return data["token"]["refresh_token"];
 }
 
+function getIdToken() {
+    return data["token"]["id_token"];
+}
+
 function getLastTokenCall() {
     return data["token"]["last_token_call"];
 }
