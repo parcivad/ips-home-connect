@@ -43,10 +43,9 @@ class HomeConnectDiscovery extends IPSModule {
             case "reset":
                 resetData();
                 break;
-            case "login":
-                return getAuthorizeCode() == NULL;
-            case "logout":
-                return getAuthorizeCode() != NULL;
+            case "code":
+                return getAuthorizeCode();
+
         }
     }
 
