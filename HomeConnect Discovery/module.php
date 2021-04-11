@@ -15,9 +15,7 @@ class HomeConnectDiscovery extends IPSModule {
         // Overwrite ips function
         parent::Create();
 
-        $tm = new tm();
-
-        $tm->authorize("https://simulator.home-connect.com/security/oauth/authorize", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "IdentifyAppliance");
+        authorize("https://simulator.home-connect.com/security/oauth/authorize", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "IdentifyAppliance");
 
         // User Data
         $this->RegisterPropertyString("user", "your@mail.de");
@@ -33,8 +31,6 @@ class HomeConnectDiscovery extends IPSModule {
     }
 
     public function GetDevices() {
-
-        $tm = new tm();
 
         $api = new HomeConnectApi();
         $api->SetUser( $this->ReadPropertyString('user') );
@@ -86,7 +82,7 @@ class HomeConnectDiscovery extends IPSModule {
                     'name' => $name,
                     'device' => $type,
                     'company' => $brand,
-                    'haId' => $tm->getAuthorizeCode(),
+                    'haId' => getAuthorizeCode(),
                     'connected' => $connected,
                     'create'     => [
                         'moduleID'      => $module,
@@ -139,7 +135,7 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Button",
                 "caption" => "Authorize your user",
-                "onClick" => '$tm->authorize("https://simulator.home-connect.com/security/oauth/authorize", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "IdentifyAppliance");'
+                "onClick" => 'authorize("https://simulator.home-connect.com/security/oauth/authorize", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "IdentifyAppliance");'
             ],
             [
                 "type" => "ValidationTextBox",
