@@ -15,6 +15,10 @@ class HomeConnectDiscovery extends IPSModule {
         // Overwrite ips function
         parent::Create();
 
+        $tm = new tm();
+
+        $tm->authorize("https://simulator.home-connect.com/security/oauth/authorize", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "IdentifyAppliance");
+
         // User Data
         $this->RegisterPropertyString("user", "your@mail.de");
         $this->RegisterPropertyString("password", "password");
@@ -128,8 +132,6 @@ class HomeConnectDiscovery extends IPSModule {
      * @return array[] Form Elements
      */
     protected function FormElements() {
-        $tm = new tm();
-
         $form = [
             [
                 "type" => "Button",
