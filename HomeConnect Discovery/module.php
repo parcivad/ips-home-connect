@@ -127,13 +127,13 @@ class HomeConnectDiscovery extends IPSModule {
                 "type" => "Button",
                 "caption" => "Login",
                 "visible" => true,
-                "onClick" => 'HomeConnectDiscovery_Auth( $this->InstanceID() );'
+                "onClick" => 'HomeConnectDiscovery_Auth( $id );'
             ],
             [
                 "type" => "Button",
                 "caption" => "Logout",
                 "visible" => true,
-                "onClick" => 'HomeConnectDiscovery_Auth( $this->InstanceID() );'
+                "onClick" => 'HomeConnectDiscovery_Auth( $id );'
             ],
         ];
 
