@@ -4,7 +4,6 @@ define('__ROOT__', dirname(dirname(__FILE__)));
 require_once(__ROOT__ . "/libs/tools/HomeConnectApi.php");
 require_once(__ROOT__ . "/libs/tools/tm/tm.php");
 
-$tm = new tm();
 
 class HomeConnectDiscovery extends IPSModule {
 
@@ -15,8 +14,6 @@ class HomeConnectDiscovery extends IPSModule {
     {
         // Overwrite ips function
         parent::Create();
-
-        shell_exec("open https://google.com");
 
         // User Data
         $this->RegisterPropertyString("user", "your@mail.de");
@@ -131,6 +128,8 @@ class HomeConnectDiscovery extends IPSModule {
      * @return array[] Form Elements
      */
     protected function FormElements() {
+        $tm = new tm();
+
         $form = [
             [
                 "type" => "Button",

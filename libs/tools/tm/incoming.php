@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * This file exist to get the authorization code and save it into json.
+ */
+
 define('__ROOT__', dirname(dirname(__FILE__)));
 require_once(__ROOT__ . "/tm/tm.php");
 
