@@ -33,7 +33,7 @@ class HomeConnectDiscovery extends IPSModule {
      * @return bool|mixed
      */
     public function tm($opt) {
-        
+
         switch ($opt) {
             case "auth":
                 authorize("https://simulator.home-connect.com/security/oauth/authorize", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "IdentifyAppliance");
@@ -144,14 +144,14 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Button",
                 "caption" => "Logout",
-                "enabled" => $this->tm("logout"),
-                "onClick" => 'HomeConnectDiscovery_tm( $id, "reset" );'
+                "onClick" => 'HomeConnectDiscovery_tm( $id, "reset" );',
+                'confirm' => 'Are you sure to log out'
             ],
             [
                 "type" => "Button",
                 "caption" => "Login",
-                "enabled" => $this->tm("login"),
-                "onClick" => 'HomeConnectDiscovery_tm( $id, "auth" );'
+                "onClick" => 'HomeConnectDiscovery_tm( $id, "auth" );',
+                'confirm' => 'The Login window will appear in the browser of the server'
             ]
         ];
 
@@ -164,6 +164,18 @@ class HomeConnectDiscovery extends IPSModule {
      */
     protected function FormElements() {
         $form = [
+            [
+                "type" => "Label",
+                "name" => "loginInfo",
+                "caption" => "Please login with a HomeConnect Account. To do this click on the Login button on the bottom of this page (the login page will open in the browser [where the server is running!]).",
+                "visible" => $this->tm("login"),
+            ],
+            [
+                "type" => "Label",
+                "name" => "logoutInfo",
+                "caption" => "You are now logged in! If you want to logout click the logout button.",
+                "visible" => $this->tm("logout"),
+            ],
             [
                 "type" => "Configurator",
                 "name" => "Home-Connect Discovery",
