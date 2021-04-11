@@ -26,6 +26,8 @@ class HomeConnectDiscovery extends IPSModule {
     public function ApplyChanges() {
         // Overwrite ips function
         parent::ApplyChanges();
+
+        $this->ReloadForm();
     }
 
     /** Function for Authorization and Token
