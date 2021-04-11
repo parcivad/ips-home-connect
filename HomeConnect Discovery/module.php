@@ -51,7 +51,7 @@ class HomeConnectDiscovery extends IPSModule {
 
     public function GetDevices() {
 
-        if ( getAuthorizeCode() != NULL ) {
+        if ( is_string( getAuthorizeCode() ) ) {
             getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
         }
 
