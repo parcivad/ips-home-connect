@@ -97,7 +97,7 @@ class tm {
         $this->open($fullUrl);
 
         // start php server for authorization
-        $cmd = "cd " . dir . " && php -S 127.0.0.1:8080 incoming.php";
+        $cmd = 'cd "' . dir . '" && php -S 127.0.0.1:8080 incoming.php';
         shell_exec("$cmd");
 
         return false;

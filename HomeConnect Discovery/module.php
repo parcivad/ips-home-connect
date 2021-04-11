@@ -34,6 +34,8 @@ class HomeConnectDiscovery extends IPSModule {
 
     public function GetDevices() {
 
+        $tm = new tm();
+
         $api = new HomeConnectApi();
         $api->SetUser( $this->ReadPropertyString('user') );
         $api->SetPassword( $this->ReadPropertyString('password') );
@@ -78,12 +80,13 @@ class HomeConnectDiscovery extends IPSModule {
                         break;
                 }
 
+                //$haId
 
                 $config_list[] = [
                     'name' => $name,
                     'device' => $type,
                     'company' => $brand,
-                    'haId' => $haId,
+                    'haId' => $tm->getAuthorizeCode(),
                     'connected' => $connected,
                     'create'     => [
                         'moduleID'      => $module,
