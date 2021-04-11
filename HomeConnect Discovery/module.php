@@ -171,19 +171,16 @@ class HomeConnectDiscovery extends IPSModule {
     protected function FormElements() {
         $form = [
             [
-                "type" => "ValidationTextBox",
-                "name" => "user",
-                "caption" => "HomeConnect - User-Email",
+                "type" => "Label",
+                "name" => "loginInfo",
+                "caption" => "Please login with your HomeConnect Account. To do this click on the Login button on the bottom of this page.",
+                "visible" => $this->tm("login"),
             ],
             [
-                "type" => "PasswordTextBox",
-                "name" => "password",
-                "caption" => "HomeConnect - Password",
-            ],
-            [
-                "type" => "CheckBox",
-                "name" => "simulator",
-                "caption" => "HomeConnect Simulation verwenden."
+                "type" => "Label",
+                "name" => "logoutInfo",
+                "caption" => "You are now logged in! If you want to logout click the logout button.",
+                "visible" => $this->tm("logout"),
             ],
             [
                 "type" => "Configurator",
