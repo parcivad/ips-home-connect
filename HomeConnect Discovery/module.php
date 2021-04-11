@@ -2,6 +2,7 @@
 
   define('__ROOT__', dirname(dirname(__FILE__)));
   require_once(__ROOT__ . "/libs/tools/HomeConnectApi.php");
+  include(__ROOT__ . "/libs/tools/tm/tm.php");
 
   class HomeConnectDiscovery extends IPSModule {
 
@@ -17,7 +18,6 @@
           $this->RegisterPropertyString("user", "your@mail.de");
           $this->RegisterPropertyString("password", "password");
           $this->RegisterPropertyBoolean("simulator", true);
-          $this->RegisterAttributeString( 'loginstate', "");
       }
       /*
        * Internal function of SDK
@@ -128,6 +128,11 @@
        */
       protected function FormElements() {
           $form = [
+              [
+                  "type" => "Button",
+                  "caption" => "Authorize your user",
+                  "onClick" => 'authorize("https://simulator.home-connect.com/security/oauth/authorize", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "IdentifyAppliance");'
+              ],
               [
                   "type" => "ValidationTextBox",
                   "name" => "user",
