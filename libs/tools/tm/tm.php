@@ -77,6 +77,24 @@ function write( $arg, $value, $token_auth ) {
 }
 
 /**
+ * Function to reset all Data
+ */
+function resetData() {
+
+    $json["token"]["access_token"] = null;
+    $json["token"]["refresh_token"] = null;
+    $json["token"]["expires_in"] = null;
+    $json["token"]["id_token"] = null;
+    $json["token"]["token_type"] = null;
+    $json["token"]["scope"] = null;
+    $json["token"]["last_token_call"] = null;
+
+    $json["authorize"]["code"] = null;
+
+    file_put_contents("data.json", json_encode( $json ));
+}
+
+/**
  * @param string $url Url of the used api
  * @param string $client_id client_id of your client
  * @param string $scopes scopes to ask

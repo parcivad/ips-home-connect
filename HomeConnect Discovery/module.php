@@ -28,11 +28,35 @@ class HomeConnectDiscovery extends IPSModule {
         parent::ApplyChanges();
     }
 
-    /*
-     * Function for User Authorization
+    /** Function for Authorization and Token
+     * @param string $opt tm option
      */
-    public function Auth() {
-        authorize("https://simulator.home-connect.com/security/oauth/authorize", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "IdentifyAppliance");
+    public function tm($opt) {
+        switch ($opt) {
+            case "auth":
+                authorize("https://simulator.home-connect.com/security/oauth/authorize", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "IdentifyAppliance");
+                break;
+            case "token":
+                return getToken("https://simulator.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
+                break;
+            case "reset":
+                resetData();
+                break;
+            case "login":
+                if ( getAuthorizeCode() != null ) {
+                    return true;
+                } else {
+                    return false;
+                }
+                break;
+            case "logout":
+                if ( getAuthorizeCode() != null ) {
+                    return false;
+                } else {
+                    return true;
+                }
+                break;
+        }
     }
 
     public function GetDevices() {
@@ -109,7 +133,7 @@ class HomeConnectDiscovery extends IPSModule {
         // return current form
         $Form = json_encode([
             'elements' => $this->FormElements(),
-            //'actions'  => $this->FormActions(),
+            'actions'  => $this->FormActions(),
             'status'   => $this->FormStatus(),
         ]);
         $this->SendDebug('FORM', $Form, 0);
@@ -123,7 +147,18 @@ class HomeConnectDiscovery extends IPSModule {
      */
     protected function FormActions() {
         $form = [
-
+            [
+                "type" => "Button",
+                "caption" => "Login",
+                "visible" => $this->tm("login"),
+                "onClick" => 'HomeConnectDiscovery_tm( $id, "auth" );'
+            ],
+            [
+                "type" => "Button",
+                "caption" => "Logout",
+                "visible" => $this->tm("logout"),
+                "onClick" => 'HomeConnectDiscovery_tm( $id, "reset" );'
+            ],
         ];
 
         return $form;
@@ -135,18 +170,6 @@ class HomeConnectDiscovery extends IPSModule {
      */
     protected function FormElements() {
         $form = [
-            [
-                "type" => "Button",
-                "caption" => "Login",
-                "visible" => true,
-                "onClick" => 'HomeConnectDiscovery_Auth( $id );'
-            ],
-            [
-                "type" => "Button",
-                "caption" => "Logout",
-                "visible" => true,
-                "onClick" => 'HomeConnectDiscovery_Auth( $id );'
-            ],
             [
                 "type" => "ValidationTextBox",
                 "name" => "user",
