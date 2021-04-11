@@ -129,6 +129,7 @@ class HomeConnectDiscovery extends IPSModule {
         ];
 
         return $form;
+        
     }
 
     /**
@@ -138,8 +139,8 @@ class HomeConnectDiscovery extends IPSModule {
         $form = [
             [
                 "type" => "Button",
-                "caption" => "Authorize your user",
-                "onClick" => 'HomeConnectDiscovery_Auth( $this->InstanceID );'
+                "caption" => "Login",
+                "onClick" => 'HomeConnectDiscovery_Auth( $this->InstanceID() );'
             ],
             [
                 "type" => "ValidationTextBox",
