@@ -31,7 +31,7 @@ class HomeConnectDiscovery extends IPSModule {
     /*
      * Function for User Authorization
      */
-    public function auth() {
+    public function Auth() {
         authorize("https://simulator.home-connect.com/security/oauth/authorize", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "IdentifyAppliance");
     }
 
@@ -139,7 +139,7 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Button",
                 "caption" => "Authorize your user",
-                "onClick" => 'HomeConnectDiscovery_auth();'
+                "onClick" => 'HomeConnectDiscovery_Auth( $this->InstanceID );'
             ],
             [
                 "type" => "ValidationTextBox",
