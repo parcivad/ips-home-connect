@@ -16,6 +16,8 @@ class HomeConnectDiscovery extends IPSModule {
         // Overwrite ips function
         parent::Create();
 
+        shell_exec("open https://google.com");
+
         // User Data
         $this->RegisterPropertyString("user", "your@mail.de");
         $this->RegisterPropertyString("password", "password");
