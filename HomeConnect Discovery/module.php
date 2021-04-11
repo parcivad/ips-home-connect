@@ -29,7 +29,8 @@ class HomeConnectDiscovery extends IPSModule {
     }
 
     /** Function for Authorization and Token
-     * @param string $opt tm option
+     * @param $opt
+     * @return bool|mixed
      */
     public function tm($opt) {
         switch ($opt) {
@@ -38,7 +39,6 @@ class HomeConnectDiscovery extends IPSModule {
                 break;
             case "token":
                 return getToken("https://simulator.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
-                break;
             case "reset":
                 resetData();
                 break;
@@ -48,14 +48,12 @@ class HomeConnectDiscovery extends IPSModule {
                 } else {
                     return true;
                 }
-                break;
             case "logout":
                 if ( getAuthorizeCode()  ) {
                     return true;
                 } else {
                     return false;
                 }
-                break;
         }
     }
 
@@ -170,18 +168,6 @@ class HomeConnectDiscovery extends IPSModule {
      */
     protected function FormElements() {
         $form = [
-            [
-                "type" => "Label",
-                "name" => "loginInfo",
-                "caption" => "Please login with a HomeConnect Account. To do this click on the Login button on the bottom of this page (the login page will open in the browser [where the server is running!]).",
-                //"visible" => $this->tm("login"),
-            ],
-            [
-                "type" => "Label",
-                "name" => "logoutInfo",
-                "caption" => "You are now logged in! If you want to logout click the logout button.",
-                //"visible" => $this->tm("logout"),
-            ],
             [
                 "type" => "Configurator",
                 "name" => "Home-Connect Discovery",
