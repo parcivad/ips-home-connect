@@ -109,7 +109,7 @@ class HomeConnectDiscovery extends IPSModule {
         // return current form
         $Form = json_encode([
             'elements' => $this->FormElements(),
-            'actions'  => $this->FormActions(),
+            //'actions'  => $this->FormActions(),
             'status'   => $this->FormStatus(),
         ]);
         $this->SendDebug('FORM', $Form, 0);
@@ -123,6 +123,18 @@ class HomeConnectDiscovery extends IPSModule {
      */
     protected function FormActions() {
         $form = [
+
+        ];
+
+        return $form;
+
+    }
+
+    /**
+     * @return array[] Form Elements
+     */
+    protected function FormElements() {
+        $form = [
             [
                 "type" => "Button",
                 "caption" => "Login",
@@ -135,17 +147,6 @@ class HomeConnectDiscovery extends IPSModule {
                 "visible" => true,
                 "onClick" => 'HomeConnectDiscovery_Auth( $id );'
             ],
-        ];
-
-        return $form;
-
-    }
-
-    /**
-     * @return array[] Form Elements
-     */
-    protected function FormElements() {
-        $form = [
             [
                 "type" => "ValidationTextBox",
                 "name" => "user",
