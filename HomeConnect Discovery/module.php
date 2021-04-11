@@ -33,8 +33,7 @@ class HomeConnectDiscovery extends IPSModule {
      * @return bool|mixed
      */
     public function tm($opt) {
-        $auth_code = getAuthorizeCode();
-
+        
         switch ($opt) {
             case "auth":
                 authorize("https://simulator.home-connect.com/security/oauth/authorize", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "IdentifyAppliance");
@@ -45,10 +44,10 @@ class HomeConnectDiscovery extends IPSModule {
                 resetData();
                 break;
             case "login":
-                return $auth_code == NULL;
+                return getAuthorizeCode() == NULL;
                 break;
             case "logout":
-                return $auth_code != NULL;
+                return getAuthorizeCode() != NULL;
 
                 break;
         }
@@ -145,13 +144,13 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Button",
                 "caption" => "Logout",
-                "visible" => $this->tm("logout"),
+                "enabled" => $this->tm("logout"),
                 "onClick" => 'HomeConnectDiscovery_tm( $id, "reset" );'
             ],
             [
                 "type" => "Button",
                 "caption" => "Login",
-                "visible" => $this->tm("login"),
+                "enabled" => $this->tm("login"),
                 "onClick" => 'HomeConnectDiscovery_tm( $id, "auth" );'
             ]
         ];
