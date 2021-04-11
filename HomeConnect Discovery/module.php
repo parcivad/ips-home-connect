@@ -173,14 +173,14 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Label",
                 "name" => "loginInfo",
-                "caption" => "Please login with your HomeConnect Account. To do this click on the Login button on the bottom of this page.",
-                "visible" => $this->tm("login"),
+                "caption" => "Please login with a HomeConnect Account. To do this click on the Login button on the bottom of this page (the login page will open in the browser [where the server is running!]).",
+                //"visible" => $this->tm("login"),
             ],
             [
                 "type" => "Label",
                 "name" => "logoutInfo",
                 "caption" => "You are now logged in! If you want to logout click the logout button.",
-                "visible" => $this->tm("logout"),
+                //"visible" => $this->tm("logout"),
             ],
             [
                 "type" => "Configurator",
