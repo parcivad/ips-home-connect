@@ -1,7 +1,6 @@
 <?php
 
-define('__ROOT__', dirname(dirname(__FILE__)));
-require_once(__ROOT__ . "/libs/tools/HomeConnectApi.php");
+require_once( dirname(dirname(__FILE__) ) . "/libs/tools/HomeConnectApi.php");
 require_once( dirname(dirname(__FILE__) ) . "/libs/tools/tm/tm.php");
 
 
@@ -35,7 +34,6 @@ class HomeConnectDiscovery extends IPSModule {
      * @return bool|mixed
      */
     public function tm($opt) {
-
         switch ($opt) {
             case "auth":
                 authorize("https://simulator.home-connect.com/security/oauth/authorize", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "IdentifyAppliance");
@@ -45,26 +43,14 @@ class HomeConnectDiscovery extends IPSModule {
             case "reset":
                 resetData();
                 break;
-            case "login":
-                return getAuthorizeCode() == NULL;
-                break;
-            case "logout":
-                return getAuthorizeCode() != NULL;
-
-                break;
         }
     }
 
     public function GetDevices() {
 
-        $api = new HomeConnectApi();
-        $api->SetUser( $this->ReadPropertyString('user') );
-        $api->SetPassword( $this->ReadPropertyString('password') );
-        $api->SetSimulator( $this->ReadPropertyBoolean('simulator') );
-
-        $data = $api->Api("homeappliances");
+        $data = Api("homeappliances");
         // catch null exception
-        if ( $data == null ) { $error_return = [[ 'name' => 'Login failed [Token/Auth]', 'device' => ' ', 'company' => ' ', 'haId' => 'Überprüfe dein Passwort oder Nutzer/Check your passwort or user', 'connected' => ' ', 'rowColor' => '#ff0000']]; return $error_return;}
+        if ( $data == null ) { $error_return = [[ 'name' => 'No Devices [Login]', 'device' => ' ', 'company' => ' ', 'haId' => 'Überprüfe ob du eingeloggt bist/Check if youre logged in', 'connected' => ' ', 'rowColor' => '#ff0000']]; return $error_return;}
         // else set data source
         $data = $data['data']['homeappliances'];
 
@@ -142,7 +128,7 @@ class HomeConnectDiscovery extends IPSModule {
      * @return array[] Form Actions
      */
     protected function FormActions() {
-        $form = [
+        return[
             [
                 "type" => "Button",
                 "caption" => "Logout",
@@ -156,27 +142,17 @@ class HomeConnectDiscovery extends IPSModule {
                 'confirm' => 'The Login window will appear in the browser of the server'
             ]
         ];
-
-        return $form;
-
     }
 
     /**
      * @return array[] Form Elements
      */
     protected function FormElements() {
-        $form = [
+        return[
             [
                 "type" => "Label",
                 "name" => "loginInfo",
-                "caption" => "Please login with a HomeConnect Account. To do this click on the Login button on the bottom of this page (the login page will open in the browser [where the server is running!]).",
-                "visible" => $this->tm("login"),
-            ],
-            [
-                "type" => "Label",
-                "name" => "logoutInfo",
-                "caption" => "You are now logged in! If you want to logout click the logout button.",
-                "visible" => $this->tm("logout"),
+                "caption" => "Please login with a HomeConnect Account (click on Login). After Login click refresh.",
             ],
             [
                 "type" => "Configurator",
@@ -220,15 +196,13 @@ class HomeConnectDiscovery extends IPSModule {
                 "values" => $this->GetDevices(),
             ],
         ];
-
-        return $form;
     }
 
     /**
      * @return array[] Form Status
      */
     protected function FormStatus() {
-        $form = [
+        return[
             [
                 'code'    => 101,
                 'icon'    => 'inactive',
@@ -250,8 +224,6 @@ class HomeConnectDiscovery extends IPSModule {
                 'caption' => 'Please follow the instructions.',
             ],
         ];
-
-        return $form;
     }
 
 }
