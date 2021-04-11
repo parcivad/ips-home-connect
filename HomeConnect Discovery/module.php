@@ -45,18 +45,11 @@ class HomeConnectDiscovery extends IPSModule {
                 resetData();
                 break;
             case "login":
-                if ( !isset( $auth_code ) ) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return $auth_code == NULL;
                 break;
             case "logout":
-                if ( isset( $auth_code )) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return $auth_code != NULL;
+
                 break;
         }
     }
