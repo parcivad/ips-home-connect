@@ -43,16 +43,16 @@ class HomeConnectDiscovery extends IPSModule {
                 resetData();
                 break;
             case "login":
-                if ( getAuthorizeCode() ) {
-                    return false;
-                } else {
+                if ( getAuthorizeCode() == null ) {
                     return true;
+                } else {
+                    return false;
                 }
             case "logout":
-                if ( getAuthorizeCode()  ) {
-                    return true;
-                } else {
+                if ( getAuthorizeCode() == null ) {
                     return false;
+                } else {
+                    return true;
                 }
         }
     }
@@ -154,7 +154,7 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Button",
                 "caption" => "Logout",
-                "visible" => true,
+                "visible" => $this->tm("logout"),
                 "onClick" => 'HomeConnectDiscovery_tm( $id, "reset" );'
             ],
         ];
