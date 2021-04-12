@@ -70,7 +70,7 @@ function getScopes() {
  */
 function write( $rewrite ) {
     // rewrite file
-    file_put_contents(dirname(dirname(__FILE__) ) . "/data.json", json_encode( $rewrite ));
+    file_put_contents(dirname(dirname(__FILE__) ) . "/tm/data.json", json_encode( $rewrite ));
 }
 
 /**
