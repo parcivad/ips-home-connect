@@ -71,6 +71,7 @@ function getScopes() {
 function write( $rewrite ) {
     // rewrite file
     file_put_contents(dirname(dirname(__FILE__) ) . "/tm/data.json", json_encode( $rewrite ));
+    echo "SAVING";
 }
 
 /**
@@ -130,18 +131,23 @@ function authorize( $url, $client_id, $scopes ) {
 function getToken( $url, $client_id, $client_secret ) {
     global $data;
 
+    if ( is_string($data["token"]["refresh_token"]) ) {
+        echo "taking return";
+
+        $distance = time() - $data["token"]["last_token_call"];
+        $limit = $data["token"]["expires_in"] - 3600;
+
+        if ( $distance >= $limit ) {
+            echo "refreshing";
+            return refreshToken( $url, $client_id, $client_secret, "");
+        }
+        echo "return old token";
+        return $data["token"]["access_token"];
+    }
+
     // Check if there is a Authorization code
     if ( is_string( $data["authorize"]["code"] ) )  {
-
-        if ( is_string($data["token"]["refresh_token"]) ) {
-            $distance = time() - $data["token"]["last_token_call"];
-            $limit = $data["token"]["expires_in"] - 3600;
-
-            if ( $distance >= $limit ) {
-                return refreshToken( $url, $client_id, $client_secret, "");
-            }
-            return $data["token"]["access_token"];
-        }
+        echo "taking ask";
 
         //================= Url build ===================
         $params_array = [
@@ -185,7 +191,7 @@ function getToken( $url, $client_id, $client_secret ) {
             $json = $data;
 
             $json["token"]["access_token"] = $query["access_token"];
-            $json["token"]["refresh_token"] = $query["refresh_token"];
+            $json["token"]["refresh_token"] = str_replace( "=", "", urldecode( $query["refresh_token"] ));
             $json["token"]["id_token"] = $query["id_token"];
             $json["token"]["expires_in"] = $query["expires_in"];
 
@@ -193,7 +199,7 @@ function getToken( $url, $client_id, $client_secret ) {
             $json["token"]["scope"] = $query["scope"];
             $json["token"]["last_token_call"] = time();
 
-            write($json);
+            file_put_contents(dirname(dirname(__FILE__) ) . "/tm/data.json", json_encode( $json ));
 
             return $query["access_token"];
         } else {
@@ -266,7 +272,7 @@ function refreshToken( $url, $client_id, $client_secret, $scope ) {
             $json = $data;
 
             $json["token"]["access_token"] = $query["access_token"];
-            $json["token"]["refresh_token"] = $query["refresh_token"];
+            $json["token"]["refresh_token"] = str_replace( "=", "", urldecode( $query["refresh_token"] ));
             $json["token"]["id_token"] = $query["id_token"];
             $json["token"]["expires_in"] = $query["expires_in"];
 
@@ -274,7 +280,7 @@ function refreshToken( $url, $client_id, $client_secret, $scope ) {
             $json["token"]["scope"] = $query["scope"];
             $json["token"]["last_token_call"] = time();
 
-            write($json);
+            file_put_contents(dirname(dirname(__FILE__) ) . "/tm/data.json", json_encode( $json ));
 
             return $query["access_token"];
         } else {
