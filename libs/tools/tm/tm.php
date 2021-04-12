@@ -133,9 +133,9 @@ function getToken( $url, $client_id, $client_secret ) {
     // Check if there is a Authorization code
     if ( is_string( $data["authorize"]["code"] ) )  {
 
-        if ( is_string($data["token"]["refresh_token"]) && is_string($data["token"]["access_token"]) ) {
-            $distance = time() - getLastTokenCall();
-            $limit = getExpiresIn() - 3600;
+        if ( is_string($data["token"]["access_token"]) && is_string($data["token"]["refresh_token"]) ) {
+            $distance = time() - $data["token"]["last_token_call"];
+            $limit = $data["token"]["expires_in"] - 3600;
 
             if ( $distance >= $limit ) {
                 return refreshToken( $url, $client_id, $client_secret, "");
