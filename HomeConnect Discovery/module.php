@@ -2,8 +2,7 @@
 
 require_once( dirname(dirname(__FILE__) ) . "/libs/tools/HomeConnectApi.php");
 require_once( dirname(dirname(__FILE__) ) . "/libs/tools/tm/tm.php");
-define( 'data', json_decode( file_get_contents("data.json", dirname(dirname(__FILE__) ) . "/libs/tools/tm/data.json" ), true ) );
-
+define( 'data', json_decode( file_get_contents("data", dirname(dirname(__FILE__) ) . "/libs/tools/tm/data.json" ), true ) );
 
 class HomeConnectDiscovery extends IPSModule {
 
