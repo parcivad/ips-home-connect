@@ -63,9 +63,9 @@ class HomeConnectDiscovery extends IPSModule {
         }
 
         $data = Api("homeappliances");
-// catch null exception
+        // catch null exception
         if ( $data == null ) { $error_return = [[ 'name' => 'No Devices [Login]', 'device' => ' ', 'company' => ' ', 'haId' => 'Überprüfe ob du eingeloggt bist/Check if youre logged in', 'connected' => ' ', 'rowColor' => '#ff0000']]; return $error_return;}
-// else set data source
+        // else set data source
         $data = $data['data']['homeappliances'];
 
         $len = count($data);

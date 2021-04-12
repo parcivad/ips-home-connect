@@ -1,7 +1,6 @@
 <?php
 require_once( dirname(dirname(__FILE__) ) . "/tools/tm/tm.php");
 
-
 /**
  * @param $command String Sending this command to the Api of HomeConnect
  * @return array Return the API output
