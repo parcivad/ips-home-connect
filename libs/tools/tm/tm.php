@@ -1,8 +1,7 @@
 <?php
 // define data.json
-define( 'dir', explode("/tm.php", __FILE__)[0] );
-define( 'data', json_decode( file_get_contents("data.json", dir . "/data.json" ), true ) );
-require_once( dirname(dirname(__FILE__) ) . "/HomeConnectApi.php");
+define( 'data', json_decode( require( "./data.json" ) ), true );
+require_once("../HomeConnectApi.php");
 
 
 /** Function to open urls in browser

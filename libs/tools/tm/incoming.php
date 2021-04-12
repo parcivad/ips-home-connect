@@ -4,9 +4,8 @@
  * This file exist to get the authorization code and save it into json.
  */
 
-define('__ROOT__', dirname(dirname(__FILE__)));
-define( 'data', json_decode( file_get_contents("data.json", __ROOT__ . "/tm/data.json" ), true ) );
-require_once(__ROOT__ . "/tm/tm.php");
+define( 'data', json_decode( require( "./data.json" ) ), true );
+require_once("./tm.php");
 
 $redirect_params = explode("?", $_SERVER["REQUEST_URI"])[1];
 
