@@ -150,7 +150,7 @@ function getToken( $url, $client_id, $client_secret ) {
             "client_id" => $client_id,
             "client_secret" => $client_secret,
             "redirect_uri" => "http://localhost:8080",
-            "code" => getAuthorizeCode()
+            "code" => $data["authorize"]["code"]
         ];
 
         $params = http_build_query($params_array);
