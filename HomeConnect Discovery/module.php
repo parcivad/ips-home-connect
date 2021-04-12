@@ -33,31 +33,16 @@ class HomeConnectDiscovery extends IPSModule {
             case "auth":
                 authorize("https://api.home-connect.com/security/oauth/authorize", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "IdentifyAppliance");
                 break;
-            case "token":
-                return getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
-            case "reset":
-                resetData();
-                break;
-            case "code":
-                return getAuthorizeCode();
-            case "access_token":
-                return getAccessToken();
-            case "getToken":
-                return getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
-                break;
         }
     }
 
     public function GetDevices() {
         global $data;
 
-        $this->SendDebug("starting...", $data["authorize"]["code"], 0);
         if ( is_string( $data["authorize"]["code"] ) ) {
-            $this->SendDebug("startet authorization", $data["authorize"]["code"], 0);
             getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
             sleep(1);
         } else {
-            $this->SendDebug("no clue", "", 0);
             //login message
             return [[ 'name' => 'No Devices [Login]', 'device' => ' ', 'company' => ' ', 'haId' => 'Überprüfe ob du eingeloggt bist/Check if youre logged in', 'connected' => ' ', 'rowColor' => '#ff0000']];
         }
