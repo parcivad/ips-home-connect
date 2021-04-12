@@ -84,6 +84,9 @@ class HomeConnectDiscovery extends IPSModule {
                     case "FridgeFreezer":
                         $module = "{B03C2C23-A59C-026C-AD0B-CEA47312A5AB}";
                         break;
+                    case "Dishwasher":
+                        $module = "{F8AE3556-6835-DD3C-E8E0-F686BE81850D}";
+                        break;
                 }
 
 
