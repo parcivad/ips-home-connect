@@ -2,7 +2,7 @@
 
 require_once( dirname(dirname(__FILE__) ) . "/libs/tools/HomeConnectApi.php");
 require_once( dirname(dirname(__FILE__) ) . "/libs/tools/tm/tm.php");
-define( 'data', json_decode( require( dirname(dirname(__FILE__) ) . "/libs/tools/tm/data.json" ) ), true );
+$data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/libs/tools/tm/data.json" ), true );
 
 class HomeConnectDiscovery extends IPSModule {
 
@@ -49,10 +49,11 @@ class HomeConnectDiscovery extends IPSModule {
     }
 
     public function GetDevices() {
+        global $data;
 
-        $this->SendDebug("starting...", data["authorize"]["code"], 0);
-        if ( is_string( data["authorize"]["code"] ) ) {
-            $this->SendDebug("startet authorization", data["authorize"]["code"], 0);
+        $this->SendDebug("starting...", $data["authorize"]["code"], 0);
+        if ( is_string( $data["authorize"]["code"] ) ) {
+            $this->SendDebug("startet authorization", $data["authorize"]["code"], 0);
             getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
         } else {
             $this->SendDebug("no clue", "", 0);

@@ -1,6 +1,6 @@
 <?php
 // define data.json
-define( 'data', json_decode( require( dirname(dirname(__FILE__) ) . "/tm/data.json" ) ), true );
+$data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/tm/data.json" ), true );
 require_once( dirname(dirname(__FILE__) ) . "/HomeConnectApi.php");
 
 /** Function to open urls in browser
@@ -25,35 +25,43 @@ function open( $url ) {
 
 /*================================= GETTER PART =================================*/
 function getAuthorizeCode() {
-    return data["authorize"]["code"];
+    global $data;
+    return $data["authorize"]["code"];
 }
 
 function getAccessToken() {
-    return data["token"]["access_token"];
+    global $data;
+    return $data["token"]["access_token"];
 }
 
 function getRefreshToken() {
-    return data["token"]["refresh_token"];
+    global $data;
+    return $data["token"]["refresh_token"];
 }
 
 function getIdToken() {
-    return data["token"]["id_token"];
+    global $data;
+    return $data["token"]["id_token"];
 }
 
 function getLastTokenCall() {
-    return data["token"]["last_token_call"];
+    global $data;
+    return $data["token"]["last_token_call"];
 }
 
 function getTokenType() {
-    return data["token"]["token_type"];
+    global $data;
+    return $data["token"]["token_type"];
 }
 
 function getExpiresIn() {
-    return data["token"]["expires_in"];
+    global $data;
+    return $data["token"]["expires_in"];
 }
 
 function getScopes() {
-    return json_decode( file_get_contents("data.json", dir . "/data.json" ), true )["token"]["scope"];
+    global $data;
+    return $data["token"]["scope"];
 }
 /*============================================================================*/
 
