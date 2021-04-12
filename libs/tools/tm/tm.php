@@ -128,9 +128,10 @@ function authorize( $url, $client_id, $scopes ) {
  * @return mixed Return the access_token
  */
 function getToken( $url, $client_id, $client_secret ) {
+    global $data;
 
     // Check if there is a Authorization code
-    if ( is_string( getAuthorizeCode() ) ) {
+    if ( is_string( $data["authorize"]["code"] ) )  {
 
         if ( is_string( getRefreshToken() ) && is_string( getAccessToken() )) {
             $distance = time() - getLastTokenCall();
@@ -181,7 +182,7 @@ function getToken( $url, $client_id, $client_secret ) {
         // If the token is present, else send error
         // You have to ask two options (each api is different in error return)
         if ( !isset($query["error"]) && !isset($query["status"]) ) {
-            $json = data;
+            $json = $data;
 
             $json["token"]["access_token"] = $query["access_token"];
             $json["token"]["refresh_token"] = $query["refresh_token"];
@@ -217,9 +218,10 @@ function getToken( $url, $client_id, $client_secret ) {
  * @return mixed return token
  */
 function refreshToken( $url, $client_id, $client_secret, $scope ) {
+    global $data;
 
     // Check if there is a Authorization code
-    if ( data["authorize"]["code"] != null ) {
+    if ( is_string( $data["authorize"]["code"] ) ) {
 
         //================= Url build ===================
         $params_array = [
@@ -261,7 +263,7 @@ function refreshToken( $url, $client_id, $client_secret, $scope ) {
         // If the token is present, else send error
         // You have to ask two options (each api is different in error return)
         if ( !isset($query["error"]) && !isset($query["status"]) ) {
-            $json = data;
+            $json = $data;
 
             $json["token"]["access_token"] = $query["access_token"];
             $json["token"]["refresh_token"] = $query["refresh_token"];
