@@ -27,31 +27,31 @@ function open( $url ) {
 
 /*================================= GETTER PART =================================*/
 function getAuthorizeCode() {
-    return json_decode( file_get_contents("data.json", dir . "/data.json" ), true )["authorize"]["code"];
+    return data["authorize"]["code"];
 }
 
 function getAccessToken() {
-    return json_decode( file_get_contents("data.json", dir . "/data.json" ), true )["token"]["access_token"];
+    return data["token"]["access_token"];
 }
 
 function getRefreshToken() {
-    return json_decode( file_get_contents("data.json", dir . "/data.json" ), true )["token"]["refresh_token"];
+    return data["token"]["refresh_token"];
 }
 
 function getIdToken() {
-    return json_decode( file_get_contents("data.json", dir . "/data.json" ), true )["token"]["id_token"];
+    return data["token"]["id_token"];
 }
 
 function getLastTokenCall() {
-    return json_decode( file_get_contents("data.json", dir . "/data.json" ), true )["token"]["last_token_call"];
+    return data["token"]["last_token_call"];
 }
 
 function getTokenType() {
-    return json_decode( file_get_contents("data.json", dir . "/data.json" ), true )["token"]["token_type"];
+    return data["token"]["token_type"];
 }
 
 function getExpiresIn() {
-    return json_decode( file_get_contents("data.json", dir . "/data.json" ), true )["token"]["expires_in"];
+    return data["token"]["expires_in"];
 }
 
 function getScopes() {
@@ -82,7 +82,7 @@ function resetData() {
 
     $json["authorize"]["code"] = null;
 
-    file_put_contents("data.json", json_encode( $json ));
+    write($json);
 }
 
 /**
@@ -124,7 +124,7 @@ function authorize( $url, $client_id, $scopes ) {
 function getToken( $url, $client_id, $client_secret ) {
 
     // Check if there is a Authorization code
-    if ( data["authorize"]["code"] != null ) {
+    if ( is_string( getAuthorizeCode() ) ) {
 
         if ( is_string( getRefreshToken() ) && is_string( getAccessToken() )) {
             $distance = time() - getLastTokenCall();
