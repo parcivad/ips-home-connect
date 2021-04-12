@@ -17,7 +17,7 @@ if ( isset( $redirect_params ) ) {
         // user feedback
         echo("<p>authorized!</p>");
         // save code
-        $json = data;
+        $json = $data;
         $json["authorize"]["code"] = $code;
         write( $json );
         // stop php server
