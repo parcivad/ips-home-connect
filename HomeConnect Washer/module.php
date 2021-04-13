@@ -160,7 +160,7 @@ class HomeConnectWasher extends IPSModule {
               ],
               [
                   "type" => "ExpansionPanel",
-                  "caption" => "System Device Information",
+                  "caption" => "Permissions from your Device",
                   "items" => [
                       [
                           "type" => "Label",
@@ -196,6 +196,17 @@ class HomeConnectWasher extends IPSModule {
                           "max" => "24",
                           "enabled" => true
                       ]
+                  ],
+              ],
+              [
+                  "type" => "ExpansionPanel",
+                  "caption" => "Settings from your Device",
+                  "items" => [
+                      [
+                          "type" => "CheckBox",
+                          "name" => "status",
+                          "caption" => "///",
+                      ],
                   ],
               ],
           ];
