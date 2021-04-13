@@ -58,11 +58,9 @@ class HomeConnectWasher extends IPSModule {
           if ( $hour >= $this->ReadPropertyInteger("first_refresh") && $hour <= $this->ReadPropertyInteger("second_refresh") ) {
               // Setting timer
               $this->SetTimerInterval("refresh", 300000 );
-              echo "300000";
           } else {
               // Setting timer slow
               $this->SetTimerInterval("refresh", 600000 );
-              echo "600000";
           }
 
           $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
@@ -78,7 +76,7 @@ class HomeConnectWasher extends IPSModule {
               $this->WriteAttributeString("remoteControlAllowed", "Your Device doesn't allow remote Control / Dein Gerät erlaubt keine Fernbedienung");
           }
           // Check Remote start
-          if ( $recall['data']['status'][2]['value'] ) {
+          if ( $recall['data']['status'][0]['value'] ) {
               $this->WriteAttributeString("remoteStartAllowed", "Your Device does allow remote Start / Dein Gerät erlaub eine Fernstart" );
           } else {
               $this->WriteAttributeString("remoteStartAllowed", "Your Device doesn't allow remote Start / Dein Gerät erlaub keinen Fernstart" );
