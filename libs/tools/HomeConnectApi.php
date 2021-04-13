@@ -11,10 +11,10 @@ function Api($endpoint="") {
     //----------------------------------------< Building Url with parameters >-------------
     $header_array = array(
         'content-type: application/vnd.bsh.sdk.v1+json',
-        'Authorization: Bearer ' . getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7")
+        'Authorization: Bearer ' . getToken("https://simulator.home-connect.com/security/oauth/token", "8CB8468BC84F6E2C6AA1378BAE73BDF9864A32038D8EEF327CBB99936B74848D", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7")
     );
     // build url
-    $url = "https://api.home-connect.com/api/" . $endpoint;
+    $url = "https://simulator.home-connect.com/api/" . $endpoint;
     //-------------------------------------------------------------------------------------
 
     // configure curl curl options in array
