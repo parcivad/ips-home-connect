@@ -1,13 +1,13 @@
 {
   "id": "{9108A921-498A-A7ED-627D-4A5DBB222835}",
-  "author": "LD11",
+  "author": "LegendDragon",
   "name": "HomeConnect",
   "url": "https://github.com/LegendDragon11",
   "compatibility": {
     "version": "5.5",
     "date": 1607040000
   },
-  "version": "1.0",
+  "version": "2.0",
   "build": 0,
   "date": 0
 }

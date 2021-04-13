@@ -34,7 +34,8 @@ class HomeConnectWasher extends IPSModule {
           // Register Variable and Profiles
           $this->registerProfiles();
 
-          $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -1 );
+          $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -2 );
+          $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_WasherRemoteStart", -1 );
           $this->RegisterVariableInteger("state", "Device State", "HC_WasherState", 0 );
           $this->RegisterVariableInteger("mode", "Device Mode", "HC_WasherMode", 1 );
           $this->RegisterVariableInteger("progress", "Progress", "HC_WasherProgress", 7 );
@@ -51,11 +52,12 @@ class HomeConnectWasher extends IPSModule {
           parent::ApplyChanges();
       }
 
-      /** Function the refresh all Home Connect Information
-       * @return string in case off error
-       */
+
+    /** Function to refresh the device values
+     * @return string could return error
+     */
       public function refresh() {
-          //===================== Check Timer
+          //============================================================ Check Timer
           $hour = date('G');
 
           if ( $hour >= $this->ReadPropertyInteger("first_refresh") && $hour <= $this->ReadPropertyInteger("second_refresh") ) {
@@ -65,6 +67,7 @@ class HomeConnectWasher extends IPSModule {
               // Setting timer slow
               $this->SetTimerInterval("refresh", 900000 );
           }
+          //============================================================ Check Timer
 
           $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
 
@@ -85,6 +88,7 @@ class HomeConnectWasher extends IPSModule {
               $this->WriteAttributeString("remoteStartAllowed", "Your Device doesn't allow remote Start / Dein Gerät erlaub keinen Fernstart" );
           }
 
+          //============================================================ Sorting Data and save
           // Door State and Operation state
           $DoorState =  $this->HC( $recall['data']['status'][2]['value'] );
           $OperationState = $this->HC( $recall['data']['status'][3]['value'] );
@@ -106,12 +110,82 @@ class HomeConnectWasher extends IPSModule {
           }
 
           // Set Variable value
+          $this->SetValue("remoteStart", $recall['data']['status'][0]['value'] );
           $this->SetValue("mode", $program );
           $this->SetValue("progress", $program_progress );
           $this->SetValue("remainTime", $program_remaining_time);
           $this->SetValue("door", $DoorState );
           $this->SetValue("state", $OperationState );
           $this->SetValue( "LastRefresh", time() );
+          //============================================================ Sorting Data and save
+          return true;
+      }
+
+    /** Function to start Modes for the Dishwasher
+     * @param string $mode Mode
+     * @return array Api return
+     */
+      public function start( string $mode ) {
+
+          $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
+
+          // Get Program
+          switch( $mode ) {
+              case "Auto1":
+                  $mode = "Dishcare.Dishwasher.Program.Auto1";
+                  break;
+              case "Auto2":
+                  $mode = "Dishcare.Dishwasher.Program.Auto2";
+                  break;
+              case "Auto3":
+                  $mode = "Dishcare.Dishwasher.Program.Auto3";
+                  break;
+              case "Eco50":
+                  $mode = "Dishcare.Dishwasher.Program.Eco50";
+                  break;
+              case "Quick45":
+                  $mode = "Dishcare.Dishwasher.Program.Quick45";
+                  break;
+              default:
+                  $mode = "Dishcare.Dishwasher.Program.Auto2";
+          }
+
+          // Settings
+          $opt = "{ 'data':{ 'key'': $mode, 'options':[ { 'key':'BSH.Common.Option.StartInRelative', 'value':1800, 'unit':'seconds' } ] } }";
+
+          // Send
+          if ( $recall['data']['status'][0]['value'] ) {
+              if ( $this->HC( $recall['data']['status'][3]['value'] ) == 2 ) {
+                  return Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
+              } else {
+                  $this->turnOn();
+                  return Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
+              }
+          } else {
+              throw new LogicException("Remote start must be allowed");
+          }
+      }
+
+    /** Function to stop a running program
+     * @return array|null Api return
+     */
+      public function stop() {
+
+          $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
+
+          if ( $recall['data']['status'][1]['value'] ) {
+              return Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", );
+          } else {
+              throw new LogicException("Remote control must be allowed");
+          }
+      }
+
+    /**
+     * Function to turn the dishwasher on
+     */
+      public function turnOn() {
+          $power = '{"data": { "key": "BSH.Common.Setting.PowerState", "value": "BSH.Common.EnumType.PowerState.On" }';
+          Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/settings/BSH.Common.Setting.PowerState", $power);
       }
 
       /** This Function will register all Profiles for the Module
@@ -161,6 +235,12 @@ class HomeConnectWasher extends IPSModule {
               IPS_SetVariableProfileIcon('HC_WasherDoorState', 'Lock');
               IPS_SetVariableProfileAssociation("HC_WasherDoorState", false, "Closed", "", 0x828282 );
               IPS_SetVariableProfileAssociation("HC_WasherDoorState", true, "Open", "", 0xcf0000 );
+          }
+          if (!IPS_VariableProfileExists('HC_WasherRemoteStart')) {
+              IPS_CreateVariableProfile('HC_WasherRemoteStart', 0);
+              IPS_SetVariableProfileIcon('HC_WasherRemoteStart', 'Lock');
+              IPS_SetVariableProfileAssociation("HC_WasherRemoteStart", false, "Not allowed", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_WasherRemoteStart", true, "allowed", "", 0xcf0000 );
           }
       }
 
@@ -338,12 +418,11 @@ class HomeConnectWasher extends IPSModule {
           return $form;
       }
 
-
-    /**
-     * @param string $var that should be analyse
-     * @return bool returns true or false for HomeConnect Api result
-     */
-    public function HC($var ) {
+      /**
+       * @param string $var that should be analyse
+       * @return bool returns true or false for HomeConnect Api result
+       */
+      public function HC($var ) {
         switch ( $var ) {
             //------------------------ DOOR
             case "BSH.Common.EnumType.DoorState.Open":
@@ -361,11 +440,11 @@ class HomeConnectWasher extends IPSModule {
         return 0;
     }
 
-    /**
-     * @param string $var that should be analyse
-     * @return bool returns true or false for HomeConnect Api result
-     */
-    public function IPS($var ) {
+      /**
+       * @param string $var that should be analyse
+       * @return bool returns true or false for HomeConnect Api result
+       */
+       public function IPS($var ) {
         switch ( $var ) {
             //------------------------ Programms
             case "Dishcare.Dishwasher.Program.Auto1":
