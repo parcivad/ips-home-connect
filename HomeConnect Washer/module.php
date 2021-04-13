@@ -47,7 +47,7 @@ class HomeConnectWasher extends IPSModule {
 
 
       public function Dishwasher_refresh() {
-          $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
+          $recall = Api("homeappliances/011010386629000762/status");
 
           // catch null exception
           if ( $recall == null ) { return "error"; }
