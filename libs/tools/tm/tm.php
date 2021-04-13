@@ -130,7 +130,7 @@ function authorize( $url, $client_id, $scopes ) {
 function getToken( $url, $client_id, $client_secret ) {
     global $data;
 
-    if ( is_string($data["token"]["refresh_token"]) ) {
+    if ( is_string( getRefreshToken() ) ) {
 
         $distance = time() - $data["token"]["last_token_call"];
         $limit = $data["token"]["expires_in"] - 3600;
@@ -142,7 +142,7 @@ function getToken( $url, $client_id, $client_secret ) {
     }
 
     // Check if there is a Authorization code
-    if ( is_string( $data["authorize"]["code"] ) )  {
+    if ( is_string( getAuthorizeCode() ) )  {
 
         //================= Url build ===================
         $params_array = [
@@ -151,7 +151,7 @@ function getToken( $url, $client_id, $client_secret ) {
             "client_id" => $client_id,
             "client_secret" => $client_secret,
             "redirect_uri" => "http://localhost:8080",
-            "code" => $data["authorize"]["code"]
+            "code" => getAuthorizeCode()
         ];
 
         $params = http_build_query($params_array);
