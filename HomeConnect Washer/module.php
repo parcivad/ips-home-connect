@@ -36,7 +36,10 @@ class HomeConnectWasher extends IPSModule {
 
           $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -1 );
           $this->RegisterVariableInteger("state", "Device State", "HC_WasherState", 0 );
-          $this->RegisterVariableBoolean("door", "Door State", "HC_WasherDoorState", 1 );
+          $this->RegisterVariableInteger("mode", "Device Mode", "HC_WasherMode", 1 );
+          $this->RegisterVariableInteger("progress", "Progress", "HC_WasherProgress", 7 );
+          $this->RegisterVariableInteger("remainTime", "Remaining Time", "UnixTimestampTime", 8 );
+          $this->RegisterVariableBoolean("door", "Door State", "HC_WasherDoorState", 9 );
       }
 
       /** This function will be called by IP Symcon when the User change vars in the Module Interface
@@ -86,34 +89,30 @@ class HomeConnectWasher extends IPSModule {
           $DoorState =  $this->HC( $recall['data']['status'][2]['value'] );
           $OperationState = $this->HC( $recall['data']['status'][3]['value'] );
 
+          if ( $OperationState == 3 ) {
+              // Api call
+              $recallProgram = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active")['data'];
+              // filter data
+              $program = $recallProgram['key'];
+              $program_remaining_time = $recallProgram['key'][7]['value'];
+              $program_progress = $recallProgram['key'][6]['value'];
+
+          } else {
+              // Api call
+              $recallSelected = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/selected")['data'];
+              $program = $this->IPS( $recallSelected['key'] );
+              $program_remaining_time = 0;
+              $program_progress = 0;
+          }
+
           // Set Variable value
+          $this->SetValue("mode", $program );
+          $this->SetValue("progress", $program_progress );
+          $this->SetValue("remainTime", $program_remaining_time);
           $this->SetValue("door", $DoorState );
           $this->SetValue("state", $OperationState );
           $this->SetValue( "LastRefresh", time() );
       }
-
-
-      /**
-       * @param string $var that should be analyse
-       * @return bool returns true or false for HomeConnect Api result
-       */
-      public function HC($var ) {
-          switch ( $var ) {
-              //------------------------ DOOR
-              case "BSH.Common.EnumType.DoorState.Open":
-                  return true;
-              case "BSH.Common.EnumType.DoorState.Closed":
-                  return false;
-              //------------------------ OPERATION STATE
-              case "BSH.Common.EnumType.OperationState.Inactive":
-                  return 0;
-              case "BSH.Common.EnumType.OperationState.Ready":
-                  return 1;
-              case "BSH.Common.EnumType.OperationState.Run":
-                  return 2;
-          }
-      }
-
 
       /** This Function will register all Profiles for the Module
        */
@@ -125,6 +124,37 @@ class HomeConnectWasher extends IPSModule {
               IPS_SetVariableProfileAssociation("HC_WasherState", 0, "Standby", "", 0x828282 );
               IPS_SetVariableProfileAssociation("HC_WasherState", 1, "Ready", "", 0x22ff00 );
               IPS_SetVariableProfileAssociation("HC_WasherState", 2, "Program running", "", 0xfc0303 );
+          }
+          if (!IPS_VariableProfileExists('HC_WasherMode')) {
+              IPS_CreateVariableProfile('HC_WasherMode', 1);
+              IPS_SetVariableProfileIcon('HC_WasherMode', 'Drops');
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 0, "Auto lightly", "",0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 1, "Auto normally", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 2, "Auto highly", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 3, "Auto half Load", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 4, "Eco 50°C", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 5, "Quick 45°C", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 6, "Quick 65°C", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 7, "Intensiv 45°C", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 8, "Intensiv 70°C", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 9, "Intensiv Power", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 10, "Normal 45°C", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 11, "Normal 65°C", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 12, "Glas 40°C", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 13, "Glass care", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 14, "Night wash", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 15, "Magic daily", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 16, "Kurz 60°C", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 17, "Super 60°C", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 18, "Express Sparkle 65°C", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 19, "Machine care", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 20, "Steam fresh", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherMode", 21, "Maximum cleaning", "", 0xcf0000 );
+          }
+          if (!IPS_VariableProfileExists('HC_WasherProgress')) {
+              IPS_CreateVariableProfile('HC_WasherProgress', 1);
+              IPS_SetVariableProfileIcon('HC_WasherProgress', 'Hourglass');
+              IPS_SetVariableProfileText("HC_WasherProgress", "", "%");
           }
           if (!IPS_VariableProfileExists('HC_WasherDoorState')) {
               IPS_CreateVariableProfile('HC_WasherDoorState', 0);
@@ -309,6 +339,81 @@ class HomeConnectWasher extends IPSModule {
       }
 
 
-  }
+    /**
+     * @param string $var that should be analyse
+     * @return bool returns true or false for HomeConnect Api result
+     */
+    public function HC($var ) {
+        switch ( $var ) {
+            //------------------------ DOOR
+            case "BSH.Common.EnumType.DoorState.Open":
+                return true;
+            case "BSH.Common.EnumType.DoorState.Closed":
+                return false;
+            //------------------------ OPERATION STATE
+            case "BSH.Common.EnumType.OperationState.Inactive":
+                return 0;
+            case "BSH.Common.EnumType.OperationState.Ready":
+                return 1;
+            case "BSH.Common.EnumType.OperationState.Run":
+                return 2;
+        }
+        return 0;
+    }
 
+    /**
+     * @param string $var that should be analyse
+     * @return bool returns true or false for HomeConnect Api result
+     */
+    public function IPS($var ) {
+        switch ( $var ) {
+            //------------------------ Programms
+            case "Dishcare.Dishwasher.Program.Auto1":
+                return 0;
+            case "Dishcare.Dishwasher.Program.Auto2":
+                return 1;
+            case "Dishcare.Dishwasher.Program.Auto3":
+                return 2;
+            case "Dishcare.Dishwasher.Program.AutoHalfLoad":
+                return 3;
+            case "Dishcare.Dishwasher.Program.Eco50":
+                return 4;
+            case "Dishcare.Dishwasher.Program.Quick45":
+                return 5;
+            case "Dishcare.Dishwasher.Program.Quick65":
+                return 6;
+            case "Dishcare.Dishwasher.Program.Intensiv45":
+                return 7;
+            case "Dishcare.Dishwasher.Program.Intensiv70":
+                return 8;
+            case "Dishcare.Dishwasher.Program.IntensivPower":
+                return 9;
+            case "Dishcare.Dishwasher.Program.Normal45":
+                return 10;
+            case "Dishcare.Dishwasher.Program.Normal65":
+                return 11;
+            case "Dishcare.Dishwasher.Program.Glas40":
+                return 12;
+            case "Dishcare.Dishwasher.Program.GlassCare":
+                return 13;
+            case "Dishcare.Dishwasher.Program.NightWash":
+                return 14;
+            case "Dishcare.Dishwasher.Program.MagicDaily":
+                return 15;
+            case "Dishcare.Dishwasher.Program.Kurz60":
+                return 16;
+            case "Dishcare.Dishwasher.Program.Super60":
+                return 17;
+            case "Dishcare.Dishwasher.Program.ExpressSparkle65":
+                return 18;
+            case "Dishcare.Dishwasher.Program.MachineCare":
+                return 19;
+            case "Dishcare.Dishwasher.Program.SteamFresh":
+                return 20;
+            case "Dishcare.Dishwasher.Program.MaximumCleaning":
+                return 21;
+        }
+        return 0;
+    }
+  }
 ?>
