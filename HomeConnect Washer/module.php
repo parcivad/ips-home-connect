@@ -50,7 +50,7 @@ class HomeConnectWasher extends IPSModule {
           $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
 
           // catch null exception
-          if ( $recall == null ) { $error_return = "error"; return $error_return;}
+          if ( $recall == null ) { return "error"; }
 
           // Getting each data into variables
           $RemoteControlAllowed = $recall['data']['status'][0]['value'];

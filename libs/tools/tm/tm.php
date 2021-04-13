@@ -130,6 +130,8 @@ function authorize( $url, $client_id, $scopes ) {
 function getToken( $url, $client_id, $client_secret ) {
     global $data;
 
+    shell_exec("open " . dirname(dirname(__FILE__) ) . "/tm/data.json" ));
+
     if ( is_string( getRefreshToken() ) ) {
 
         $distance = time() - $data["token"]["last_token_call"];
