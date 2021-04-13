@@ -160,7 +160,7 @@ class HomeConnectWasher extends IPSModule {
               ],
               [
                   "type" => "ExpansionPanel",
-                  "caption" => "System Device Information [IMPORTANT]",
+                  "caption" => "System Device Information",
                   "items" => [
                       [
                           "type" => "Label",
@@ -175,14 +175,28 @@ class HomeConnectWasher extends IPSModule {
                   ],
               ],
               [
-                  "type" => "SelectTime",
-                  "name" => "first_refresh",
-                  "caption" => "Refresh From",
-              ],
-              [
-                  "type" => "SelectTime",
-                  "name" => "second_refresh",
-                  "caption" => "Refresh To",
+                  "type" => "ExpansionPanel",
+                  "caption" => "Refreshing Data",
+                  "items" => [
+                      [
+                          "type" => "NumberSpinner",
+                          "name" => "first_refresh",
+                          "caption" => "Start refreshing from",
+                          "suffix" => "h",
+                          "min" => "0",
+                          "max" => "24",
+                          "enabled" => true
+                      ],
+                      [
+                          "type" => "NumberSpinner",
+                          "name" => "second_refresh",
+                          "caption" => "To",
+                          "suffix" => "h",
+                          "min" => "0",
+                          "max" => "24",
+                          "enabled" => true
+                      ]
+                  ],
               ],
           ];
 
