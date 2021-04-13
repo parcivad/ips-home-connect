@@ -98,7 +98,7 @@
       }
 
 
-      /**
+      /** Translate the Home Connect api return
        * @param string $var that should be analyse
        * @return bool returns true or false for HomeConnect Api result
        */

@@ -27,6 +27,13 @@ class HomeConnectWasher extends IPSModule {
           // Register Information Panel
           $this->RegisterAttributeString("remoteControlAllowed", false );
           $this->RegisterAttributeString("remoteStartAllowed", false );
+
+          // Register Variable and Profiles
+          $this->registerProfiles();
+
+          $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -1 );
+          $this->RegisterVariableInteger("state", "Device State", "HC_WasherState", 0 );
+          $this->RegisterVariableBoolean("door", "Door State", "HC_WasherDoorState", 1 );
       }
 
       /** This function will be called by IP Symcon when the User change vars in the Module Interface
@@ -39,11 +46,30 @@ class HomeConnectWasher extends IPSModule {
       }
 
 
+      public function refresh() {
+          $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
+
+          // catch null exception
+          if ( $recall == null ) { $error_return = "error"; return $error_return;}
+
+          // Getting each data into variables
+          $RemoteControlAllowed = $recall['data']['status'][0]['value'];
+          $RemoteControlStartAllowed = $recall['data']['status'][1]['value'];
+          $DoorState =  $this->HC( $recall['data']['status'][2]['value'] );
+          $OperationState = $this->HC( $recall['data']['status'][3]['value'] );
+
+          $this->SetValue("door", $DoorState );
+          $this->SetValue("state", $OperationState );
+
+          $this->SetValue( "LastRefresh", time() );
+      }
+
+
       /**
        * @param string $var that should be analyse
        * @return bool returns true or false for HomeConnect Api result
        */
-      public function HCvar($var ) {
+      public function HC($var ) {
 
           switch ( $var ) {
               //------------------------ DOOR
@@ -72,6 +98,19 @@ class HomeConnectWasher extends IPSModule {
       protected function registerProfiles()
       {
           // Generate Variable Profiles
+          if (!IPS_VariableProfileExists('HC_WasherState')) {
+              IPS_CreateVariableProfile('HC_WasherState', 1);
+              IPS_SetVariableProfileIcon('HC_WasherState', 'Power');
+              IPS_SetVariableProfileAssociation("HC_WasherState", 0, "Standby", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_WasherState", 1, "Ready", "", 0x22ff00 );
+              IPS_SetVariableProfileAssociation("HC_WasherState", 2, "Program running", "", 0xfc0303 );
+          }
+          if (!IPS_VariableProfileExists('HC_WasherDoorState')) {
+              IPS_CreateVariableProfile('HC_WasherDoorState', 0);
+              IPS_SetVariableProfileIcon('HC_WasherDoorState', 'Lock');
+              IPS_SetVariableProfileAssociation("HC_WasherDoorState", false, "Closed", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_WasherDoorState", true, "Open", "", 0xcf0000 );
+          }
       }
 
 
