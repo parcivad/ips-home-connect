@@ -53,6 +53,8 @@ class HomeConnectWasher extends IPSModule {
           //===================== Check Timer
           $hour = date( 'h', time() ) + 2;
 
+          echo $hour;
+
           if ( $hour >= $this->ReadPropertyInteger("first_refresh") && $hour <= $this->ReadPropertyInteger("second_refresh") ) {
               // Setting timer
               $this->SetTimerInterval("refresh", 300000 );
