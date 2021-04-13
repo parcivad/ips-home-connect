@@ -183,9 +183,15 @@ class HomeConnectWasher extends IPSModule {
 
     /**
      * Function to turn the dishwasher on
+     * @param bool $var switch
      */
-      public function turnOn() {
-          $power = '{"data": { "key": "BSH.Common.Setting.PowerState", "value": "BSH.Common.EnumType.PowerState.On" }';
+      public function SetActive( bool $var ) {
+          if ( $var ) {
+              $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.On","type": "BSH.Common.EnumType.PowerState"}}';
+          } else {$power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.Off","type": "BSH.Common.EnumType.PowerState"}}';
+
+          }
+
           Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/settings/BSH.Common.Setting.PowerState", $power);
       }
 
