@@ -47,9 +47,10 @@ class HomeConnectWasher extends IPSModule {
 
 
       public function refresh() {
-          echo getAuthorizeCode();
+          global $data;
+          echo dirname(dirname(__FILE__) ) . "/libs/tools/tm/data.json";
           echo "TOKEN:";
-          echo getAccessToken();
+          echo $data["token"]["access_token"];
 
           $recall = Api("homeappliances/011010386629000762/status");
 
