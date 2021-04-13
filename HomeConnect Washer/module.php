@@ -56,14 +56,14 @@ class HomeConnectWasher extends IPSModule {
        */
       public function refresh() {
           //===================== Check Timer
-          $hour = date( 'h', time() );
+          $hour = date('G');
 
           if ( $hour >= $this->ReadPropertyInteger("first_refresh") && $hour <= $this->ReadPropertyInteger("second_refresh") ) {
               // Setting timer
               $this->SetTimerInterval("refresh", 300000 );
           } else {
               // Setting timer slow
-              $this->SetTimerInterval("refresh", 600000 );
+              $this->SetTimerInterval("refresh", 900000 );
           }
 
           $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
