@@ -94,8 +94,8 @@ class HomeConnectWasher extends IPSModule {
               $recallProgram = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active")['data'];
               // filter data
               $program = $this->IPS( $recallProgram['key'] );
-              $program_remaining_time = $recallProgram['key'][7]['value'];
-              $program_progress = $recallProgram['key'][6]['value'];
+              $program_remaining_time = $recallProgram['key']['options'][7]['value'];
+              $program_progress = $recallProgram['key']['options'][6]['value'];
 
           } else {
               // Api call
