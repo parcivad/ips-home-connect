@@ -44,12 +44,13 @@ class HomeConnectDiscovery extends IPSModule {
     public function GetDevices() {
         global $data;
 
-        $checkdata = $data;
+        $auth_code = getAuthorizeCode();
+        $token = getAccessToken();
 
-        if ( is_string( $checkdata["authorize"]["code"] ) && !is_string( $checkdata["token"]["access_token"] ) ) {
+        if ( is_string( $auth_code ) && !is_string( $token ) ) {
             getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
             return [['name' => 'Retry [Refresh]', 'device' => ' ', 'company' => ' ', 'haId' => 'Überprüfe ob du eingeloggt bist/Check if youre logged in', 'connected' => ' ', 'rowColor' => '#ff0000']];
-        } else if ( !is_string( $checkdata["authorize"]["code"] ) && !is_string( $checkdata["token"]["access_token"] ) ) {
+        } else if ( !is_string( $auth_code ) && !is_string( $token ) ) {
             //login message
             return [[ 'name' => 'No Devices [Login]', 'device' => ' ', 'company' => ' ', 'haId' => 'Überprüfe ob du eingeloggt bist/Check if youre logged in', 'connected' => ' ', 'rowColor' => '#ff0000']];
         }
@@ -92,7 +93,7 @@ class HomeConnectDiscovery extends IPSModule {
                         $module = "{B03C2C23-A59C-026C-AD0B-CEA47312A5AB}";
                         break;
                     case "Dishwasher":
-                        $module = "{F8AE3556-6835-DD3C-E8E0-F686BE81850D}";
+                        $module = "{CCE508B4-7A15-4541-06B0-03C9DA28A5F1}";
                         break;
                 }
 

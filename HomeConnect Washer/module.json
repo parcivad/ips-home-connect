@@ -1,11 +1,11 @@
 {
-  "id": "{F8AE3556-6835-DD3C-E8E0-F686BE81850D}",
-  "name": "HomeConnect Dryer",
+  "id": "{CCE508B4-7A15-4541-06B0-03C9DA28A5F1}",
+  "name": "HomeConnect Washer",
   "type": 3,
   "vendor": "HomeConnect GmbH",
   "aliases":
   [
-    "HomeConnect Dryer"
+    "HomeConnect Washer"
   ],
   "url": "https://github.com/LegendDragon11",
   "parentRequirements": [],
@@ -13,3 +13,4 @@
   "implemented": [],
   "prefix": "HomeConnectDevice"
 }
+
