@@ -25,8 +25,8 @@ class HomeConnectWasher extends IPSModule {
           $this->RegisterPropertyInteger("second_refresh", 1 );
 
           // Register Information Panel
-          $this->RegisterAttributeString("remoteControlAllowed", false );
-          $this->RegisterAttributeString("remoteStartAllowed", false );
+          $this->RegisterAttributeString("remoteControlAllowed", "Your Device doesn't allow remote Control / Dein Gerät erlaubt keine Fernbedienung" );
+          $this->RegisterAttributeString("remoteStartAllowed", "Your Device doesn't allow remote Start / Dein Gerät erlaub keinen Fernstart" );
 
           // Erstellt einen Timer mit dem Namen "Update" und einem Intervall von 5 minutes.
           $this->RegisterTimer("refresh", 300000, "HomeConnectDishwasher_refresh($this->InstanceID);");
@@ -48,7 +48,9 @@ class HomeConnectWasher extends IPSModule {
           parent::ApplyChanges();
       }
 
-
+      /** Function the refresh all Home Connect Information
+       * @return string in case off error
+       */
       public function refresh() {
           //===================== Check Timer
           $hour = date( 'h', time() );
@@ -69,14 +71,26 @@ class HomeConnectWasher extends IPSModule {
           if ( $recall == null ) { return "error"; }
 
           // Getting each data into variables
-          $RemoteControlAllowed = $recall['data']['status'][0]['value'];
-          $RemoteControlStartAllowed = $recall['data']['status'][1]['value'];
+          // Check Remote control
+          if ( $recall['data']['status'][0]['value'] ) {
+              $this->WriteAttributeString("remoteControlAllowed", "Your Device does allow remote Control / Dein Gerät erlaubt eine Fernbedienung");
+          } else {
+              $this->WriteAttributeString("remoteControlAllowed", "Your Device doesn't allow remote Control / Dein Gerät erlaubt keine Fernbedienung");
+          }
+          // Check Remote start
+          if ( $recall['data']['status'][1]['value'] ) {
+              $this->WriteAttributeString("remoteStartAllowed", "Your Device does allow remote Start / Dein Gerät erlaub eine Fernstart" );
+          } else {
+              $this->WriteAttributeString("remoteStartAllowed", "Your Device doesn't allow remote Start / Dein Gerät erlaub keinen Fernstart" );
+          }
+
+          // Door State and Operation state
           $DoorState =  $this->HC( $recall['data']['status'][2]['value'] );
           $OperationState = $this->HC( $recall['data']['status'][3]['value'] );
 
+          // Set Variable value
           $this->SetValue("door", $DoorState );
           $this->SetValue("state", $OperationState );
-
           $this->SetValue( "LastRefresh", time() );
       }
 
@@ -86,16 +100,12 @@ class HomeConnectWasher extends IPSModule {
        * @return bool returns true or false for HomeConnect Api result
        */
       public function HC($var ) {
-
           switch ( $var ) {
               //------------------------ DOOR
-              // Return for Open Door
               case "BSH.Common.EnumType.DoorState.Open":
                   return true;
-              // Return for Close Door
               case "BSH.Common.EnumType.DoorState.Closed":
                   return false;
-                  break;
               //------------------------ OPERATION STATE
               case "BSH.Common.EnumType.OperationState.Inactive":
                   return 0;
@@ -103,16 +113,13 @@ class HomeConnectWasher extends IPSModule {
                   return 1;
               case "BSH.Common.EnumType.OperationState.Run":
                   return 2;
-                  break;
           }
-
       }
 
 
       /** This Function will register all Profiles for the Module
        */
-      protected function registerProfiles()
-      {
+      protected function registerProfiles() {
           // Generate Variable Profiles
           if (!IPS_VariableProfileExists('HC_WasherState')) {
               IPS_CreateVariableProfile('HC_WasherState', 1);
@@ -131,12 +138,11 @@ class HomeConnectWasher extends IPSModule {
 
 
 
-      //-----------------------------------------------------< Setting Form.json >-----------
+      //-----------------------------------------------------< Setting Form.json >------------------------------
       /** This Function will set the IP Symcon Form.json
        * @return false|string Form json
        */
-      public function GetConfigurationForm()
-      {
+      public function GetConfigurationForm() {
           // return current form
           $Form = json_encode([
               'elements' => $this->FormElements(),
