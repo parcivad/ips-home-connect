@@ -28,6 +28,9 @@ class HomeConnectWasher extends IPSModule {
           $this->RegisterAttributeString("remoteControlAllowed", false );
           $this->RegisterAttributeString("remoteStartAllowed", false );
 
+          // Erstellt einen Timer mit dem Namen "Update" und einem Intervall von 5 minutes.
+          $this->RegisterTimer("refresh", 300000, "HomeConnectDishwasher_refresh($this->InstanceID);");
+
           // Register Variable and Profiles
           $this->registerProfiles();
 
@@ -47,8 +50,20 @@ class HomeConnectWasher extends IPSModule {
 
 
       public function refresh() {
-          $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
+          //===================== Check Timer
+          $hour = date( 'h', time() ) + 2;
 
+          if ( $hour >= $this->ReadPropertyInteger("first_refresh") && $hour <= $this->ReadPropertyInteger("second_refresh") ) {
+              // Setting timer
+              $this->SetTimerInterval("refresh", 300000 );
+              echo 300000;
+          } else {
+              // Setting timer slow
+              $this->SetTimerInterval("refresh", 600000 );
+              echo 600000;
+          }
+
+          $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
 
           // catch null exception
           if ( $recall == null ) { return "error"; }
