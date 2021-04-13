@@ -21,8 +21,8 @@ class HomeConnectWasher extends IPSModule {
           $this->RegisterPropertyString('haId', '');
 
           // Set by User
-          $this->RegisterPropertyFloat("refreshFrom", 1 );
-          $this->RegisterPropertyFloat("refreshTo", 1 );
+          $this->RegisterPropertyInteger("first_refresh", 1 );
+          $this->RegisterPropertyInteger("second_refresh", 1 );
 
           // Register Information Panel
           $this->RegisterAttributeString("remoteControlAllowed", false );
@@ -176,17 +176,13 @@ class HomeConnectWasher extends IPSModule {
               ],
               [
                   "type" => "SelectTime",
-                  "name" => "refreshFrom",
+                  "name" => "first_refresh",
                   "caption" => "Refresh From",
-                  "enable" => true,
-                  "visible" => true,
               ],
               [
                   "type" => "SelectTime",
-                  "name" => "refreshTo",
+                  "name" => "second_refresh",
                   "caption" => "Refresh To",
-                  "enable" => true,
-                  "visible" => true,
               ],
           ];
 
