@@ -53,6 +53,7 @@ class HomeConnectWasher extends IPSModule {
       }
 
 
+      //--------------------------------------------------< User functions >----------------------------------
     /** Function to refresh the device values
      * @return string could return error
      */
@@ -422,7 +423,7 @@ class HomeConnectWasher extends IPSModule {
        * @param string $var that should be analyse
        * @return bool returns true or false for HomeConnect Api result
        */
-      public function HC($var ) {
+      private function HC($var ) {
         switch ( $var ) {
             //------------------------ DOOR
             case "BSH.Common.EnumType.DoorState.Open":
@@ -444,7 +445,7 @@ class HomeConnectWasher extends IPSModule {
        * @param string $var that should be analyse
        * @return bool returns true or false for HomeConnect Api result
        */
-       public function IPS($var ) {
+      private function IPS($var ) {
         switch ( $var ) {
             //------------------------ Programms
             case "Dishcare.Dishwasher.Program.Auto1":
