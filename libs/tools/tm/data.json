@@ -1,0 +1,15 @@
+{
+  "token": {
+    "access_token": null,
+    "refresh_token": null,
+    "expires_in": null,
+    "id_token": null,
+
+    "token_type": null,
+    "scope": null,
+    "last_token_call": null
+  },
+  "authorize": {
+    "code": null
+  }
+}
