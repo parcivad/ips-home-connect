@@ -35,11 +35,6 @@ class HomeConnectWasher extends IPSModule {
       {
           // Overwrite ips function
           parent::ApplyChanges();
-
-          // Change Timer
-          $rate = ( $this->ReadPropertyInteger("refreshRate") * 1000 ) * 60;
-          $this->SetTimerInterval("refresh", $rate );
-
       }
 
 
