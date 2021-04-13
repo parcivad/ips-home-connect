@@ -72,13 +72,13 @@ class HomeConnectWasher extends IPSModule {
 
           // Getting each data into variables
           // Check Remote control
-          if ( $recall['data']['status'][0]['value'] ) {
+          if ( $recall['data']['status'][1]['value'] ) {
               $this->WriteAttributeString("remoteControlAllowed", "Your Device does allow remote Control / Dein Gerät erlaubt eine Fernbedienung");
           } else {
               $this->WriteAttributeString("remoteControlAllowed", "Your Device doesn't allow remote Control / Dein Gerät erlaubt keine Fernbedienung");
           }
           // Check Remote start
-          if ( $recall['data']['status'][1]['value'] ) {
+          if ( $recall['data']['status'][2]['value'] ) {
               $this->WriteAttributeString("remoteStartAllowed", "Your Device does allow remote Start / Dein Gerät erlaub eine Fernstart" );
           } else {
               $this->WriteAttributeString("remoteStartAllowed", "Your Device doesn't allow remote Start / Dein Gerät erlaub keinen Fernstart" );
