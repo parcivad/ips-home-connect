@@ -128,9 +128,9 @@ function authorize( $url, $client_id, $scopes ) {
  * @return mixed Return the access_token
  */
 function getToken( $url, $client_id, $client_secret ) {
-    global $data;
+    $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/tm/data.json" ), true );
 
-    if ( is_string( getRefreshToken() ) ) {
+    if ( is_string( $data["token"]["refresh_token"] ) ) {
 
         $distance = time() - $data["token"]["last_token_call"];
         $limit = $data["token"]["expires_in"] - 3600;
@@ -142,7 +142,7 @@ function getToken( $url, $client_id, $client_secret ) {
     }
 
     // Check if there is a Authorization code
-    if ( is_string( getAuthorizeCode() ) )  {
+    if ( is_string( $data["authorize"]["code"] ) )  {
 
         //================= Url build ===================
         $params_array = [
@@ -219,7 +219,7 @@ function getToken( $url, $client_id, $client_secret ) {
  * @return mixed return token
  */
 function refreshToken( $url, $client_id, $client_secret, $scope ) {
-    global $data;
+    $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/tm/data.json" ), true );
 
     // Check if there is a Authorization code
     if ( is_string( $data["authorize"]["code"] ) ) {
