@@ -20,13 +20,13 @@ class HomeConnectWasher extends IPSModule {
           $this->RegisterPropertyString('company', '');
           $this->RegisterPropertyString('haId', '');
 
+          // Set by User
+          $this->RegisterPropertyFloat("refreshFrom", 1 );
+          $this->RegisterPropertyFloat("refreshTo", 1 );
+
           // Register Information Panel
           $this->RegisterAttributeString("remoteControlAllowed", false );
           $this->RegisterAttributeString("remoteStartAllowed", false );
-
-          // Set by User
-          $this->RegisterPropertyInteger("refreshFrom", 1 );
-          $this->RegisterPropertyInteger("refreshTo", 1 );
       }
 
       /** This function will be called by IP Symcon when the User change vars in the Module Interface
