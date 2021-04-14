@@ -36,13 +36,15 @@ class HomeConnectWasher extends IPSModule {
 
           $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -2 );
           $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_WasherRemoteStart", -1 );
-          $this->RegisterVariableInteger("state", "Device State", "HC_WasherState", 0 );
-          $this->RegisterVariableInteger("mode", "Device Mode", "HC_WasherMode", 1 );
-          $this->RegisterVariableInteger("progress", "Progress", "HC_WasherProgress", 7 );
-          $this->RegisterVariableInteger("remainTime", "Remaining Time", "UnixTimestampTime", 8 );
-          $this->RegisterVariableBoolean("door", "Door State", "HC_WasherDoorState", 9 );
-
-          $this->EnableAction("door");
+          $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_DishwasherState", 0 );
+          $this->EnableAction('state');
+          $this->RegisterVariableInteger("mode", "Programm", "HC_DishwasherMode", 1 );
+          $this->EnableAction('mode');
+          $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_DishwasherDoorState", 2 );
+          $this->RegisterVariableInteger("remainTime", "Verbleibende Zeit", "UnixTimestampTime", 3 );
+          $this->RegisterVariableInteger("progress", "Fortschritt", "HC_DishwasherProgress", 4 );
+          $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_DishwasherStartStop", 4 );
+          $this->EnableAction('start_stop');
       }
 
       /** This function will be called by IP Symcon when the User change vars in the Module Interface
@@ -55,7 +57,22 @@ class HomeConnectWasher extends IPSModule {
       }
 
 
-      //--------------------------------------------------< User functions >----------------------------------
+      //--------------------------------------------------< Reaction >----------------------------------------
+      public function RequestAction($Ident, $Value)
+      {
+          switch ( $Ident ) {
+              case 'state':
+                  if ( $this->GetValue("state") != 3 ) {
+                      if ( $Value ) {
+                          $this->SetActive( true );
+                      } else {
+                          $this->SetActive( false );
+                      }
+                  }
+                  break;
+          }
+      }
+    //--------------------------------------------------< User functions >----------------------------------
     /** Function to refresh the device values
      * @return string could return error
      */
@@ -126,7 +143,6 @@ class HomeConnectWasher extends IPSModule {
 
     /** Function to start Modes for the Dishwasher
      * @param string $mode Mode
-     * @return array Api return
      */
       public function start( string $mode ) {
 
@@ -154,15 +170,17 @@ class HomeConnectWasher extends IPSModule {
           }
 
           // Settings
-          $opt = "{ 'data':{ 'key'': $mode, 'options':[ { 'key':'BSH.Common.Option.StartInRelative', 'value':1800, 'unit':'seconds' } ] } }";
+          $opt = "{ 'data':{ 'key'': $mode, 'options':[ { 'key':'BSH.Common.Option.StartInRelative', 'value':0, 'unit':'seconds' } ] } }";
 
           // Send
           if ( $recall['data']['status'][0]['value'] ) {
               if ( $this->HC( $recall['data']['status'][3]['value'] ) == 2 ) {
-                  return Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
+                  Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
+                  $this->SetValue("state", 2);
               } else {
-                  $this->turnOn();
-                  return Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
+                  $this->SetActive( true );
+                  Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
+                  $this->SetValue("state", 2);
               }
           } else {
               throw new LogicException("Remote start must be allowed");
@@ -177,7 +195,8 @@ class HomeConnectWasher extends IPSModule {
           $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
 
           if ( $recall['data']['status'][1]['value'] ) {
-              return Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", );
+              Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", );
+              $this->SetValue("state", 0);
           } else {
               throw new LogicException("Remote control must be allowed");
           }
@@ -185,10 +204,10 @@ class HomeConnectWasher extends IPSModule {
 
     /**
      * Function to turn the dishwasher on
-     * @param bool $var switch
+     * @param bool $state switch
      */
-      public function SetActive( bool $var ) {
-          if ( $var ) {
+      public function SetActive( bool $state ) {
+          if ( $state ) {
               $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.On","type": "BSH.Common.EnumType.PowerState"}}';
           } else {$power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.Off","type": "BSH.Common.EnumType.PowerState"}}';
 
@@ -197,53 +216,61 @@ class HomeConnectWasher extends IPSModule {
           Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/settings/BSH.Common.Setting.PowerState", $power);
       }
 
+    //-----------------------------------------------------< Profiles >------------------------------
       /** This Function will register all Profiles for the Module
        */
       protected function registerProfiles() {
           // Generate Variable Profiles
-          if (!IPS_VariableProfileExists('HC_WasherState')) {
-              IPS_CreateVariableProfile('HC_WasherState', 1);
-              IPS_SetVariableProfileIcon('HC_WasherState', 'Power');
-              IPS_SetVariableProfileAssociation("HC_WasherState", 0, "Standby", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherState", 1, "Ready", "", 0x22ff00 );
-              IPS_SetVariableProfileAssociation("HC_WasherState", 2, "Program running", "", 0xfc0303 );
+          if (!IPS_VariableProfileExists('HC_DishwasherState')) {
+              IPS_CreateVariableProfile('HC_DishwasherState', 1);
+              IPS_SetVariableProfileIcon('HC_DishwasherState', 'Power');
+              IPS_SetVariableProfileValues("HC_DishwasherState", 0, 2, 0 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherState", 0, "Standby", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherState", 1, "Ready", "", 0x22ff00 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherState", 2, "Program running", "", 0xfa3200 );
           }
-          if (!IPS_VariableProfileExists('HC_WasherMode')) {
-              IPS_CreateVariableProfile('HC_WasherMode', 1);
-              IPS_SetVariableProfileIcon('HC_WasherMode', 'Drops');
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 0, "Auto lightly", "",0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 1, "Auto normally", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 2, "Auto highly", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 3, "Auto half Load", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 4, "Eco 50°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 5, "Quick 45°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 6, "Quick 65°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 7, "Intensiv 45°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 8, "Intensiv 70°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 9, "Intensiv Power", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 10, "Normal 45°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 11, "Normal 65°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 12, "Glas 40°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 13, "Glass care", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 14, "Night wash", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 15, "Magic daily", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 16, "Kurz 60°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 17, "Super 60°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 18, "Express Sparkle 65°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 19, "Machine care", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 20, "Steam fresh", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherMode", 21, "Maximum cleaning", "", 0x828282 );
+          if (!IPS_VariableProfileExists('HC_DishwasherMode')) {
+              IPS_CreateVariableProfile('HC_DishwasherMode', 1);
+              IPS_SetVariableProfileIcon('HC_DishwasherMode', 'Drops');
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 0, "Auto lightly", "",0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 1, "Auto normally", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 2, "Auto highly", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 3, "Auto half Load", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 4, "Eco 50°C", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 5, "Quick 45°C", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 6, "Quick 65°C", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 7, "Intensiv 45°C", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 8, "Intensiv 70°C", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 9, "Intensiv Power", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 10, "Normal 45°C", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 11, "Normal 65°C", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 12, "Glas 40°C", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 13, "Glass care", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 14, "Night wash", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 15, "Magic daily", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 16, "Kurz 60°C", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 17, "Super 60°C", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 18, "Express Sparkle 65°C", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 19, "Machine care", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 20, "Steam fresh", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 21, "Maximum cleaning", "", 0x828282 );
           }
-          if (!IPS_VariableProfileExists('HC_WasherProgress')) {
-              IPS_CreateVariableProfile('HC_WasherProgress', 1);
-              IPS_SetVariableProfileIcon('HC_WasherProgress', 'Hourglass');
-              IPS_SetVariableProfileText("HC_WasherProgress", "", "%");
+          if (!IPS_VariableProfileExists('HC_DishwasherProgress')) {
+              IPS_CreateVariableProfile('HC_DishwasherProgress', 1);
+              IPS_SetVariableProfileIcon('HC_DishwasherProgress', 'Hourglass');
+              IPS_SetVariableProfileText("HC_DishwasherProgress", "", "%");
           }
-          if (!IPS_VariableProfileExists('HC_WasherDoorState')) {
-              IPS_CreateVariableProfile('HC_WasherDoorState', 0);
-              IPS_SetVariableProfileIcon('HC_WasherDoorState', 'Lock');
-              IPS_SetVariableProfileAssociation("HC_WasherDoorState", false, "Closed", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherDoorState", true, "Open", "", 0xcf0000 );
+          if (!IPS_VariableProfileExists('HC_DishwasherDoorState')) {
+              IPS_CreateVariableProfile('HC_DishwasherDoorState', 0);
+              IPS_SetVariableProfileIcon('HC_DishwasherDoorState', 'Lock');
+              IPS_SetVariableProfileAssociation("HC_DishwasherDoorState", false, "Closed", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherDoorState", true, "Open", "", 0xcf0000 );
+          }
+          if (!IPS_VariableProfileExists('HC_DishwasherStartStop')) {
+              IPS_CreateVariableProfile('HC_DishwasherStartStop', 0);
+              IPS_SetVariableProfileIcon('HC_DishwasherStartStop', 'Power');
+              IPS_SetVariableProfileAssociation("HC_DishwasherStartStop", false, "Stop", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherStartStop", true, "Start", "", 0x11ff00 );
           }
           if (!IPS_VariableProfileExists('HC_WasherRemoteStart')) {
               IPS_CreateVariableProfile('HC_WasherRemoteStart', 0);
@@ -255,7 +282,7 @@ class HomeConnectWasher extends IPSModule {
 
 
 
-      //-----------------------------------------------------< Setting Form.json >------------------------------
+    //-----------------------------------------------------< Setting Form.json >------------------------------
       /** This Function will set the IP Symcon Form.json
        * @return false|string Form json
        */
