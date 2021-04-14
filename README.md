@@ -15,7 +15,7 @@ In der Dokumentation lässt sich zu jedem unterstützten Gerät eine Anleitung u
 Der Geschirrspüler kann gestartet, gestoppt, an und aus geschaltet werden. 
 Zudem lassen sich Informationen wie die Verbleibende Zeit oder die Programme geben lassen.
 
-### Instance Einstellungen
+### Instanz Einstellungen
 
 <p align="center">
   <img width="447" height="416" src="https://github.com/LegendDragon11/img/blob/main/instanceGeschirrspüler.png">
