@@ -66,10 +66,10 @@ class HomeConnectWasher extends IPSModule {
                   if ( $this->GetValue("state") != 3 ) {
                       if ( $Value ) {
                           $this->SetActive( true );
-                          $this->SetValue('state', 2 );
+                          $this->SetValue('state', 1 );
                       } else {
                           $this->SetActive( false );
-                          $this->SetValue('state', 1 );
+                          $this->SetValue('state', 0 );
                       }
                   }
                   break;
@@ -290,8 +290,8 @@ class HomeConnectWasher extends IPSModule {
           if (!IPS_VariableProfileExists('HC_WasherRemoteStart')) {
               IPS_CreateVariableProfile('HC_WasherRemoteStart', 0);
               IPS_SetVariableProfileIcon('HC_WasherRemoteStart', 'Lock');
-              IPS_SetVariableProfileAssociation("HC_WasherRemoteStart", false, "Nicht erlaubt", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherRemoteStart", true, "Erlaubt", "", 0xfa3200 );
+              IPS_SetVariableProfileAssociation("HC_WasherRemoteStart", false, "Nicht erlaubt", "", 0xfa3200 );
+              IPS_SetVariableProfileAssociation("HC_WasherRemoteStart", true, "Erlaubt", "", 0x11ff00 );
           }
       }
 
