@@ -30,15 +30,17 @@ Name | Type | Werte | Funktionen
 :--- | :---: | :---  | :---:
 `Last Refresh` | UnixTimeStamp | time | Zeigt die Zeit vom letzen aktualisieren
 `Remote Control` | Boolean | true, false | Zeigt ob die Permission Control gegeben ist
-`Geräte Zustand`| Integer | 0 Aus; 1 An; 2 Programm läuft | Zeigt dem Nutzer den Zustand
+`Geräte Zustand`| Integer | 0 Aus; 1 An; 2 Programm läuft | Zeigt dem Nutzer den Zustand vom Gerät
 `Programm` | Integer | 0,1,2... | Zeigt den Aktuellen Modus, auch zum auswählen
 `Remote start`| Boolean | true, false | Zeigt ob Remote Start an ist
-`Tür Zustand` | Boolean | true, false | Zeigt ob die Tür offen/geschlossen ist (wenn das Gerät an ist)
+`Tür Zustand` | Boolean | true Offen; false Geschlossen | Zeigt ob die Tür offen/geschlossen ist (wenn das Gerät an ist)
 `Verbleibende Zeit`| UnixTimeStampTime | time | Zeigt verbleibende Zeit vom Programm
-`Fortschritt` | % | time | Fortschritt im Programm (einzelne Stufen "Reinigung"-"Trocknen"-uws.)
+`Fortschritt` | % | Integer | Fortschritt im Programm (einzelne Stufen "Reinigung"-"Trocknen"-uws.)
 `Programm start/stop`| Boolean | true, false | Hiermit lässt sich das ausgewählte Programm starten 
 
-### Gerät Zustand steuern
+### Geschirrspüler Set
+Alle Eigenschaften die gesetzt werden können.
+#### Gerät Zustand steuern
 Der Geräte Zustand kann im Webfront geändert werden oder im Code mit diesem Befehl (siehe Beispiel)
 Dabei wird zwischen true/false unterschieden, also An oder Aus.
 Beispiel:
@@ -48,7 +50,7 @@ HCDishwasher_SetActive( InstaceID, false/true );
 ```diff
 -Für diese Aktion wird die Berechtigung RemoteControl benötigt!
 ```
-### Programm starten
+#### Programm starten
 Ein Programm kann über das Webfront gestartet werden oder im Code (siehe Beispiel). Hierbei ist der Modus ein string. Die Namen lassen sich im `Programm` integer finden.
 Beispiel:
 ```php
@@ -57,7 +59,7 @@ HCDishwasher_start( InstanceID, "Auto2");
 ```diff
 -Für diese Aktion wird die Berechtigung RemoteControl und RemoteStart benötigt!
 ```
-### Programm stoppen
+#### Programm stoppen
 Ein Programm kann über das Webfront gestoppt werden oder im Code (siehe Beispiel).
 ```php
 HCDishwasher_stop( InstanceID );
@@ -65,10 +67,10 @@ HCDishwasher_stop( InstanceID );
 ```diff
 -Für diese Aktion wird die Berechtigung RemoteControl benötigt!
 ```
-### Manuell refreshen
+#### Manuell refreshen
 Das kann mit diesem Befehl gemacht werden.
 ```php
-HCDishwasher_refresh( 46747 );
+HCDishwasher_refresh( InstanceID );
 ```
 ```diff
 +Für diese Aktion wird nur die Authorizierung gebraucht.
@@ -78,3 +80,4 @@ HCDishwasher_refresh( 46747 );
 Für alle Befehle und abfragen gilt:
 - Die Anfrage braucht 0,5 - 3sec
 - Die Befehle brauchen ebenfalls etwas Zeit
+- Max 1.000 Anfragen für alles (refresh, start/stop, an/aus, alle geräte)
