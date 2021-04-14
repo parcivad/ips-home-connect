@@ -14,10 +14,7 @@ function open( $url ) {
         case "DAR":
             shell_exec('open "' . $url . '"');
             break;
-        case "LIN":
-            shell_exec('xdg-open "' . $url . '"');
-            break;
-        case "WIN":
+        default:
             shell_exec('start ' . $url);
             break;
     }
