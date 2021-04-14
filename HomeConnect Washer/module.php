@@ -35,15 +35,16 @@ class HomeConnectWasher extends IPSModule {
           $this->registerProfiles();
 
           $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -2 );
-          $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_WasherRemoteStart", -1 );
+          IPS_SetHidden( $this->GetIDForIdent('LastRefresh'), true );
           $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_DishwasherState", 0 );
           $this->EnableAction('state');
           $this->RegisterVariableInteger("mode", "Programm", "HC_DishwasherMode", 1 );
           $this->EnableAction('mode');
-          $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_DishwasherDoorState", 2 );
-          $this->RegisterVariableInteger("remainTime", "Verbleibende Zeit", "UnixTimestampTime", 3 );
-          $this->RegisterVariableInteger("progress", "Fortschritt", "HC_DishwasherProgress", 4 );
-          $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_DishwasherStartStop", 4 );
+          $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_WasherRemoteStart", 2 );
+          $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_DishwasherDoorState", 3 );
+          $this->RegisterVariableInteger("remainTime", "Verbleibende Zeit", "UnixTimestampTime", 4 );
+          $this->RegisterVariableInteger("progress", "Fortschritt", "HC_DishwasherProgress", 5 );
+          $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_DishwasherStartStop", 6 );
           $this->EnableAction('start_stop');
       }
 
@@ -65,11 +66,25 @@ class HomeConnectWasher extends IPSModule {
                   if ( $this->GetValue("state") != 3 ) {
                       if ( $Value ) {
                           $this->SetActive( true );
+                          $this->SetValue('state', 2 );
                       } else {
                           $this->SetActive( false );
+                          $this->SetValue('state', 1 );
                       }
                   }
                   break;
+              case 'mode':
+                  $this->SetValue('mode', $Value);
+                  break;
+              case 'start_stop':
+                  //TODO: start and stop Device
+                  if ( $Value ) {
+                      $this->start( "Auto2" );
+                      $this->SetValue('state', 3 );
+                  } else {
+                      $this->stop();
+                      $this->SetValue('state', 2);
+                  }
           }
       }
     //--------------------------------------------------< User functions >----------------------------------
@@ -279,7 +294,6 @@ class HomeConnectWasher extends IPSModule {
               IPS_SetVariableProfileAssociation("HC_WasherRemoteStart", true, "allowed", "", 0xcf0000 );
           }
       }
-
 
 
     //-----------------------------------------------------< Setting Form.json >------------------------------
