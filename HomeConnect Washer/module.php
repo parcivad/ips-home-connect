@@ -451,7 +451,7 @@ class HomeConnectWasher extends IPSModule {
                       [
                           "type" => "NumberSpinner",
                           "name" => "first_refresh",
-                          "caption" => "Refreshen von " . $this->GetValue("first_refresh") . " Uhr",
+                          "caption" => "Refreshen von " . $this->ReadPropertyInteger("first_refresh") . " Uhr",
                           "suffix" => "h",
                           "minimum" => "0",
                           "maximum" => "24",
@@ -460,7 +460,7 @@ class HomeConnectWasher extends IPSModule {
                       [
                           "type" => "NumberSpinner",
                           "name" => "second_refresh",
-                          "caption" => "Bis " . $this->GetValue("second_refresh"),
+                          "caption" => "Bis " . $this->ReadPropertyInteger("second_refresh"),
                           "suffix" => "h",
                           "minimum" => "0",
                           "maximum" => "24",
