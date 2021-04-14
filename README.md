@@ -46,7 +46,7 @@ HomeConnectDishwasher_SetActive( InstaceID, false/true );
 ### Programm starten
 Ein Programm kann über das Webfront gestartet werden oder im Code (siehe Beispiel). Hierbei ist der Modus ein string. Die Namen lassen sich im `Programm` integer finden.
 Beispiel:
-```phpHomeConnectDishwasher_refresh( 46747 );
+```php
 HomeConnectDishwasher_start( InstanceID, "Auto2");
 ```
 
