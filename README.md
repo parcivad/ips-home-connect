@@ -6,7 +6,6 @@ In der Dokumentation lässt sich zu jedem unterstützten Gerät eine Anleitung u
 
 **Inhaltsverzeichnis**
 
-- [Zusammenfassung](#ip-symcon modul für die homeconnect geräte)
 - [Geräte](#geräte)
 	- [Geschirrspüler](#geschirrspüler)
 - [Info](#Info)
