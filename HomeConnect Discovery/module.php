@@ -4,6 +4,7 @@ require_once( dirname(dirname(__FILE__) ) . "/libs/tools/HomeConnectApi.php");
 require_once( dirname(dirname(__FILE__) ) . "/libs/tools/tm/tm.php");
 $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/libs/tools/tm/data.json" ), true );
 
+
 class HomeConnectDiscovery extends IPSModule {
 
     /*
@@ -13,6 +14,8 @@ class HomeConnectDiscovery extends IPSModule {
     {
         // Overwrite ips function
         parent::Create();
+
+        $this->RegisterPropertyString("auth_url", null);
     }
     /*
      * Internal function of SDK
@@ -31,7 +34,7 @@ class HomeConnectDiscovery extends IPSModule {
     public function tm($opt) {
         switch ($opt) {
             case "auth":
-                authorize("https://api.home-connect.com/security/oauth/authorize", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "");
+                authorize($this->ReadPropertyString("auth_url"));
                 break;
             case "token":
                 return getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
@@ -143,13 +146,12 @@ class HomeConnectDiscovery extends IPSModule {
                 "type" => "Button",
                 "caption" => "Logout",
                 "onClick" => 'HomeConnectDiscovery_tm( $id, "reset" );',
-                'confirm' => 'Are you sure to log out'
+                'confirm' => 'Bist du sicher, dass du dich ausloggen willst.'
             ],
             [
                 "type" => "Button",
                 "caption" => "Login",
                 "onClick" => 'HomeConnectDiscovery_tm( $id, "auth" );',
-                'confirm' => 'The Login window will appear in the browser of the server'
             ]
         ];
     }
@@ -162,7 +164,22 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Label",
                 "name" => "loginInfo",
-                "caption" => "Please login with a HomeConnect Account (click on Login). After Login click refresh.",
+                "caption" => "Logge dich bitte ein, indem du auf diesen Link klickst. Wenn du fertig bist (der Browser keine Page mehr anzeigt und die Url localhost heißt) kopiere die ganze url und schicke kopiere sie dann in die Eingabe.",
+            ],
+            [
+                "type" => "Label",
+                "name" => "link",
+                "caption" => "Link: https://api.home-connect.com/security/oauth/authorize?response_type=code&client_id=35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5&scope=&redirect_uri=http%3A%2F%2Flocalhost%3A8080",
+            ],
+            [
+                "type" => "ValidationTextBox",
+                "name" => "auth_url",
+                "caption" => "Url",
+            ],
+            [
+                "type" => "Label",
+                "name" => "loginInfo2",
+                "caption" => "Wenn du fertig bist, dann klicke auf login. Wenn du dich Ausloggen willst, dann klicke auf Logout",
             ],
             [
                 "type" => "Configurator",

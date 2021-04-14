@@ -15,7 +15,7 @@ function open( $url ) {
             shell_exec('open "' . $url . '"');
             break;
         default:
-            shell_exec('start ' . $url);
+            exec('start ' . $url);
             break;
     }
 }
@@ -89,33 +89,19 @@ function resetData() {
 }
 
 /**
- * @param string $url Url of the used api
- * @param string $client_id client_id of your client
- * @param string $scopes scopes to ask
+ * @param string $code Code to set
  * @return false|string|string[] Code or nothing after Server start
  */
-function authorize( $url, $client_id, $scopes ) {
+function authorize( string $code ) {
+    global $data;
 
-    //================= Url build ===================
-    $params_array = [
-        "response_type" => "code",
-        "client_id" => $client_id,
-        "scope" => $scopes,
-        "redirect_uri" => "http://localhost:8080",
-    ];
-
-    $params = http_build_query($params_array);
-
-    $fullUrl = $url . "?" . $params;
-    //=============================================
-
-    open($fullUrl);
-
-    // start php server for authorization
-    $cmd = 'cd "' . dirname(dirname(__FILE__) ) . '/tm' . '" && php -S 127.0.0.1:8080 incoming.php';
-    shell_exec("$cmd");
-
-    return false;
+    $code = str_replace( "=", "", urldecode( explode("=", explode("&", $redirect_params)[0])[1] ));
+    // save code
+    $json = $data;
+    $json["authorize"]["code"] = $code;
+    write( $json );
+    // return code for developer
+    return $code;
 }
 
 /** Function to get token from your api

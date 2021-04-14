@@ -4,7 +4,6 @@ require_once( dirname(dirname(__FILE__) ) . "/libs/tools/HomeConnectApi.php");
 require_once( dirname(dirname(__FILE__) ) . "/libs/tools/tm/tm.php");
 $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/libs/tools/tm/data.json" ), true );
 
-
 class HomeConnectWasher extends IPSModule {
 
       /** This function will be called on the creation of this Module
@@ -72,7 +71,7 @@ class HomeConnectWasher extends IPSModule {
       {
           switch ( $Ident ) {
               case 'state':
-                  if ( $this->GetValue("state") != 3 ) {
+                  if ( $this->GetValue("state") != 2 ) {
                       if ( $Value ) {
                           $this->SetActive( true );
                           $this->SetValue('state', 1 );
@@ -460,7 +459,7 @@ class HomeConnectWasher extends IPSModule {
                       [
                           "type" => "NumberSpinner",
                           "name" => "second_refresh",
-                          "caption" => "Bis " . $this->ReadPropertyInteger("second_refresh"),
+                          "caption" => "Bis " . $this->ReadPropertyInteger("second_refresh") . " Uhr",
                           "suffix" => "h",
                           "minimum" => "0",
                           "maximum" => "24",
