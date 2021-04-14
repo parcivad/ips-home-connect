@@ -81,9 +81,11 @@ class HomeConnectWasher extends IPSModule {
                   if ( $Value ) {
                       $this->start( "Auto2" );
                       $this->SetValue('state', 3 );
+                      $this->SetValue('start_stop', true );
                   } else {
                       $this->stop();
                       $this->SetValue('state', 2);
+                      $this->SetValue('start_stop', false );
                   }
           }
       }
@@ -135,6 +137,7 @@ class HomeConnectWasher extends IPSModule {
               $program = $this->IPS( $recallProgram['key'] );
               $program_remaining_time = $recallProgram['options'][7]['value'];
               $program_progress = $recallProgram['options'][6]['value'];
+              $this->SetValue('start_stop', true );
 
           } else {
               // Api call
@@ -142,6 +145,7 @@ class HomeConnectWasher extends IPSModule {
               $program = $this->IPS( $recallSelected['key'] );
               $program_remaining_time = 0;
               $program_progress = 0;
+              $this->SetValue('start_stop', false );
           }
 
           // Set Variable value
