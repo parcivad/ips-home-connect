@@ -89,11 +89,13 @@ function resetData() {
 }
 
 /**
- * @param string $code Code to set
+ * @param string $input Code to set
  * @return false|string|string[] Code or nothing after Server start
  */
-function authorize( string $code ) {
+function authorize( string $input ) {
     global $data;
+
+    $redirect_params = explode("?", $input)[1];
 
     $code = str_replace( "=", "", urldecode( explode("=", explode("&", $redirect_params)[0])[1] ));
     // save code
