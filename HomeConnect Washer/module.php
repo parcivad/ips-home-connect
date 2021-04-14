@@ -192,7 +192,7 @@ class HomeConnectWasher extends IPSModule {
           }
 
           // Settings
-          $opt = '{"data":{"key":' . $mode . ',"options":[{"key":"BSH.Common.Option.StartInRelative","value":3,"unit":"seconds"}]}}';
+          $opt = '{"data":{"key":"' . $mode . '","options":[{"key":"BSH.Common.Option.StartInRelative","value":3,"unit":"seconds"}]}}';
 
           // Send
           if ( $this->GetValue("remoteStart") ) {
@@ -222,7 +222,7 @@ class HomeConnectWasher extends IPSModule {
 
           if ( $this->GetValue("remoteControl") ) {
               if ( $this->GetValue("state") == 3 ) {
-                  Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", );
+                  Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
               }
           } else {
               throw new LogicException("Remote control must be allowed");
