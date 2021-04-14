@@ -6,7 +6,10 @@ In der Dokumentation lässt sich zu jedem unterstützten Gerät eine Anleitung u
 
 **Inhaltsverzeichnis**
 
-1.[Geschirrspüler](#geschirrspüler) 
+- [Zusammenfassung](#ip-symcon modul für die homeconnect geräte)
+- [Geräte](#geräte)
+	- [Geschirrspüler](#geschirrspüler)
+- [Info](#Info)
 
 
 # Geräte
@@ -64,11 +67,15 @@ HomeConnectDishwasher_stop( InstanceID );
 -Für diese Aktion wird die Berechtigung RemoteControl benötigt!
 ```
 ### Manuell refreshen
-Das kann mit:
+Das kann mit diesem Befehl gemacht werden.
 ```php
 HomeConnectDishwasher_refresh( 46747 );
 ```
-gemacht werden.
 ```diff
 +Für diese Aktion wird nur die Authorizierung gebraucht.
 ```
+
+## Info
+Für alle Befehle und abfragen gilt:
+- Die Anfrage braucht 0,5 - 3sec
+- Die Befehle brauchen ebenfalls etwas Zeit
