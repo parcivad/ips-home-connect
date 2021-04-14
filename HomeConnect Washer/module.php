@@ -240,9 +240,9 @@ class HomeConnectWasher extends IPSModule {
               IPS_CreateVariableProfile('HC_DishwasherState', 1);
               IPS_SetVariableProfileIcon('HC_DishwasherState', 'Power');
               IPS_SetVariableProfileValues("HC_DishwasherState", 0, 2, 0 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherState", 0, "Standby", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherState", 1, "Ready", "", 0x22ff00 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherState", 2, "Program running", "", 0xfa3200 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherState", 0, "Aus", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherState", 1, "An", "", 0x22ff00 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherState", 2, "Program läuft", "", 0xfa3200 );
           }
           if (!IPS_VariableProfileExists('HC_DishwasherMode')) {
               IPS_CreateVariableProfile('HC_DishwasherMode', 1);
@@ -278,8 +278,8 @@ class HomeConnectWasher extends IPSModule {
           if (!IPS_VariableProfileExists('HC_DishwasherDoorState')) {
               IPS_CreateVariableProfile('HC_DishwasherDoorState', 0);
               IPS_SetVariableProfileIcon('HC_DishwasherDoorState', 'Lock');
-              IPS_SetVariableProfileAssociation("HC_DishwasherDoorState", false, "Closed", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherDoorState", true, "Open", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherDoorState", false, "Geschlossen", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherDoorState", true, "Offen", "", 0xcf0000 );
           }
           if (!IPS_VariableProfileExists('HC_DishwasherStartStop')) {
               IPS_CreateVariableProfile('HC_DishwasherStartStop', 0);
@@ -290,8 +290,8 @@ class HomeConnectWasher extends IPSModule {
           if (!IPS_VariableProfileExists('HC_WasherRemoteStart')) {
               IPS_CreateVariableProfile('HC_WasherRemoteStart', 0);
               IPS_SetVariableProfileIcon('HC_WasherRemoteStart', 'Lock');
-              IPS_SetVariableProfileAssociation("HC_WasherRemoteStart", false, "Not allowed", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_WasherRemoteStart", true, "allowed", "", 0xcf0000 );
+              IPS_SetVariableProfileAssociation("HC_WasherRemoteStart", false, "Nicht erlaubt", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_WasherRemoteStart", true, "Erlaubt", "", 0xfa3200 );
           }
       }
 
