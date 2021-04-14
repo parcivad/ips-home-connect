@@ -168,6 +168,8 @@ class HomeConnectWasher extends IPSModule {
      */
       public function start( string $mode ) {
 
+          $this->SetActive( true );
+
           $this->refresh();
 
           // Get Program
@@ -202,8 +204,7 @@ class HomeConnectWasher extends IPSModule {
                   if ( $this->GetValue("state") == 1 ) {
                       Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
                   } else {
-                      $this->SetActive( true );
-                      Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
+                      throw new UnexpectedValueException("Something went wrong (try again)");
                   }
               } else {
                   throw new LogicException("Door state must be closed");
