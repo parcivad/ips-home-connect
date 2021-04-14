@@ -35,7 +35,7 @@ class HomeConnectWasher extends IPSModule {
           $this->registerProfiles();
 
           $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_WasherRemoteStart", -2 );
-          IPS_SetHidden("remoteControl", true );
+          IPS_SetHidden( $this->GetIDForIdent("remoteControl"), true );
           $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -2 );
           IPS_SetHidden( $this->GetIDForIdent('LastRefresh'), true );
           $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_DishwasherState", 0 );
