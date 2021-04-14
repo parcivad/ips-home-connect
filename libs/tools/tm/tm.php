@@ -93,7 +93,7 @@ function resetData() {
  * @return false|string|string[] Code or nothing after Server start
  */
 function authorize( string $input ) {
-    global $data;
+    $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/tm/data.json" ), true );
 
     $redirect_params = explode("?", $input)[1];
 

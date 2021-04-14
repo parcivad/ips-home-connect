@@ -179,7 +179,7 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Label",
                 "name" => "loginInfo2",
-                "caption" => "Wenn du fertig bist, dann klicke auf login.",
+                "caption" => "Wenn du fertig bist, dann klicke auf login und aktualisiere das Modul",
             ],
             [
                 "type" => "Configurator",
