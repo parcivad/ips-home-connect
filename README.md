@@ -27,6 +27,7 @@ In den Instanz Einstellungen kann unter `Refresh` eine Zeitspanne gesetzt werden
 Name | Type | Werte | Funktionen
 :--- | :---: | :---  | :---:
 `Last Refresh` | UnixTimeStamp | time | Zeigt die Zeit vom letzen aktualisieren
+`Remote Control` | Boolean | true, false | Zeigt ob die Permission Control gegeben ist
 `Geräte Zustand`| Integer | 0 Aus; 1 An; 2 Programm läuft | Zeigt dem Nutzer den Zustand
 `Programm` | Integer | 0,1,2... | Zeigt den Aktuellen Modus, auch zum auswählen
 `Remote start`| Boolean | true, false | Zeigt ob Remote Start an ist
@@ -42,24 +43,32 @@ Beispiel:
 ```php
 HomeConnectDishwasher_SetActive( InstaceID, false/true );
 ```
-
+```diff
+-Für diese Aktion wird die Berechtigung RemoteControl benötigt!
+```
 ### Programm starten
 Ein Programm kann über das Webfront gestartet werden oder im Code (siehe Beispiel). Hierbei ist der Modus ein string. Die Namen lassen sich im `Programm` integer finden.
 Beispiel:
 ```php
 HomeConnectDishwasher_start( InstanceID, "Auto2");
 ```
-
+```diff
+-Für diese Aktion wird die Berechtigung RemoteControl und RemoteStart benötigt!
+```
 ### Programm stoppen
 Ein Programm kann über das Webfront gestoppt werden oder im Code (siehe Beispiel).
 ```php
 HomeConnectDishwasher_stop( InstanceID );
 ```
-
+```diff
+-Für diese Aktion wird die Berechtigung RemoteControl benötigt!
+```
 ### Manuell refreshen
 Das kann mit:
 ```php
 HomeConnectDishwasher_refresh( 46747 );
 ```
 gemacht werden.
-``` Achtung es darf nicht oft abgefragt werden (1000 request/command pro Tag für alle Geräte auf deinem Account), deshalb ist es besser den Autorefresh zu nutzen```
+```diff
++Für diese Aktion wird nur die Authorizierung gebraucht.
+```
