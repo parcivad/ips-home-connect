@@ -164,7 +164,7 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Label",
                 "name" => "loginInfo",
-                "caption" => "Logge dich bitte ein, indem du auf diesen Link klickst. Wenn du fertig bist (der Browser keine Page mehr anzeigt) kopiere die ganze url kopiere sie dann in die Eingabe.",
+                "caption" => "Logge dich bitte ein, indem du den Link in einem Browser öffnest. Wenn du fertig bist (der Browser keine Page mehr anzeigt) kopiere die ganze url und füge sie dann in das Eingabefeld ein.",
             ],
             [
                 "type" => "Label",
@@ -179,7 +179,7 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Label",
                 "name" => "loginInfo2",
-                "caption" => "Wenn du fertig bist, dann klicke auf login. Wenn du dich Ausloggen willst, dann klicke auf Logout",
+                "caption" => "Wenn du fertig bist, dann klicke auf login.",
             ],
             [
                 "type" => "Configurator",
