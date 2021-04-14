@@ -34,6 +34,8 @@ class HomeConnectWasher extends IPSModule {
           // Register Variable and Profiles
           $this->registerProfiles();
 
+          $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_WasherRemoteStart", -2 );
+          IPS_SetHidden("remoteControl", true );
           $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -2 );
           IPS_SetHidden( $this->GetIDForIdent('LastRefresh'), true );
           $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_DishwasherState", 0 );
@@ -114,15 +116,15 @@ class HomeConnectWasher extends IPSModule {
           // Getting each data into variables
           // Check Remote control
           if ( $recall['data']['status'][1]['value'] ) {
-              $this->WriteAttributeString("remoteControlAllowed", "Your Device does allow remote Control / Dein Gerät erlaubt eine Fernbedienung");
+              $this->WriteAttributeString("remoteControlAllowed", "Dein Gerät erlaubt eine Fernbedienung");
           } else {
-              $this->WriteAttributeString("remoteControlAllowed", "Your Device doesn't allow remote Control / Dein Gerät erlaubt keine Fernbedienung");
+              $this->WriteAttributeString("remoteControlAllowed", "Dein Gerät erlaubt keine Fernbedienung");
           }
           // Check Remote start
           if ( $recall['data']['status'][0]['value'] ) {
-              $this->WriteAttributeString("remoteStartAllowed", "Your Device does allow remote Start / Dein Gerät erlaub eine Fernstart" );
+              $this->WriteAttributeString("remoteStartAllowed", "Dein Gerät erlaub eine Fernstart" );
           } else {
-              $this->WriteAttributeString("remoteStartAllowed", "Your Device doesn't allow remote Start / Dein Gerät erlaub keinen Fernstart" );
+              $this->WriteAttributeString("remoteStartAllowed", "Dein Gerät erlaub keinen Fernstart" );
           }
 
           //============================================================ Sorting Data and save
@@ -150,6 +152,7 @@ class HomeConnectWasher extends IPSModule {
 
           // Set Variable value
           $this->SetValue("remoteStart", $recall['data']['status'][0]['value'] );
+          $this->SetValue("remoteControl", $recall['data']['status'][1]['value'] );
           $this->SetValue("mode", $program );
           $this->SetValue("progress", $program_progress );
           $this->SetValue("remainTime", $program_remaining_time);
@@ -165,7 +168,7 @@ class HomeConnectWasher extends IPSModule {
      */
       public function start( string $mode ) {
 
-          $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
+          $this->refresh();
 
           // Get Program
           switch( $mode ) {
@@ -192,28 +195,34 @@ class HomeConnectWasher extends IPSModule {
           $opt = "{ 'data':{ 'key'': $mode, 'options':[ { 'key':'BSH.Common.Option.StartInRelative', 'value':0, 'unit':'seconds' } ] } }";
 
           // Send
-          if ( $recall['data']['status'][0]['value'] ) {
-              if ( $this->HC( $recall['data']['status'][3]['value'] ) == 2 ) {
-                  Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
-                  $this->SetValue("state", 2);
+          if ( $this->GetValue("remoteStart") ) {
+              // Check Door state
+              if ( !$this->GetValue("door") ) {
+                  // Check if the device is on
+                  if ( $this->GetValue("state") == 2 ) {
+                      Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
+                      $this->SetValue("state", 2);
+                  } else {
+                      $this->SetActive( true );
+                      Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
+                      $this->SetValue("state", 2);
+                  }
               } else {
-                  $this->SetActive( true );
-                  Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
-                  $this->SetValue("state", 2);
+                  throw new LogicException("Door state must be closed");
               }
           } else {
               throw new LogicException("Remote start must be allowed");
           }
       }
 
-    /** Function to stop a running program
-     * @return array|null Api return
+    /**
+     * Function to stop a running program
      */
       public function stop() {
 
-          $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
+          $this->refresh();
 
-          if ( $recall['data']['status'][1]['value'] ) {
+          if ( $this->GetValue("remoteControl") ) {
               Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", );
               $this->SetValue("state", 0);
           } else {
