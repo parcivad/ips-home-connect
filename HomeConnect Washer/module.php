@@ -222,7 +222,7 @@ class HomeConnectWasher extends IPSModule {
           $this->refresh();
 
           if ( $this->GetValue("remoteControl") ) {
-              if ( $this->GetValue("state") == 3 ) {
+              if ( $this->GetValue("state") == 2 ) {
                   Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
               }
           } else {
