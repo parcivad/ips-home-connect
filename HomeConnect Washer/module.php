@@ -82,11 +82,11 @@ class HomeConnectWasher extends IPSModule {
                   //TODO: start and stop Device
                   if ( $Value ) {
                       $this->start( "Auto2" );
-                      $this->SetValue('state', 3 );
+                      $this->SetValue('state', 2 );
                       $this->SetValue('start_stop', true );
                   } else {
                       $this->stop();
-                      $this->SetValue('state', 2);
+                      $this->SetValue('state', 1);
                       $this->SetValue('start_stop', false );
                   }
           }
@@ -132,7 +132,7 @@ class HomeConnectWasher extends IPSModule {
           $DoorState =  $this->HC( $recall['data']['status'][2]['value'] );
           $OperationState = $this->HC( $recall['data']['status'][3]['value'] );
 
-          if ( $OperationState == 2 ) {
+          if ( $OperationState == 1 ) {
               // Api call
               $recallProgram = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active")['data'];
               // filter data
@@ -192,20 +192,18 @@ class HomeConnectWasher extends IPSModule {
           }
 
           // Settings
-          $opt = "{ 'data':{ 'key'': $mode, 'options':[ { 'key':'BSH.Common.Option.StartInRelative', 'value':0, 'unit':'seconds' } ] } }";
+          $opt = '{"data":{"key":' . $mode . ',"options":[{"key":"BSH.Common.Option.StartInRelative","value":3,"unit":"seconds"}]}}';
 
           // Send
           if ( $this->GetValue("remoteStart") ) {
               // Check Door state
               if ( !$this->GetValue("door") ) {
                   // Check if the device is on
-                  if ( $this->GetValue("state") == 2 ) {
+                  if ( $this->GetValue("state") == 1 ) {
                       Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
-                      $this->SetValue("state", 2);
                   } else {
                       $this->SetActive( true );
                       Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
-                      $this->SetValue("state", 2);
                   }
               } else {
                   throw new LogicException("Door state must be closed");
@@ -223,8 +221,9 @@ class HomeConnectWasher extends IPSModule {
           $this->refresh();
 
           if ( $this->GetValue("remoteControl") ) {
-              Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", );
-              $this->SetValue("state", 0);
+              if ( $this->GetValue("state") == 3 ) {
+                  Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", );
+              }
           } else {
               throw new LogicException("Remote control must be allowed");
           }
