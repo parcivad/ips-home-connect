@@ -43,7 +43,7 @@ Der Geräte Zustand kann im Webfront geändert werden oder im Code mit diesem Be
 Dabei wird zwischen true/false unterschieden, also An oder Aus.
 Beispiel:
 ```php
-HomeConnectDishwasher_SetActive( InstaceID, false/true );
+HCDishwasher_SetActive( InstaceID, false/true );
 ```
 ```diff
 -Für diese Aktion wird die Berechtigung RemoteControl benötigt!
@@ -52,7 +52,7 @@ HomeConnectDishwasher_SetActive( InstaceID, false/true );
 Ein Programm kann über das Webfront gestartet werden oder im Code (siehe Beispiel). Hierbei ist der Modus ein string. Die Namen lassen sich im `Programm` integer finden.
 Beispiel:
 ```php
-HomeConnectDishwasher_start( InstanceID, "Auto2");
+HCDishwasher_start( InstanceID, "Auto2");
 ```
 ```diff
 -Für diese Aktion wird die Berechtigung RemoteControl und RemoteStart benötigt!
@@ -60,7 +60,7 @@ HomeConnectDishwasher_start( InstanceID, "Auto2");
 ### Programm stoppen
 Ein Programm kann über das Webfront gestoppt werden oder im Code (siehe Beispiel).
 ```php
-HomeConnectDishwasher_stop( InstanceID );
+HCDishwasher_stop( InstanceID );
 ```
 ```diff
 -Für diese Aktion wird die Berechtigung RemoteControl benötigt!
@@ -68,7 +68,7 @@ HomeConnectDishwasher_stop( InstanceID );
 ### Manuell refreshen
 Das kann mit diesem Befehl gemacht werden.
 ```php
-HomeConnectDishwasher_refresh( 46747 );
+HCDishwasher_refresh( 46747 );
 ```
 ```diff
 +Für diese Aktion wird nur die Authorizierung gebraucht.
