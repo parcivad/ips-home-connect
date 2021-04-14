@@ -132,7 +132,7 @@ class HomeConnectWasher extends IPSModule {
           $DoorState =  $this->HC( $recall['data']['status'][2]['value'] );
           $OperationState = $this->HC( $recall['data']['status'][3]['value'] );
 
-          if ( $OperationState == 1 ) {
+          if ( $OperationState == 2 ) {
               // Api call
               $recallProgram = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active")['data'];
               // filter data
