@@ -15,10 +15,10 @@ function open( $url ) {
             shell_exec('open "' . $url . '"');
             break;
         case "LIN":
-            shell_exec('xdg-open  "' . $url . '"');
+            shell_exec('xdg-open "' . $url . '"');
             break;
         case "WIN":
-            shell_exec('start  "' . $url . '"');
+            shell_exec('start explorer "' . $url . '"');
             break;
     }
 }
