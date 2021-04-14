@@ -20,16 +20,23 @@ class HomeConnectWasher extends IPSModule {
           $this->RegisterPropertyString('company', '');
           $this->RegisterPropertyString('haId', '');
 
-          // Set by User
+          // Refresh Settings
           $this->RegisterPropertyInteger("first_refresh", 1 );
           $this->RegisterPropertyInteger("second_refresh", 1 );
+          $this->RegisterPropertyBoolean("refresh_on_off", true );
+          // Notify Settings
+          $this->RegisterPropertyInteger("notify_instance", 0 );
+          $this->RegisterPropertyString( "notify_sound", "" );
+          $this->RegisterPropertyBoolean("notify_start", false );
+          $this->RegisterPropertyBoolean("notify_stop", false );
+          $this->RegisterPropertyBoolean("notify_finish", false );
 
           // Register Information Panel
           $this->RegisterAttributeString("remoteControlAllowed", "Your Device doesn't allow remote Control / Dein Gerät erlaubt keine Fernbedienung" );
           $this->RegisterAttributeString("remoteStartAllowed", "Your Device doesn't allow remote Start / Dein Gerät erlaub keinen Fernstart" );
 
           // Erstellt einen Timer mit dem Namen "Update" und einem Intervall von 5 minutes.
-          $this->RegisterTimer("refresh", 300000, "HomeConnectDishwasher_refresh($this->InstanceID);");
+          $this->RegisterTimer("refresh", 300000, "HCDishwasher_refresh($this->InstanceID);");
 
           // Register Variable and Profiles
           $this->registerProfiles();
@@ -108,58 +115,70 @@ class HomeConnectWasher extends IPSModule {
           }
           //============================================================ Check Timer
 
-          $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
+          // Only refresh when set
+          if ( $this->ReadPropertyBoolean("refresh_on_off") ) {
+              $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
 
-          // catch null exception
-          if ( $recall == null ) { return "error"; }
+              // catch null exception
+              if ( $recall == null ) { return "error"; }
 
-          // Getting each data into variables
-          // Check Remote control
-          if ( $recall['data']['status'][1]['value'] ) {
-              $this->WriteAttributeString("remoteControlAllowed", "Dein Gerät erlaubt eine Fernbedienung");
-          } else {
-              $this->WriteAttributeString("remoteControlAllowed", "Dein Gerät erlaubt keine Fernbedienung");
+              // Getting each data into variables
+              // Check Remote control
+              if ( $recall['data']['status'][1]['value'] ) {
+                  $this->WriteAttributeString("remoteControlAllowed", "Dein Gerät erlaubt eine Fernbedienung");
+              } else {
+                  $this->WriteAttributeString("remoteControlAllowed", "Dein Gerät erlaubt keine Fernbedienung");
+              }
+              // Check Remote start
+              if ( $recall['data']['status'][0]['value'] ) {
+                  $this->WriteAttributeString("remoteStartAllowed", "Dein Gerät erlaub ein Fernstart" );
+              } else {
+                  $this->WriteAttributeString("remoteStartAllowed", "Dein Gerät erlaub keinen Fernstart" );
+              }
+
+              //============================================================ Sorting Data and save
+              // Door State and Operation state
+              $DoorState =  $this->HC( $recall['data']['status'][2]['value'] );
+              $OperationState = $this->HC( $recall['data']['status'][3]['value'] );
+
+              if ( $OperationState == 2 ) {
+                  // Api call
+                  $recallProgram = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active")['data'];
+                  // filter data
+                  $program = $this->IPS( $recallProgram['key'] );
+                  $program_remaining_time = $recallProgram['options'][7]['value'];
+                  $program_progress = $recallProgram['options'][6]['value'];
+                  $this->SetValue('start_stop', true );
+
+              } else {
+                  // Api call
+                  $recallSelected = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/selected")['data'];
+                  $program = $this->IPS( $recallSelected['key'] );
+                  $program_remaining_time = 0;
+                  $program_progress = 0;
+                  $this->SetValue('start_stop', false );
+              }
+
+              // Set Variable value
+              $this->SetValue("remoteStart", $recall['data']['status'][0]['value'] );
+              $this->SetValue("remoteControl", $recall['data']['status'][1]['value'] );
+              $this->SetValue("mode", $program );
+              $this->SetValue("progress", $program_progress );
+              $this->SetValue("remainTime", $program_remaining_time);
+              $this->SetValue("door", $DoorState );
+              $this->SetValue("state", $OperationState );
+              $this->SetValue( "LastRefresh", time() );
+              //============================================================ Sorting Data and save
           }
-          // Check Remote start
-          if ( $recall['data']['status'][0]['value'] ) {
-              $this->WriteAttributeString("remoteStartAllowed", "Dein Gerät erlaub eine Fernstart" );
-          } else {
-              $this->WriteAttributeString("remoteStartAllowed", "Dein Gerät erlaub keinen Fernstart" );
+
+          //============================================================ Check Notifications
+          if ( $this->ReadPropertyBoolean("notify_finish") ) {
+              if ( $this->GetValue("state") == 2 && $this->GetValue("remainTime") <= 300 && $this->GetValue("remainTime") != 0 ) {
+                  $this->SendNotify("Geschirrspüler ist in unter 5min fertig");
+              }
           }
+          //============================================================ Check Notifications
 
-          //============================================================ Sorting Data and save
-          // Door State and Operation state
-          $DoorState =  $this->HC( $recall['data']['status'][2]['value'] );
-          $OperationState = $this->HC( $recall['data']['status'][3]['value'] );
-
-          if ( $OperationState == 2 ) {
-              // Api call
-              $recallProgram = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active")['data'];
-              // filter data
-              $program = $this->IPS( $recallProgram['key'] );
-              $program_remaining_time = $recallProgram['options'][7]['value'];
-              $program_progress = $recallProgram['options'][6]['value'];
-              $this->SetValue('start_stop', true );
-
-          } else {
-              // Api call
-              $recallSelected = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/selected")['data'];
-              $program = $this->IPS( $recallSelected['key'] );
-              $program_remaining_time = 0;
-              $program_progress = 0;
-              $this->SetValue('start_stop', false );
-          }
-
-          // Set Variable value
-          $this->SetValue("remoteStart", $recall['data']['status'][0]['value'] );
-          $this->SetValue("remoteControl", $recall['data']['status'][1]['value'] );
-          $this->SetValue("mode", $program );
-          $this->SetValue("progress", $program_progress );
-          $this->SetValue("remainTime", $program_remaining_time);
-          $this->SetValue("door", $DoorState );
-          $this->SetValue("state", $OperationState );
-          $this->SetValue( "LastRefresh", time() );
-          //============================================================ Sorting Data and save
           return true;
       }
 
@@ -169,6 +188,8 @@ class HomeConnectWasher extends IPSModule {
       public function start( string $mode ) {
 
           $this->SetActive( true );
+
+          sleep(1);
 
           $this->refresh();
 
@@ -203,6 +224,12 @@ class HomeConnectWasher extends IPSModule {
                   // Check if the device is on
                   if ( $this->GetValue("state") == 1 ) {
                       Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
+
+                      //============================================================ Check Notifications
+                      if ( $this->ReadPropertyBoolean("notify_start") ) {
+                          $this->SendNotify("Geschirrspüler hat das Programm " . $mode . " gestarted!");
+                      }
+                      //============================================================ Check Notifications
                   } else {
                       throw new UnexpectedValueException("Something went wrong (try again)");
                   }
@@ -224,6 +251,12 @@ class HomeConnectWasher extends IPSModule {
           if ( $this->GetValue("remoteControl") ) {
               if ( $this->GetValue("state") == 2 ) {
                   Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
+
+                  //============================================================ Check Notifications
+                  if ( $this->ReadPropertyBoolean("notify_stop") ) {
+                      $this->SendNotify("Geschirrspüler hat das Programm gestoppt!");
+                  }
+                  //============================================================ Check Notifications
               }
           } else {
               throw new LogicException("Remote control must be allowed");
@@ -350,8 +383,8 @@ class HomeConnectWasher extends IPSModule {
               ],
               [
                   "type" => "List",
-                  "name" => "DeviceInfo",
-                  "caption" => "Information to the Home Connect Device [ Washer ]",
+                  "name" => "Gerät Information",
+                  "caption" => "Informationen zu diesem Gerät [ Geschirrspüler ]",
                   "rowCount" => 1,
                   "add" => false,
                   "delete" => false,
@@ -392,7 +425,7 @@ class HomeConnectWasher extends IPSModule {
               ],
               [
                   "type" => "ExpansionPanel",
-                  "caption" => "Permissions from your Device",
+                  "caption" => "Berechtigungen die von deinem Gerät gesetzt werden",
                   "items" => [
                       [
                           "type" => "Label",
@@ -413,36 +446,83 @@ class HomeConnectWasher extends IPSModule {
                       [
                           "type" => "Label",
                           "name" => "refresh Info",
-                          "caption" => "The system will still update anyway, only with longer intervals between each refresh."
+                          "caption" => "Das System updated in dem Zeitraum alle 5min. Sonst nur 15min."
                       ],
                       [
                           "type" => "NumberSpinner",
                           "name" => "first_refresh",
-                          "caption" => "Start refreshing from",
+                          "caption" => "Refreshen von " . $this->GetValue("first_refresh") . " Uhr",
                           "suffix" => "h",
-                          "min" => "0",
-                          "max" => "24",
+                          "minimum" => "0",
+                          "maximum" => "24",
                           "enabled" => true
                       ],
                       [
                           "type" => "NumberSpinner",
                           "name" => "second_refresh",
-                          "caption" => "To",
+                          "caption" => "Bis " . $this->GetValue("second_refresh"),
                           "suffix" => "h",
-                          "min" => "0",
-                          "max" => "24",
+                          "minimum" => "0",
+                          "maximum" => "24",
                           "enabled" => true
-                      ]
+                      ],
+                      [
+                          "type" => "CheckBox",
+                          "name" => "refresh_on_off",
+                          "caption" => "Refresh An/Aus",
+                      ],
                   ],
               ],
               [
                   "type" => "ExpansionPanel",
-                  "caption" => "Settings from your Device",
+                  "caption" => "Handy Notification Settings",
                   "items" => [
                       [
+                          "type" => "SelectInstance",
+                          "name" => "notify_instance",
+                          "caption" => "Benachrichtigungs Instanz [Mobile / Handy]",
+                      ],
+                      [
+                          "type" => "Select",
+                          "name" => "notify_sound",
+                          "caption" => "Benachrichtigungs Sound [nichts für den normalen]",
+                          "options" => [
+                              [ "caption" => "Normal", "value" => "" ],
+                              [ "caption" => "alarm", "value" => "alarm" ],
+                              [ "caption" => "bell", "value" => "bell" ],
+                              [ "caption" => "boom", "value" => "boom" ],
+                              [ "caption" => "buzzer", "value" => "buzzer" ],
+                              [ "caption" => "connected", "value" => "connected" ],
+                              [ "caption" => "dark", "value" => "dark" ],
+                              [ "caption" => "digital", "value" => "digital" ],
+                              [ "caption" => "drums", "value" => "drums" ],
+                              [ "caption" => "duck", "value" => "duck" ],
+                              [ "caption" => "full", "value" => "full" ],
+                              [ "caption" => "happy", "value" => "happy" ],
+                              [ "caption" => "horn", "value" => "horn" ],
+                              [ "caption" => "inception", "value" => "inception" ],
+                              [ "caption" => "kazoo", "value" => "kazoo" ],
+                              [ "caption" => "roll", "value" => "roll" ],
+                              [ "caption" => "siren", "value" => "siren" ],
+                              [ "caption" => "space", "value" => "space" ],
+                              [ "caption" => "trickling", "value" => "trickling" ],
+                              [ "caption" => "turn", "value" => "turn" ],
+                          ],
+                      ],
+                      [
                           "type" => "CheckBox",
-                          "name" => "status",
-                          "caption" => "///",
+                          "name" => "notify_start",
+                          "caption" => "Startbenachrichtigung",
+                      ],
+                      [
+                          "type" => "CheckBox",
+                          "name" => "notify_stop",
+                          "caption" => "Stopbenachrichtigung",
+                      ],
+                      [
+                          "type" => "CheckBox",
+                          "name" => "notify_finish",
+                          "caption" => "Benachrichtigung wenn fertig",
                       ],
                   ],
               ],
@@ -479,6 +559,15 @@ class HomeConnectWasher extends IPSModule {
           ];
 
           return $form;
+      }
+
+      /** Send Text
+       * @param string $text Text in the Notification
+       */
+      protected function SendNotify( string $text ) {
+          if ( $this->ReadPropertyInteger("notify_instance") != 0 ) {
+              WFC_PushNotification( $this->ReadPropertyInteger("notify_instance"), "HomeConnect", $text, $this->ReadPropertyString("notify_sound"), $this->InstanceID );
+          }
       }
 
       /**
