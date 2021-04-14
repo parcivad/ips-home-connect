@@ -18,7 +18,7 @@ function open( $url ) {
             shell_exec('xdg-open "' . $url . '"');
             break;
         case "WIN":
-            shell_exec('start explorer "' . $url . '"');
+            shell_exec('start ' . $url);
             break;
     }
 }
