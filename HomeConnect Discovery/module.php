@@ -164,12 +164,12 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Label",
                 "name" => "loginInfo",
-                "caption" => "Logge dich bitte ein, indem du auf diesen Link klickst. Wenn du fertig bist (der Browser keine Page mehr anzeigt und die Url localhost heißt) kopiere die ganze url und schicke kopiere sie dann in die Eingabe.",
+                "caption" => "Logge dich bitte ein, indem du auf diesen Link klickst. Wenn du fertig bist (der Browser keine Page mehr anzeigt) kopiere die ganze url kopiere sie dann in die Eingabe.",
             ],
             [
                 "type" => "Label",
                 "name" => "link",
-                "caption" => "Link: https://api.home-connect.com/security/oauth/authorize?response_type=code&client_id=35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5&scope=&redirect_uri=http%3A%2F%2Flocalhost%3A8080",
+                "caption" => "https://api.home-connect.com/security/oauth/authorize?response_type=code&client_id=35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5&scope=&redirect_uri=http%3A%2F%2Flocalhost%3A8080",
             ],
             [
                 "type" => "ValidationTextBox",
