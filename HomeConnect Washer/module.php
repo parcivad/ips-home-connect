@@ -41,6 +41,8 @@ class HomeConnectWasher extends IPSModule {
           $this->RegisterVariableInteger("progress", "Progress", "HC_WasherProgress", 7 );
           $this->RegisterVariableInteger("remainTime", "Remaining Time", "UnixTimestampTime", 8 );
           $this->RegisterVariableBoolean("door", "Door State", "HC_WasherDoorState", 9 );
+
+          $this->EnableAction("door");
       }
 
       /** This function will be called by IP Symcon when the User change vars in the Module Interface
