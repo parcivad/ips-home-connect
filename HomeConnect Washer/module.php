@@ -96,7 +96,7 @@ class HomeConnectWasher extends IPSModule {
               case 'start_stop':
                   //TODO: start and stop Device
                   if ($Value) {
-                      $this->start("Auto2");
+                      $this->start($this->GetListValue());
                       $this->SetValue('start_stop', true);
                       $this->refresh();
                   } else {
@@ -153,15 +153,15 @@ class HomeConnectWasher extends IPSModule {
                   // Api call
                   $recallProgram = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active")['data'];
                   // filter data
-                  $program = $this->IPS( $recallProgram['key'] );
-                  $program_remaining_time = $recallProgram['options'][7]['value'];
+                  $this->SetListValue( explode( ".", $recallProgram['key'] )[3] );
+                  $program_remaining_time = $recallProgram['options'][7]['value'] - 3600;
                   $program_progress = $recallProgram['options'][6]['value'];
                   $this->SetValue('start_stop', true );
 
               } else {
                   // Api call
                   $recallSelected = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/selected")['data'];
-                  $program = $this->IPS( $recallSelected['key'] );
+                  $this->SetListValue( explode( ".", $recallSelected['key'] )[3] );
                   $program_remaining_time = 0;
                   $program_progress = 0;
                   $this->SetValue('start_stop', false );
@@ -170,7 +170,6 @@ class HomeConnectWasher extends IPSModule {
               // Set Variable value
               $this->SetValue("remoteStart", $recall['data']['status'][0]['value'] );
               $this->SetValue("remoteControl", $recall['data']['status'][1]['value'] );
-              $this->SetValue("mode", $program );
               $this->SetValue("progress", $program_progress );
               $this->SetValue("remainTime", $program_remaining_time);
               $this->SetValue("door", $DoorState );
@@ -206,26 +205,7 @@ class HomeConnectWasher extends IPSModule {
 
           $this->refresh();
 
-          // Get Program
-          switch( $mode ) {
-              case "Auto1":
-                  $mode = "Dishcare.Dishwasher.Program.Auto1";
-                  break;
-              case "Auto2":
-                  $mode = "Dishcare.Dishwasher.Program.Auto2";
-                  break;
-              case "Auto3":
-                  $mode = "Dishcare.Dishwasher.Program.Auto3";
-                  break;
-              case "Eco50":
-                  $mode = "Dishcare.Dishwasher.Program.Eco50";
-                  break;
-              case "Quick45":
-                  $mode = "Dishcare.Dishwasher.Program.Quick45";
-                  break;
-              default:
-                  $mode = "Dishcare.Dishwasher.Program.Auto2";
-          }
+          $mode = "Dishcare.Dishwasher.Program." . $mode;
 
           // Settings
           $opt = '{"data":{"key":"' . $mode . '","options":[{"key":"BSH.Common.Option.StartInRelative","value":3,"unit":"seconds"}]}}';
@@ -628,6 +608,32 @@ class HomeConnectWasher extends IPSModule {
               IPS_SetVariableProfileAssociation($profile, $i, explode( ".", $programs[$i]["key"])[3], "", 0x828282 );
           }
       }
+
+      protected function SetListValue( string $name ) {
+          $profile = IPS_GetVariableProfile( 'HC_DishwasherMode' )['Associations'];
+          $profile_count = count( $profile );
+
+          $profile_list = array();
+
+          for ( $i = 0; $i < $profile_count; $i++ ) {
+              $profile_list[$profile[$i]["Name"]] = $profile[$i]["Value"];
+          }
+
+          $this->SetValue('mode', $profile_list[$name] );
+      }
+
+    protected function GetListValue() {
+        $profile = IPS_GetVariableProfile( 'HC_DishwasherMode' )['Associations'];
+        $profile_count = count( $profile );
+
+        $profile_list = array();
+
+        for ( $i = 0; $i < $profile_count; $i++ ) {
+            $profile_list[$profile[$i]["Value"]] = $profile[$i]["Name"];
+        }
+
+        return $profile_list[$this->GetValue('mode' )];
+    }
 
       /**
        * @param string $var that should be analyse
