@@ -56,6 +56,10 @@ class HomeConnectOven extends IPSModule {
           $this->EnableAction('state');
           $this->RegisterVariableInteger("mode", "Programm", "HC_OvenMode", 1);
           $this->EnableAction('mode');
+          $this->RegisterVariableInteger("Settemperatur", "Gesetzte Temperatur", "HC_OvenSetTemperature", 1);
+          $this->EnableAction('Settemperatur');
+          $this->RegisterVariableInteger("SetDuration", "Gesetzte Laufzeit", "UnixTimestampTime", 1);
+          $this->EnableAction('SetDuration');
           $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_OvenRemoteStart", 2);
           $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_OvenDoorState", 3);
           $this->RegisterVariableFloat("temperature", "Temperatur", "~Temperature", 4);
@@ -94,14 +98,24 @@ class HomeConnectOven extends IPSModule {
               case 'start_stop':
                   //TODO: start and stop Device
                   if ($Value) {
-                      $this->start($this->GetListValue());
-                      $this->SetValue('start_stop', true);
-                      $this->refresh();
+                      if ( $this->GetValue('SetDuration') > 180 ) {
+                          $this->start($this->GetListValue(), $this->GetValue('Settemperatur'), $this->GetValue('SetDuration'));
+                          $this->SetValue('start_stop', true);
+                          $this->refresh();
+                      } else {
+                          echo "Die Gesetzte Zeit ist zu kurz!";
+                      }
                   } else {
                       $this->stop();
                       $this->SetValue('start_stop', false);
                       $this->refresh();
                   }
+                  break;
+              case 'Settemperatur':
+                  $this->SetValue('Settemperatur', $Value);
+                  break;
+              case 'SetDuration':
+                  $this->SetValue('SetDuration', $Value);
           }
 
           $this->Hide();
@@ -154,8 +168,8 @@ class HomeConnectOven extends IPSModule {
                   $recallProgram = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active")['data'];
                   // filter data
                   $this->SetListValue( explode( ".", $recallProgram['key'] )[4] );
-                  $program_remaining_time = $recallProgram['options'][7]['value'] - 3600;
-                  $program_progress = $recallProgram['options'][6]['value'];
+                  $program_remaining_time = $recallProgram['options'][3]['value'] - 3600;
+                  $program_progress = $recallProgram['options'][2]['value'];
                   $this->SetValue('start_stop', true );
 
               } else {
@@ -200,8 +214,10 @@ class HomeConnectOven extends IPSModule {
 
     /** Function to start Modes for the Dishwasher
      * @param string $mode Mode
+     * @param int $temperature Temperature, temperature of the mode
+     * @param int $duration Duration, like a timer
      */
-      public function start( string $mode ) {
+      public function start( string $mode, int $temperature, int $duration ) {
 
           $this->SetActive( true );
 
@@ -211,8 +227,10 @@ class HomeConnectOven extends IPSModule {
 
           $mode = "Cooking.Oven.Program.HeatingMode." . $mode;
 
+          $duration = $duration * 60;
+
           // Settings
-          $opt = '{"data":{"key":"' . $mode . '","options":[{"key":"BSH.Common.Option.StartInRelative","value":3,"unit":"seconds"}]}}';
+          $opt = '{"data":{"key":"' . $mode . '","options": [{ "key": "Cooking.Oven.Option.SetpointTemperature","value": ' . $temperature . ',"unit": "°C"},{"key": "BSH.Common.Option.Duration","value": ' . $duration . ',"unit": "seconds"}]}}';
 
           // Send
           if ( $this->GetValue("remoteStart") ) {
@@ -324,6 +342,12 @@ class HomeConnectOven extends IPSModule {
               IPS_SetVariableProfileIcon('HC_OvenRemoteStart', 'Lock');
               IPS_SetVariableProfileAssociation("HC_OvenRemoteStart", false, "Nicht erlaubt", "", 0xfa3200 );
               IPS_SetVariableProfileAssociation("HC_OvenRemoteStart", true, "Erlaubt", "", 0x11ff00 );
+          }
+          if (!IPS_VariableProfileExists('HC_OvenSetTemperature')) {
+              IPS_CreateVariableProfile('HC_OvenSetTemperature', 1);
+              IPS_SetVariableProfileIcon('HC_OvenSetTemperature', 'Temperature');
+              IPS_SetVariableProfileValues("HC_OvenSetTemperature", 60, 250, 1 );
+              IPS_SetVariableProfileText("HC_OvenSetTemperature", "", "°C");
           }
       }
 
