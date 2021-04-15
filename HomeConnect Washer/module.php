@@ -191,7 +191,7 @@ class HomeConnectWasher extends IPSModule {
 
           //============================================================ Check Notifications
           if ( $this->ReadPropertyBoolean("notify_finish") ) {
-              if ( $this->GetValue("state") == 2 && $this->GetValue("remainTime") <= -3300 && $this->GetValue("remainTime") != 0 ) {
+              if ( $this->GetValue("state") == 3 && $recallProgram['options'][7]['value'] <= 300 && $this->GetValue("remainTime") != 0 ) {
                   $this->SendNotify($this->ReadPropertyString("name") . " ist in unter 5min fertig");
               }
           }
@@ -255,7 +255,7 @@ class HomeConnectWasher extends IPSModule {
           $this->refresh();
 
           if ( $this->GetValue("remoteControl") ) {
-              if ( $this->GetValue("state") == 2 || $this->GetValue("state") == 3) {
+              if ( $this->GetValue("state") == 3 || $this->GetValue("state") == 2 ) {
                   Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
 
                   //============================================================ Check Notifications
@@ -305,8 +305,8 @@ class HomeConnectWasher extends IPSModule {
               IPS_SetVariableProfileValues("HC_DishwasherState", 0, 2, 0 );
               IPS_SetVariableProfileAssociation("HC_DishwasherState", 0, "Aus", "", 0x828282 );
               IPS_SetVariableProfileAssociation("HC_DishwasherState", 1, "An", "", 0x22ff00 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherState", 2, "Program läuft", "", 0xfa3200 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherState", 3, "Startet in", "", 0xfa3200 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherState", 2, "Startet in", "", 0xfa3200 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherState", 3, "Program läuft", "", 0xfa3200 );
           }
           if (!IPS_VariableProfileExists('HC_DishwasherMode')) {
               IPS_CreateVariableProfile('HC_DishwasherMode', 1);
@@ -710,9 +710,9 @@ class HomeConnectWasher extends IPSModule {
                 return 0;
             case "BSH.Common.EnumType.OperationState.Ready":
                 return 1;
-            case "BSH.Common.EnumType.OperationState.Run":
+            case "SH.Common.EnumType.OperationState.DelayedStart":
                 return 2;
-            case "BSH.Common.EnumType.OperationState.DelayedStart":
+            case "BSH.Common.EnumType.OperationState.Run":
                 return 3;
         }
         return 0;
