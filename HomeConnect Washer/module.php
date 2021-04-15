@@ -62,8 +62,6 @@ class HomeConnectWasher extends IPSModule {
           $this->RegisterVariableInteger("progress", "Fortschritt", "HC_DishwasherProgress", 5);
           $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_DishwasherStartStop", 6);
           $this->EnableAction('start_stop');
-
-          $this->BuildList("HC_DishwasherMode");
       }
 
       /** This function will be called by IP Symcon when the User change vars in the Module Interface
@@ -313,6 +311,7 @@ class HomeConnectWasher extends IPSModule {
           if (!IPS_VariableProfileExists('HC_DishwasherMode')) {
               IPS_CreateVariableProfile('HC_DishwasherMode', 1);
               IPS_SetVariableProfileIcon('HC_DishwasherMode', 'Drops');
+              $this->BuildList("HC_DishwasherMode");
           }
           if (!IPS_VariableProfileExists('HC_DishwasherProgress')) {
               IPS_CreateVariableProfile('HC_DishwasherProgress', 1);
@@ -617,12 +616,12 @@ class HomeConnectWasher extends IPSModule {
        * @param string $profile Name of the profile
        */
       protected function BuildList( string $profile ) {
-          $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/available");
+          $get = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/available")['data']['programs'];
 
-          $programs_count = count( $recall['data']['programs'] );
+          $programs_count = count( $get );
 
           for ($i = 0; $i < $programs_count ; $i++) {
-              IPS_SetVariableProfileAssociation($profile, $i, explode( ".", $recall['data']['programs'][$i]["key"])[3], "", 0x828282 );
+              IPS_SetVariableProfileAssociation($profile, $i, explode( ".", $get[$i]["key"])[3], "", 0x828282 );
           }
       }
 
