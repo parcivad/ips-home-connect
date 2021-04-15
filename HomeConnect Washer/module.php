@@ -304,7 +304,7 @@ class HomeConnectWasher extends IPSModule {
               IPS_SetVariableProfileValues("HC_DishwasherState", 0, 2, 0 );
               IPS_SetVariableProfileAssociation("HC_DishwasherState", 0, "Aus", "", 0x828282 );
               IPS_SetVariableProfileAssociation("HC_DishwasherState", 1, "An", "", 0x22ff00 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherState", 2, "Startet in", "", 0xfa3200 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherState", 2, "Startet in", "", 0xfa8e00 );
               IPS_SetVariableProfileAssociation("HC_DishwasherState", 3, "Program läuft", "", 0xfa3200 );
           }
           if (!IPS_VariableProfileExists('HC_DishwasherMode')) {
