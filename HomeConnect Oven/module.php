@@ -215,7 +215,7 @@ class HomeConnectOven extends IPSModule {
     /** Function to start Modes for the Dishwasher
      * @param string $mode Mode
      * @param int $temperature Temperature, temperature of the mode
-     * @param int $duration Duration, like a timer
+     * @param int $duration Duration in seconds
      */
       public function start( string $mode, int $temperature, int $duration ) {
 
@@ -226,8 +226,6 @@ class HomeConnectOven extends IPSModule {
           $this->refresh();
 
           $mode = "Cooking.Oven.Program.HeatingMode." . $mode;
-
-          $duration = $duration * 60;
 
           // Settings
           $opt = '{"data":{"key":"' . $mode . '","options": [{ "key": "Cooking.Oven.Option.SetpointTemperature","value": ' . $temperature . ',"unit": "°C"},{"key": "BSH.Common.Option.Duration","value": ' . $duration . ',"unit": "seconds"}]}}';
