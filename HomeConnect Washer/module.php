@@ -71,8 +71,6 @@ class HomeConnectWasher extends IPSModule {
       {
           // Overwrite ips function
           parent::ApplyChanges();
-
-          $this->BuildList('HC_DishwasherMode' );
       }
 
 
@@ -123,6 +121,8 @@ class HomeConnectWasher extends IPSModule {
               $this->SetTimerInterval("refresh", 900000 );
           }
           //============================================================ Check Timer
+
+          $this->BuildList("HC_DishwasherMode");
 
           // Only refresh when set
           if ( $this->ReadPropertyBoolean("refresh_on_off") ) {
@@ -622,7 +622,7 @@ class HomeConnectWasher extends IPSModule {
           $programs_count = count( $recall['data']['programs'] );
 
           for ($i = 0; $i < $programs_count ; $i++) {
-              IPS_SetVariableProfileAssociation($profile, $i, explode( ".", $data['data']['programs'][$i]["key"])[3], "", 0x828282 );
+              IPS_SetVariableProfileAssociation($profile, $i, explode( ".", $recall['data']['programs'][$i]["key"])[3], "", 0x828282 );
           }
       }
 
