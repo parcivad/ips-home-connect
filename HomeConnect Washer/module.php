@@ -47,7 +47,6 @@ class HomeConnectWasher extends IPSModule {
 
           // Register Variable and Profiles
           $this->registerProfiles();
-          $this->BuildList('HC_DishwasherMode' );
 
           $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_WasherRemoteStart", -2);
           IPS_SetHidden($this->GetIDForIdent("remoteControl"), true);
@@ -72,6 +71,8 @@ class HomeConnectWasher extends IPSModule {
       {
           // Overwrite ips function
           parent::ApplyChanges();
+
+          $this->BuildList('HC_DishwasherMode' );
       }
 
 
