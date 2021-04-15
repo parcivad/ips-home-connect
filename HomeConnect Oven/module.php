@@ -153,15 +153,16 @@ class HomeConnectOven extends IPSModule {
                   // Api call
                   $recallProgram = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active")['data'];
                   // filter data
-                  $this->SetListValue( explode( ".", $recallProgram['key'] )[3] );
+                  $this->SetListValue( explode( ".", $recallProgram['key'] )[4] );
                   $program_remaining_time = $recallProgram['options'][7]['value'] - 3600;
                   $program_progress = $recallProgram['options'][6]['value'];
                   $this->SetValue('start_stop', true );
 
               } else {
                   // Api call
-                  $recallSelected = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/selected")['data'];
-                  $this->SetListValue( explode( ".", $recallSelected['key'] )[3] );
+                  //$recallSelected = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/selected")['data'];
+                  //TODO: PROGRAM MUST BE STARTED
+                  $this->SetListValue( explode( ".", "HotAir" )[4] );
                   $program_remaining_time = 0;
                   $program_progress = 0;
                   $this->SetValue('start_stop', false );
