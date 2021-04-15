@@ -43,7 +43,7 @@ class HomeConnectOven extends IPSModule {
           $this->RegisterAttributeBoolean("first_start", true );
 
           // Erstellt einen Timer mit dem Namen "Update" und einem Intervall von 5 minutes.
-          $this->RegisterTimer("refresh", 300000, "HCDishwasher_refresh($this->InstanceID);");
+          $this->RegisterTimer("refresh", 300000, "HCOven_refresh($this->InstanceID);");
 
           // Register Variable and Profiles
           $this->registerProfiles();
@@ -58,9 +58,10 @@ class HomeConnectOven extends IPSModule {
           $this->EnableAction('mode');
           $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_OvenRemoteStart", 2);
           $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_OvenDoorState", 3);
-          $this->RegisterVariableInteger("remainTime", "Verbleibende Zeit", "UnixTimestampTime", 4);
-          $this->RegisterVariableInteger("progress", "Fortschritt", "HC_OvenProgress", 5);
-          $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_OvenStartStop", 6);
+          $this->RegisterVariableInteger("temperature", "Temperatur", "~Temperature", 4);
+          $this->RegisterVariableInteger("remainTime", "Verbleibende Zeit", "UnixTimestampTime", 5);
+          $this->RegisterVariableInteger("progress", "Fortschritt", "HC_OvenProgress", 6);
+          $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_OvenStartStop", 7);
           $this->EnableAction('start_stop');
       }
 
@@ -131,13 +132,13 @@ class HomeConnectOven extends IPSModule {
 
               // Getting each data into variables
               // Check Remote control
-              if ( $recall['data']['status'][1]['value'] ) {
+              if ( $recall['data']['status'][3]['value'] ) {
                   $this->WriteAttributeString("remoteControlAllowed", "Dein Gerät erlaubt eine Fernbedienung");
               } else {
                   $this->WriteAttributeString("remoteControlAllowed", "Dein Gerät erlaubt keine Fernbedienung");
               }
               // Check Remote start
-              if ( $recall['data']['status'][0]['value'] ) {
+              if ( $recall['data']['status'][2]['value'] ) {
                   $this->WriteAttributeString("remoteStartAllowed", "Dein Gerät erlaub ein Fernstart" );
               } else {
                   $this->WriteAttributeString("remoteStartAllowed", "Dein Gerät erlaub keinen Fernstart" );
@@ -145,8 +146,8 @@ class HomeConnectOven extends IPSModule {
 
               //============================================================ Sorting Data and save
               // Door State and Operation state
-              $DoorState =  $this->HC( $recall['data']['status'][2]['value'] );
-              $OperationState = $this->HC( $recall['data']['status'][3]['value'] );
+              $DoorState =  $this->HC( $recall['data']['status'][0]['value'] );
+              $OperationState = $this->HC( $recall['data']['status'][4]['value'] );
 
               if ( $OperationState == 2 ) {
                   // Api call
@@ -169,6 +170,7 @@ class HomeConnectOven extends IPSModule {
               // Set Variable value
               $this->SetValue("remoteStart", $recall['data']['status'][0]['value'] );
               $this->SetValue("remoteControl", $recall['data']['status'][1]['value'] );
+              $this->SetValue("temperature", round( $recall['data']['status'][5]['value'], 2));
               $this->SetValue("progress", $program_progress );
               $this->SetValue("remainTime", $program_remaining_time);
               $this->SetValue("door", $DoorState );
@@ -264,7 +266,7 @@ class HomeConnectOven extends IPSModule {
       public function SetActive( bool $state ) {
           if ( $state ) {
               $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.On","type": "BSH.Common.EnumType.PowerState"}}';
-          } else {$power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.Off","type": "BSH.Common.EnumType.PowerState"}}';
+          } else {$power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.Standby","type": "BSH.Common.EnumType.PowerState"}}';
 
           }
 
@@ -593,24 +595,28 @@ class HomeConnectOven extends IPSModule {
                   IPS_SetHidden( $this->GetIDForIdent('door'), true );
                   IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
                   IPS_SetHidden( $this->GetIDForIdent('progress'), true );
+                  IPS_SetHidden( $this->GetIDForIdent('temperature'), true );
                   break;
               case 1:
                   IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
                   IPS_SetHidden( $this->GetIDForIdent('door'), false );
                   IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
                   IPS_SetHidden( $this->GetIDForIdent('progress'), true );
+                  IPS_SetHidden( $this->GetIDForIdent('temperature'), true );
                   break;
               case 2:
                   IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
                   IPS_SetHidden( $this->GetIDForIdent('door'), false );
                   IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
                   IPS_SetHidden( $this->GetIDForIdent('progress'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('temperature'), false );
                   break;
               default:
                   IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
                   IPS_SetHidden( $this->GetIDForIdent('door'), false );
                   IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
                   IPS_SetHidden( $this->GetIDForIdent('progress'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('temperature'), false );
           }
       }
 
