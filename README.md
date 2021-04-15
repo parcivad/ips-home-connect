@@ -19,12 +19,13 @@ Zudem lassen sich Informationen wie die Verbleibende Zeit oder die Programme geb
 
 ### Instanz Einstellungen
 
-<p align="center">
-  <img width="447" height="416" src="https://github.com/LegendDragon11/img/blob/main/instanceGeschirrspüler.png">
-</p>
-
 In den Instanz Einstellungen kann unter `Refresh` eine Zeitspanne gesetzt werden ( von 12 Uhr bis 18 Uhr )in der Automatisch geupdated wird (5min abstand) außerhalb dieser Zeit updated das Programm alle 15min.
 
+Zudem kann eine Benachrichtigung für ein Mobiles Gerät und das Webfront eingstellt werden. Es kann auch das gleiche Webfront wir beide Geräte genutzt werden.
+```diff
+-Die Berechtigung RemoteControl lässt sich in der Home Connect App einstellen
+-Die Berechtigung RemoteStart muss jedes mal auf dem Gerät gedrückt werden
+```
 ### Variablen
 Name | Type | Werte | Funktionen
 :--- | :---: | :---  | :---:
@@ -41,33 +42,37 @@ Name | Type | Werte | Funktionen
 ### Geschirrspüler Set
 Alle Eigenschaften die gesetzt werden können.
 #### Gerät Zustand steuern
-Der Geräte Zustand kann im Webfront geändert werden oder im Code mit diesem Befehl (siehe Beispiel)
-Dabei wird zwischen true/false unterschieden, also An oder Aus.
-Beispiel:
+Im Webfront lässt sich das Gerät An und Aus schalten. Die Zustände "Startet in" und "Programm läuft" können nicht gesetzt werden, da sie über die Funktion Start/Stop gesteuert werden.
+
+
+Im Code kann das Gerät an oder aus geschaltet werden mit (bei dem starten von dem Gerät muss es NICHT extra angeschaltet werden).
 ```php
 HCDishwasher_SetActive( InstaceID, false/true );
 ```
 ```diff
 -Für diese Aktion wird die Berechtigung RemoteControl benötigt!
 ```
-#### Programm starten
-Ein Programm kann über das Webfront gestartet werden oder im Code (siehe Beispiel). Hierbei ist der Modus ein string. Die Namen lassen sich im `Programm` integer finden.
-Beispiel:
+#### Programm starten [4 REQUESTS]
+Ein Programm kann im Webfront gestartet werden, beim drücken auf dem start knopf wird der aktuelle Modus ausgewählt und gestartet
+
+Im Code kann das Programm auch noch verzögert gestartet werden mit.
 ```php
-HCDishwasher_start( InstanceID, "Auto2");
+HCDishwasher_start( InstanceID, "<Modus als string>", "<Verzögerter start in sekunden>");
 ```
 ```diff
 -Für diese Aktion wird die Berechtigung RemoteControl und RemoteStart benötigt!
 ```
-#### Programm stoppen
-Ein Programm kann über das Webfront gestoppt werden oder im Code (siehe Beispiel).
+#### Programm stoppen [3 REQUESTS]
+Ein Programm kann über das Webfront gestoppt werden, dass geht auch wenn sich das Gerät im Zustand "Start in" befindet.
+
+Im Code kann das Programm mit ... gestoppt werden.
 ```php
 HCDishwasher_stop( InstanceID );
 ```
 ```diff
 -Für diese Aktion wird die Berechtigung RemoteControl benötigt!
 ```
-#### Manuell refreshen
+#### Manuell refreshen [1-2 REQUESTS]
 Das kann mit diesem Befehl gemacht werden.
 ```php
 HCDishwasher_refresh( InstanceID );
@@ -80,4 +85,8 @@ HCDishwasher_refresh( InstanceID );
 Für alle Befehle und abfragen gilt:
 - Die Anfrage braucht 0,5 - 3sec
 - Die Befehle brauchen ebenfalls etwas Zeit
-- Max 1.000 Anfragen für alles (refresh, start/stop, an/aus, alle geräte)
+```diff
+-Die Befehle brauchen ebenfalls etwas Zeit
+````
+- Die Befehle brauchen ebenfalls etwas Zei
+- Max 1.000 Request für alles (refresh, start/stop, an/aus, alle geräte)
