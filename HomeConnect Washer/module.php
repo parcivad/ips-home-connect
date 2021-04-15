@@ -9,7 +9,8 @@ class HomeConnectWasher extends IPSModule {
       /** This function will be called on the creation of this Module
        * @return bool|void
        */
-      public function Create() {
+      public function Create()
+      {
           // Overwrite ips function
           parent::Create();
 
@@ -20,46 +21,47 @@ class HomeConnectWasher extends IPSModule {
           $this->RegisterPropertyString('haId', '');
 
           // Refresh Settings
-          $this->RegisterPropertyInteger("first_refresh", 1 );
-          $this->RegisterPropertyInteger("second_refresh", 1 );
-          $this->RegisterPropertyBoolean("refresh_on_off", true );
+          $this->RegisterPropertyInteger("first_refresh", 1);
+          $this->RegisterPropertyInteger("second_refresh", 1);
+          $this->RegisterPropertyBoolean("refresh_on_off", true);
           // Notify Settings
-          $this->RegisterPropertyInteger("notify_instance", 0 );
-          $this->RegisterPropertyString( "notify_sound", "" );
-          $this->RegisterPropertyBoolean("notify_start", false );
-          $this->RegisterPropertyBoolean("notify_stop", false );
-          $this->RegisterPropertyBoolean("notify_finish", false );
+          $this->RegisterPropertyInteger("notify_instance", 0);
+          $this->RegisterPropertyString("notify_sound", "");
+          $this->RegisterPropertyBoolean("notify_start", false);
+          $this->RegisterPropertyBoolean("notify_stop", false);
+          $this->RegisterPropertyBoolean("notify_finish", false);
           // Notify Settings
-          $this->RegisterPropertyInteger("web_notify_instance", 0 );
-          $this->RegisterPropertyInteger( "web_notify_Timeout", 10 );
-          $this->RegisterPropertyBoolean("web_notify_start", false );
-          $this->RegisterPropertyBoolean("web_notify_stop", false );
-          $this->RegisterPropertyBoolean("web_notify_finish", false );
+          $this->RegisterPropertyInteger("web_notify_instance", 0);
+          $this->RegisterPropertyInteger("web_notify_Timeout", 10);
+          $this->RegisterPropertyBoolean("web_notify_start", false);
+          $this->RegisterPropertyBoolean("web_notify_stop", false);
+          $this->RegisterPropertyBoolean("web_notify_finish", false);
 
 
           // Register Information Panel
-          $this->RegisterAttributeString("remoteControlAllowed", "Your Device doesn't allow remote Control / Dein Gerät erlaubt keine Fernbedienung" );
-          $this->RegisterAttributeString("remoteStartAllowed", "Your Device doesn't allow remote Start / Dein Gerät erlaub keinen Fernstart" );
+          $this->RegisterAttributeString("remoteControlAllowed", "Your Device doesn't allow remote Control / Dein Gerät erlaubt keine Fernbedienung");
+          $this->RegisterAttributeString("remoteStartAllowed", "Your Device doesn't allow remote Start / Dein Gerät erlaub keinen Fernstart");
 
           // Erstellt einen Timer mit dem Namen "Update" und einem Intervall von 5 minutes.
           $this->RegisterTimer("refresh", 300000, "HCDishwasher_refresh($this->InstanceID);");
 
           // Register Variable and Profiles
           $this->registerProfiles();
+          $this->BuildList('HC_DishwasherMode' );
 
-          $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_WasherRemoteStart", -2 );
-          IPS_SetHidden( $this->GetIDForIdent("remoteControl"), true );
-          $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -2 );
-          IPS_SetHidden( $this->GetIDForIdent('LastRefresh'), true );
-          $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_DishwasherState", 0 );
+          $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_WasherRemoteStart", -2);
+          IPS_SetHidden($this->GetIDForIdent("remoteControl"), true);
+          $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -2);
+          IPS_SetHidden($this->GetIDForIdent('LastRefresh'), true);
+          $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_DishwasherState", 0);
           $this->EnableAction('state');
-          $this->RegisterVariableInteger("mode", "Programm", "HC_DishwasherMode", 1 );
+          $this->RegisterVariableInteger("mode", "Programm", "HC_DishwasherMode", 1);
           $this->EnableAction('mode');
-          $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_WasherRemoteStart", 2 );
-          $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_DishwasherDoorState", 3 );
-          $this->RegisterVariableInteger("remainTime", "Verbleibende Zeit", "UnixTimestampTime", 4 );
-          $this->RegisterVariableInteger("progress", "Fortschritt", "HC_DishwasherProgress", 5 );
-          $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_DishwasherStartStop", 6 );
+          $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_WasherRemoteStart", 2);
+          $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_DishwasherDoorState", 3);
+          $this->RegisterVariableInteger("remainTime", "Verbleibende Zeit", "UnixTimestampTime", 4);
+          $this->RegisterVariableInteger("progress", "Fortschritt", "HC_DishwasherProgress", 5);
+          $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_DishwasherStartStop", 6);
           $this->EnableAction('start_stop');
       }
 
@@ -310,7 +312,6 @@ class HomeConnectWasher extends IPSModule {
           if (!IPS_VariableProfileExists('HC_DishwasherMode')) {
               IPS_CreateVariableProfile('HC_DishwasherMode', 1);
               IPS_SetVariableProfileIcon('HC_DishwasherMode', 'Drops');
-              $this->BuildList('HC_DishwasherMode' );
           }
           if (!IPS_VariableProfileExists('HC_DishwasherProgress')) {
               IPS_CreateVariableProfile('HC_DishwasherProgress', 1);
