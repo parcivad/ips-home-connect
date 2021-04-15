@@ -183,7 +183,7 @@ class HomeConnectWasher extends IPSModule {
           //============================================================ Check Notifications
           if ( $this->ReadPropertyBoolean("notify_finish") ) {
               if ( $this->GetValue("state") == 2 && $this->GetValue("remainTime") <= -3300 && $this->GetValue("remainTime") != 0 ) {
-                  $this->SendNotify("Geschirrspüler ist in unter 5min fertig");
+                  $this->SendNotify($this->ReadPropertyString("name") . " ist in unter 5min fertig");
               }
           }
           //============================================================ Check Notifications
@@ -224,7 +224,7 @@ class HomeConnectWasher extends IPSModule {
 
                       //============================================================ Check Notifications
                       if ( $this->ReadPropertyBoolean("notify_start") ) {
-                          $this->SendNotify("Geschirrspüler hat das Programm " . $mode . " gestarted!");
+                          $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm " . $mode . " gestarted!");
                       }
                       //============================================================ Check Notifications
                   } else {
@@ -251,7 +251,7 @@ class HomeConnectWasher extends IPSModule {
 
                   //============================================================ Check Notifications
                   if ( $this->ReadPropertyBoolean("notify_stop") ) {
-                      $this->SendNotify("Geschirrspüler hat das Programm gestoppt!");
+                      $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm gestoppt!");
                   }
                   //============================================================ Check Notifications
               }
@@ -691,61 +691,6 @@ class HomeConnectWasher extends IPSModule {
                 return 1;
             case "BSH.Common.EnumType.OperationState.Run":
                 return 2;
-        }
-        return 0;
-    }
-
-      /**
-       * @param string $var that should be analyse
-       * @return bool returns true or false for HomeConnect Api result
-       */
-      private function IPS($var ) {
-        switch ( $var ) {
-            //------------------------ Programms
-            case "Dishcare.Dishwasher.Program.Auto1":
-                return 0;
-            case "Dishcare.Dishwasher.Program.Auto2":
-                return 1;
-            case "Dishcare.Dishwasher.Program.Auto3":
-                return 2;
-            case "Dishcare.Dishwasher.Program.AutoHalfLoad":
-                return 3;
-            case "Dishcare.Dishwasher.Program.Eco50":
-                return 4;
-            case "Dishcare.Dishwasher.Program.Quick45":
-                return 5;
-            case "Dishcare.Dishwasher.Program.Quick65":
-                return 6;
-            case "Dishcare.Dishwasher.Program.Intensiv45":
-                return 7;
-            case "Dishcare.Dishwasher.Program.Intensiv70":
-                return 8;
-            case "Dishcare.Dishwasher.Program.IntensivPower":
-                return 9;
-            case "Dishcare.Dishwasher.Program.Normal45":
-                return 10;
-            case "Dishcare.Dishwasher.Program.Normal65":
-                return 11;
-            case "Dishcare.Dishwasher.Program.Glas40":
-                return 12;
-            case "Dishcare.Dishwasher.Program.GlassCare":
-                return 13;
-            case "Dishcare.Dishwasher.Program.NightWash":
-                return 14;
-            case "Dishcare.Dishwasher.Program.MagicDaily":
-                return 15;
-            case "Dishcare.Dishwasher.Program.Kurz60":
-                return 16;
-            case "Dishcare.Dishwasher.Program.Super60":
-                return 17;
-            case "Dishcare.Dishwasher.Program.ExpressSparkle65":
-                return 18;
-            case "Dishcare.Dishwasher.Program.MachineCare":
-                return 19;
-            case "Dishcare.Dishwasher.Program.SteamFresh":
-                return 20;
-            case "Dishcare.Dishwasher.Program.MaximumCleaning":
-                return 21;
         }
         return 0;
     }
