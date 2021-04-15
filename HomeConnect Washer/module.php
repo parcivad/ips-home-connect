@@ -180,7 +180,7 @@ class HomeConnectWasher extends IPSModule {
 
           //============================================================ Check Notifications
           if ( $this->ReadPropertyBoolean("notify_finish") ) {
-              if ( $this->GetValue("state") == 2 && $this->GetValue("remainTime") <= 300 && $this->GetValue("remainTime") != 0 ) {
+              if ( $this->GetValue("state") == 2 && $this->GetValue("remainTime") <= -3300 && $this->GetValue("remainTime") != 0 ) {
                   $this->SendNotify("Geschirrspüler ist in unter 5min fertig");
               }
           }
