@@ -27,6 +27,7 @@ class HomeConnectDiscovery extends IPSModule {
         $this->ReloadForm();
     }
 
+    //-----------------------------------------------------< Profiles >------------------------------
     /** Function for Authorization and Token
      * @param $opt
      * @return bool|mixed
@@ -44,7 +45,16 @@ class HomeConnectDiscovery extends IPSModule {
         }
     }
 
-    public function GetDevices() {
+    /** Return Visible
+     * @return bool
+     */
+    protected function visible() {
+        return getAccessToken() == null;
+    }
+
+
+    //-----------------------------------------------------< Setting Form.json >------------------------------
+    protected function GetDevices() {
         global $data;
 
         $auth_code = getAuthorizeCode();
@@ -160,26 +170,32 @@ class HomeConnectDiscovery extends IPSModule {
      * @return array[] Form Elements
      */
     protected function FormElements() {
+        $visible = $this->visible();
+
         return[
             [
                 "type" => "Label",
                 "name" => "loginInfo",
                 "caption" => "Logge dich bitte ein, indem du den Link in einem Browser öffnest. Wenn du fertig bist (der Browser keine Page mehr anzeigt) kopiere die ganze url und füge sie dann in das Eingabefeld ein.",
+                "visible" => $visible,
             ],
             [
                 "type" => "Label",
                 "name" => "link",
                 "caption" => "https://api.home-connect.com/security/oauth/authorize?response_type=code&client_id=35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5&scope=&redirect_uri=http%3A%2F%2Flocalhost%3A8080",
+                "visible" => $visible,
             ],
             [
                 "type" => "ValidationTextBox",
                 "name" => "auth_url",
                 "caption" => "Url",
+                "visible" => $visible,
             ],
             [
                 "type" => "Label",
                 "name" => "loginInfo2",
                 "caption" => "Wenn du fertig bist, dann klicke auf login und aktualisiere das Modul",
+                "visible" => $visible,
             ],
             [
                 "type" => "Configurator",
