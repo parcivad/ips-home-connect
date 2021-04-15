@@ -289,7 +289,7 @@ class HomeConnectWasher extends IPSModule {
                   WFC_PushNotification( $this->ReadPropertyInteger("notify_instance"), "HomeConnect", "Test Message", $this->ReadPropertyString("notify_sound"), $this->InstanceID );
                   break;
               case "web_message":
-                  WFC_SendNotification( $this->ReadPropertyInteger("web_notify_instance"), "HomeConnetc", "Test Message", "Power", $this->ReadPropertyInteger("web_notify_Timeout") );
+                  WFC_SendNotification( $this->ReadPropertyInteger("web_notify_instance"), "HomeConnect", "Test Message", "Power", $this->ReadPropertyInteger("web_notify_Timeout") );
                   break;
           }
       }
@@ -310,28 +310,7 @@ class HomeConnectWasher extends IPSModule {
           if (!IPS_VariableProfileExists('HC_DishwasherMode')) {
               IPS_CreateVariableProfile('HC_DishwasherMode', 1);
               IPS_SetVariableProfileIcon('HC_DishwasherMode', 'Drops');
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 0, "Auto lightly", "",0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 1, "Auto normally", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 2, "Auto highly", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 3, "Auto half Load", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 4, "Eco 50°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 5, "Quick 45°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 6, "Quick 65°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 7, "Intensiv 45°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 8, "Intensiv 70°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 9, "Intensiv Power", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 10, "Normal 45°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 11, "Normal 65°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 12, "Glas 40°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 13, "Glass care", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 14, "Night wash", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 15, "Magic daily", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 16, "Kurz 60°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 17, "Super 60°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 18, "Express Sparkle 65°C", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 19, "Machine care", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 20, "Steam fresh", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_DishwasherMode", 21, "Maximum cleaning", "", 0x828282 );
+              $this->BuildList('HC_DishwasherMode' );
           }
           if (!IPS_VariableProfileExists('HC_DishwasherProgress')) {
               IPS_CreateVariableProfile('HC_DishwasherProgress', 1);
@@ -628,7 +607,20 @@ class HomeConnectWasher extends IPSModule {
               WFC_PushNotification( $this->ReadPropertyInteger("notify_instance"), "HomeConnect", $text, $this->ReadPropertyString("notify_sound"), $this->InstanceID );
           }
           if ( $this->ReadPropertyInteger("web_notify_instance") != 0 ) {
-              WFC_SendNotification( $this->ReadPropertyInteger("web_notify_instance"), "HomeConnetc", $text, "Power", $this->ReadPropertyInteger("web_notify_Timeout") );
+              WFC_SendNotification( $this->ReadPropertyInteger("web_notify_instance"), "HomeConnect", $text, "Power", $this->ReadPropertyInteger("web_notify_Timeout") );
+          }
+      }
+
+      /** Function to set Profile of a Integer Var
+       * @param string $profile Name of the profile
+       */
+      protected function BuildList( string $profile ) {
+          $data = Api("https://api.home-connect.com/api/homeappliances/" . $this->ReadPropertyString("haId") . "/programs/available");
+
+          $programs_count = count( $data['data']['programs'] );
+
+          for ($i = 0; $i < $programs_count ; $i++) {
+              IPS_SetVariableProfileAssociation($profile, $i, explode( ".", $data['data']['programs'][$i]["key"])[3], "", 0x828282 );
           }
       }
 

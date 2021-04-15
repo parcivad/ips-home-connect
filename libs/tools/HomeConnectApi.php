@@ -1,6 +1,7 @@
 <?php
 $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/tools/tm/data.json" ), true );
 
+
 /**
  * @param $endpoint String Sending this command to the Api of HomeConnect
  * @return array Return the API output
