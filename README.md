@@ -86,7 +86,6 @@ Für alle Befehle und abfragen gilt:
 - Die Anfrage braucht 0,5 - 3sec
 - Die Befehle brauchen ebenfalls etwas Zeit
 ```diff
--Die Befehle brauchen ebenfalls etwas Zeit
+-Max 1.000 Request für alles (refresh, start/stop, an/aus, alle geräte)
 ````
 - Die Befehle brauchen ebenfalls etwas Zei
-- Max 1.000 Request für alles (refresh, start/stop, an/aus, alle geräte)
