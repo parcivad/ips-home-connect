@@ -39,8 +39,8 @@ class HomeConnectWasher extends IPSModule {
 
 
           // Register Information Panel
-          $this->RegisterAttributeString("remoteControlAllowed", "Your Device doesn't allow remote Control / Dein Gerät erlaubt keine Fernbedienung");
-          $this->RegisterAttributeString("remoteStartAllowed", "Your Device doesn't allow remote Start / Dein Gerät erlaub keinen Fernstart");
+          $this->RegisterAttributeString("remoteControlAllowed", "Dein Gerät erlaubt keine Fernbedienung");
+          $this->RegisterAttributeString("remoteStartAllowed", "Dein Gerät erlaub keinen Fernstart");
           $this->RegisterAttributeBoolean("first_start", true );
 
           // Erstellt einen Timer mit dem Namen "Update" und einem Intervall von 5 minutes.
@@ -105,6 +105,8 @@ class HomeConnectWasher extends IPSModule {
                       $this->refresh();
                   }
           }
+
+          $this->Hide();
       }
     //--------------------------------------------------< User functions >----------------------------------
     /** Function to refresh the device values
@@ -191,6 +193,8 @@ class HomeConnectWasher extends IPSModule {
               $this->BuildList("HC_DishwasherMode");
               $this->WriteAttributeBoolean("first_start", false );
           }
+
+          $this->Hide();
           return true;
       }
 
@@ -585,6 +589,34 @@ class HomeConnectWasher extends IPSModule {
           return $form;
       }
 
+      protected function Hide() {
+          switch ($this->GetValue('state')) {
+              case 0:
+                  IPS_SetHidden( $this->GetIDForIdent('remoteStart'), true );
+                  IPS_SetHidden( $this->GetIDForIdent('door'), true );
+                  IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
+                  IPS_SetHidden( $this->GetIDForIdent('progress'), true );
+                  break;
+              case 1:
+                  IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('door'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
+                  IPS_SetHidden( $this->GetIDForIdent('progress'), true );
+                  break;
+              case 2:
+                  IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('door'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('progress'), false );
+                  break;
+              default:
+                  IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('door'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('progress'), false );
+          }
+      }
+
       /** Send Text
        * @param string $text Text in the Notification
        */
@@ -609,6 +641,9 @@ class HomeConnectWasher extends IPSModule {
           }
       }
 
+      /** Function to set integer by name association
+       * @param string $name
+       */
       protected function SetListValue( string $name ) {
           $profile = IPS_GetVariableProfile( 'HC_DishwasherMode' )['Associations'];
           $profile_count = count( $profile );
@@ -622,18 +657,21 @@ class HomeConnectWasher extends IPSModule {
           $this->SetValue('mode', $profile_list[$name] );
       }
 
-    protected function GetListValue() {
-        $profile = IPS_GetVariableProfile( 'HC_DishwasherMode' )['Associations'];
-        $profile_count = count( $profile );
+      /**Function to get name to association
+       * @return mixed return name
+       */
+      protected function GetListValue() {
+          $profile = IPS_GetVariableProfile( 'HC_DishwasherMode' )['Associations'];
+          $profile_count = count( $profile );
 
-        $profile_list = array();
+          $profile_list = array();
 
-        for ( $i = 0; $i < $profile_count; $i++ ) {
-            $profile_list[$profile[$i]["Value"]] = $profile[$i]["Name"];
-        }
+          for ( $i = 0; $i < $profile_count; $i++ ) {
+              $profile_list[$profile[$i]["Value"]] = $profile[$i]["Name"];
+          }
 
-        return $profile_list[$this->GetValue('mode' )];
-    }
+          return $profile_list[$this->GetValue('mode' )];
+      }
 
       /**
        * @param string $var that should be analyse
