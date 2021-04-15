@@ -1,7 +1,6 @@
 <?php
 $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/tools/tm/data.json" ), true );
 
-
 /**
  * @param $endpoint String Sending this command to the Api of HomeConnect
  * @return array Return the API output
@@ -21,6 +20,7 @@ function Api($endpoint="") {
     // configure curl curl options in array
     $curlopt = array(
         CURLOPT_URL => $url,
+        CURLOPT_CUSTOMREQUEST => "GET",
         CURLOPT_HTTPHEADER => $header_array,
         CURLOPT_TIMEOUT => 10,
         CURLOPT_FOLLOWLOCATION => true,

@@ -617,9 +617,7 @@ class HomeConnectWasher extends IPSModule {
        * @param string $profile Name of the profile
        */
       protected function BuildList( string $profile ) {
-          $recall = Api("https://api.home-connect.com/api/homeappliances/" . $this->ReadPropertyString("haId") . "/programs/available");
-
-          $this->SendDebug(strval( $recall ), $recall, 0);
+          $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/available");
 
           $programs_count = count( $recall['data']['programs'] );
 
