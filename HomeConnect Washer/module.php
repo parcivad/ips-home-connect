@@ -41,6 +41,7 @@ class HomeConnectWasher extends IPSModule {
           // Register Information Panel
           $this->RegisterAttributeString("remoteControlAllowed", "Your Device doesn't allow remote Control / Dein Gerät erlaubt keine Fernbedienung");
           $this->RegisterAttributeString("remoteStartAllowed", "Your Device doesn't allow remote Start / Dein Gerät erlaub keinen Fernstart");
+          $this->RegisterAttributeBoolean("first_start", true );
 
           // Erstellt einen Timer mit dem Namen "Update" und einem Intervall von 5 minutes.
           $this->RegisterTimer("refresh", 300000, "HCDishwasher_refresh($this->InstanceID);");
@@ -186,6 +187,11 @@ class HomeConnectWasher extends IPSModule {
           }
           //============================================================ Check Notifications
 
+
+          if ( $this->ReadAttributeBoolean("first_start") ) {
+              $this->BuildList("HC_DishwasherMode");
+              $this->WriteAttributeBoolean("first_start", false );
+          }
           return true;
       }
 
@@ -311,7 +317,6 @@ class HomeConnectWasher extends IPSModule {
           if (!IPS_VariableProfileExists('HC_DishwasherMode')) {
               IPS_CreateVariableProfile('HC_DishwasherMode', 1);
               IPS_SetVariableProfileIcon('HC_DishwasherMode', 'Drops');
-              $this->BuildList("HC_DishwasherMode");
           }
           if (!IPS_VariableProfileExists('HC_DishwasherProgress')) {
               IPS_CreateVariableProfile('HC_DishwasherProgress', 1);
@@ -616,12 +621,11 @@ class HomeConnectWasher extends IPSModule {
        * @param string $profile Name of the profile
        */
       protected function BuildList( string $profile ) {
-          $get = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/available")['data']['programs'];
-
-          $programs_count = count( $get );
+          $programs = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/available")['data']['programs'];
+          $programs_count = count( $programs );
 
           for ($i = 0; $i < $programs_count ; $i++) {
-              IPS_SetVariableProfileAssociation($profile, $i, explode( ".", $get[$i]["key"])[3], "", 0x828282 );
+              IPS_SetVariableProfileAssociation($profile, $i, explode( ".", $programs[$i]["key"])[3], "", 0x828282 );
           }
       }
 
