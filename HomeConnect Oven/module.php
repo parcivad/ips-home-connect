@@ -169,8 +169,8 @@ class HomeConnectOven extends IPSModule {
               }
 
               // Set Variable value
-              $this->SetValue("remoteStart", $recall['data']['status'][0]['value'] );
-              $this->SetValue("remoteControl", $recall['data']['status'][1]['value'] );
+              $this->SetValue("remoteStart", $recall['data']['status'][2]['value'] );
+              $this->SetValue("remoteControl", $recall['data']['status'][3]['value'] );
               $this->SetValue("temperature", round( $recall['data']['status'][5]['value'], 2));
               $this->SetValue("progress", $program_progress );
               $this->SetValue("remainTime", $program_remaining_time);
