@@ -62,6 +62,8 @@ class HomeConnectWasher extends IPSModule {
           $this->RegisterVariableInteger("progress", "Fortschritt", "HC_DishwasherProgress", 5);
           $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_DishwasherStartStop", 6);
           $this->EnableAction('start_stop');
+
+          $this->BuildList("HC_DishwasherMode");
       }
 
       /** This function will be called by IP Symcon when the User change vars in the Module Interface
@@ -121,8 +123,6 @@ class HomeConnectWasher extends IPSModule {
               $this->SetTimerInterval("refresh", 900000 );
           }
           //============================================================ Check Timer
-
-          $this->BuildList("HC_DishwasherMode");
 
           // Only refresh when set
           if ( $this->ReadPropertyBoolean("refresh_on_off") ) {
@@ -618,6 +618,8 @@ class HomeConnectWasher extends IPSModule {
        */
       protected function BuildList( string $profile ) {
           $recall = Api("https://api.home-connect.com/api/homeappliances/" . $this->ReadPropertyString("haId") . "/programs/available");
+
+          $this->SendDebug(strval( $recall ), $recall, 0);
 
           $programs_count = count( $recall['data']['programs'] );
 
