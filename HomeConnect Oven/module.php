@@ -641,7 +641,7 @@ class HomeConnectOven extends IPSModule {
           $programs_count = count( $programs );
 
           for ($i = 0; $i < $programs_count ; $i++) {
-              IPS_SetVariableProfileAssociation($profile, $i, explode( ".", $programs[$i]["key"])[3], "", 0x828282 );
+              IPS_SetVariableProfileAssociation($profile, $i, explode( ".", $programs[$i]["key"])[4], "", 0x828282 );
           }
       }
 
