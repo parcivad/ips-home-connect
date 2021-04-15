@@ -81,7 +81,7 @@ class HomeConnectWasher extends IPSModule {
       {
           switch ($Ident) {
               case 'state':
-                  if ($this->GetValue("state") != 2) {
+                  if ($this->GetValue("state") < 3) {
                       if ($Value) {
                           $this->SetActive(true);
                           $this->SetValue('state', 1);
@@ -95,7 +95,6 @@ class HomeConnectWasher extends IPSModule {
                   $this->SetValue('mode', $Value);
                   break;
               case 'start_stop':
-                  //TODO: start and stop Device
                   if ($Value) {
                       $this->start($this->GetListValue());
                       $this->SetValue('start_stop', true);
@@ -208,8 +207,9 @@ class HomeConnectWasher extends IPSModule {
 
     /** Function to start Modes for the Dishwasher
      * @param string $mode Mode
+     * @param int $delay Delay in seconds until the device starts
      */
-      public function start( string $mode ) {
+      public function start( string $mode, int $delay ) {
 
           $this->SetActive( true );
 
@@ -220,7 +220,7 @@ class HomeConnectWasher extends IPSModule {
           $mode = "Dishcare.Dishwasher.Program." . $mode;
 
           // Settings
-          $opt = '{"data":{"key":"' . $mode . '","options":[{"key":"BSH.Common.Option.StartInRelative","value":3,"unit":"seconds"}]}}';
+          $opt = '{"data":{"key":"' . $mode . '","options":[{"key":"BSH.Common.Option.StartInRelative","value":"' . $delay . '","unit":"seconds"}]}}';
 
           // Send
           if ( $this->GetValue("remoteStart") ) {
@@ -244,6 +244,8 @@ class HomeConnectWasher extends IPSModule {
           } else {
               throw new LogicException("Remote start must be allowed");
           }
+
+          $this->refresh();
       }
 
     /**
@@ -254,7 +256,7 @@ class HomeConnectWasher extends IPSModule {
           $this->refresh();
 
           if ( $this->GetValue("remoteControl") ) {
-              if ( $this->GetValue("state") == 3 || $this->GetValue("state") == 2 ) {
+              if ( $this->GetValue("state") == 3 ) {
                   Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
 
                   //============================================================ Check Notifications
@@ -262,10 +264,20 @@ class HomeConnectWasher extends IPSModule {
                       $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm gestoppt!");
                   }
                   //============================================================ Check Notifications
+              } else if ( $this->GetValue("state") == 2 ) {
+                  $this->SetActive(false);
+
+                  //============================================================ Check Notifications
+                  if ( $this->ReadPropertyBoolean("notify_stop") ) {
+                      $this->SendNotify($this->ReadPropertyString("name") . " hat den Verzögerten start und das Programm gestoppt!");
+                  }
+                  //============================================================ Check Notifications
               }
           } else {
               throw new LogicException("Remote control must be allowed");
           }
+
+          $this->refresh();
       }
 
     /**
@@ -373,6 +385,11 @@ class HomeConnectWasher extends IPSModule {
                   "type" => "Button",
                   "caption" => "Refresh",
                   "onClick" => 'HCDishwasher_refresh( $id, );',
+              ],
+              [
+                  "type" => "Button",
+                  "caption" => "Profile refresh [nur bei falschen oder zu  wenig Daten]",
+                  "onClick" => 'HCDishwasher_BuildList( $id, "HC_DishwasherMode");',
               ]
           ];
       }
@@ -652,7 +669,7 @@ class HomeConnectWasher extends IPSModule {
       /** Function to set Profile of a Integer Var
        * @param string $profile Name of the profile
        */
-      protected function BuildList( string $profile ) {
+      public function BuildList( string $profile ) {
           $programs = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/available")['data']['programs'];
           $programs_count = count( $programs );
 
