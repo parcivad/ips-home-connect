@@ -55,13 +55,14 @@ class HomeConnectWasher extends IPSModule {
           IPS_SetHidden($this->GetIDForIdent('LastRefresh'), true);
           $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_DishwasherState", 0);
           $this->EnableAction('state');
-          $this->RegisterVariableInteger("mode", "Programm", "HC_DishwasherMode", 1);
+          $this->RegisterVariableString("remainStartTime", "Start in", "", 1);
+          $this->RegisterVariableInteger("mode", "Programm", "HC_DishwasherMode", 2);
           $this->EnableAction('mode');
-          $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_WasherRemoteStart", 2);
-          $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_DishwasherDoorState", 3);
-          $this->RegisterVariableInteger("remainTime", "Verbleibende Zeit", "UnixTimestampTime", 4);
-          $this->RegisterVariableInteger("progress", "Fortschritt", "HC_DishwasherProgress", 5);
-          $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_DishwasherStartStop", 6);
+          $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_WasherRemoteStart", 3);
+          $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_DishwasherDoorState", 4);
+          $this->RegisterVariableString("remainTime", "Verbleibende Programm Zeit", "", 5);
+          $this->RegisterVariableInteger("progress", "Fortschritt", "HC_DishwasherProgress", 6);
+          $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_DishwasherStartStop", 7);
           $this->EnableAction('start_stop');
       }
 
@@ -151,12 +152,19 @@ class HomeConnectWasher extends IPSModule {
               $DoorState =  $this->HC( $recall['data']['status'][2]['value'] );
               $OperationState = $this->HC( $recall['data']['status'][3]['value'] );
 
-              if ( $OperationState == 2 ) {
+              $program_remaining_time = "==:==:==";
+              $program_remaining_start_time = "==:==:==";
+
+              if ( $OperationState == 3 || $OperationState == 2 ) {
                   // Api call
                   $recallProgram = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active")['data'];
                   // filter data
                   $this->SetListValue( explode( ".", $recallProgram['key'] )[3] );
-                  $program_remaining_time = $recallProgram['options'][7]['value'] - 3600;
+                  if ( $OperationState == 2 ) {
+                      $program_remaining_start_time = gmdate("H:i:s", $recallProgram['options'][0]['value']);
+                  } else {
+                      $program_remaining_time = gmdate("H:i:s", $recallProgram['options'][7]['value']);
+                  }
                   $program_progress = $recallProgram['options'][6]['value'];
                   $this->SetValue('start_stop', true );
 
@@ -164,7 +172,7 @@ class HomeConnectWasher extends IPSModule {
                   // Api call
                   $recallSelected = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/selected")['data'];
                   $this->SetListValue( explode( ".", $recallSelected['key'] )[3] );
-                  $program_remaining_time = 0;
+                  $program_remaining_time = "00:00:00";
                   $program_progress = 0;
                   $this->SetValue('start_stop', false );
               }
@@ -174,6 +182,7 @@ class HomeConnectWasher extends IPSModule {
               $this->SetValue("remoteControl", $recall['data']['status'][1]['value'] );
               $this->SetValue("progress", $program_progress );
               $this->SetValue("remainTime", $program_remaining_time);
+              $this->SetValue("remainStartTime", $program_remaining_start_time );
               $this->SetValue("door", $DoorState );
               $this->SetValue("state", $OperationState );
               $this->SetValue( "LastRefresh", time() );
@@ -246,7 +255,7 @@ class HomeConnectWasher extends IPSModule {
           $this->refresh();
 
           if ( $this->GetValue("remoteControl") ) {
-              if ( $this->GetValue("state") == 2 ) {
+              if ( $this->GetValue("state") == 2 || $this->GetValue("state") == 3) {
                   Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
 
                   //============================================================ Check Notifications
@@ -297,6 +306,7 @@ class HomeConnectWasher extends IPSModule {
               IPS_SetVariableProfileAssociation("HC_DishwasherState", 0, "Aus", "", 0x828282 );
               IPS_SetVariableProfileAssociation("HC_DishwasherState", 1, "An", "", 0x22ff00 );
               IPS_SetVariableProfileAssociation("HC_DishwasherState", 2, "Program läuft", "", 0xfa3200 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherState", 3, "Startet in", "", 0xfa3200 );
           }
           if (!IPS_VariableProfileExists('HC_DishwasherMode')) {
               IPS_CreateVariableProfile('HC_DishwasherMode', 1);
@@ -596,24 +606,35 @@ class HomeConnectWasher extends IPSModule {
                   IPS_SetHidden( $this->GetIDForIdent('door'), true );
                   IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
                   IPS_SetHidden( $this->GetIDForIdent('progress'), true );
+                  IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
                   break;
               case 1:
                   IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
                   IPS_SetHidden( $this->GetIDForIdent('door'), false );
                   IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
                   IPS_SetHidden( $this->GetIDForIdent('progress'), true );
+                  IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
                   break;
               case 2:
                   IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
                   IPS_SetHidden( $this->GetIDForIdent('door'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
+                  IPS_SetHidden( $this->GetIDForIdent('progress'), true );
+                  IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
+                  break;
+              case 3:
+                  IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('door'), false );
                   IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
                   IPS_SetHidden( $this->GetIDForIdent('progress'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
                   break;
               default:
                   IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
                   IPS_SetHidden( $this->GetIDForIdent('door'), false );
                   IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
                   IPS_SetHidden( $this->GetIDForIdent('progress'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
           }
       }
 
@@ -691,6 +712,8 @@ class HomeConnectWasher extends IPSModule {
                 return 1;
             case "BSH.Common.EnumType.OperationState.Run":
                 return 2;
+            case "BSH.Common.EnumType.OperationState.DelayedStart":
+                return 3;
         }
         return 0;
     }
