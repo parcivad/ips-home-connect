@@ -162,9 +162,8 @@ class HomeConnectWasher extends IPSModule {
                   $this->SetListValue( explode( ".", $recallProgram['key'] )[3] );
                   if ( $OperationState == 2 ) {
                       $program_remaining_start_time = gmdate("H:i:s", $recallProgram['options'][0]['value']);
-                  } else {
-                      $program_remaining_time = gmdate("H:i:s", $recallProgram['options'][7]['value']);
                   }
+                  $program_remaining_time = gmdate("H:i:s", $recallProgram['options'][7]['value']);
                   $program_progress = $recallProgram['options'][6]['value'];
                   $this->SetValue('start_stop', true );
 
@@ -710,7 +709,7 @@ class HomeConnectWasher extends IPSModule {
                 return 0;
             case "BSH.Common.EnumType.OperationState.Ready":
                 return 1;
-            case "SH.Common.EnumType.OperationState.DelayedStart":
+            case "BSH.Common.EnumType.OperationState.DelayedStart":
                 return 2;
             case "BSH.Common.EnumType.OperationState.Run":
                 return 3;
