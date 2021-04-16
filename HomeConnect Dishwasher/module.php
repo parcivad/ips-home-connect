@@ -335,7 +335,7 @@ class HomeConnectDishwasher extends IPSModule {
               IPS_SetVariableProfileAssociation("HC_DishwasherState", 2, "Startet in", "", 0xfa8e00 );
               IPS_SetVariableProfileAssociation("HC_DishwasherState", 3, "Program läuft", "", 0xfa3200 );
           }
-          if (!IPS_VariableProfileExists("HC_DishwasherMode") {
+          if (!IPS_VariableProfileExists("HC_DishwasherMode") ) {
               IPS_CreateVariableProfile("HC_DishwasherMode", 1);
               IPS_SetVariableProfileIcon("HC_DishwasherMode", 'Drops');
           }
