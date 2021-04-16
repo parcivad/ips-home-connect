@@ -220,7 +220,7 @@ class HomeConnectWasher extends IPSModule {
           $run_program = "Dishcare.Dishwasher.Program." . $mode;
 
           // Settings
-          $opt = '{"data":{"key":"' . $run_program . '","options":[{"key":"BSH.Common.Option.StartInRelative","value":"' . $delay . '","unit":"seconds"}]}}';
+          $opt = '{"data":{"key":"' . $run_program . '","options":[{"key":"BSH.Common.Option.StartInRelative","value":' . $delay . ',"unit":"seconds"}]}}';
 
           // Send
           if ($this->GetValue("remoteStart")) {
