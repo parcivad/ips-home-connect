@@ -66,7 +66,7 @@ class HomeConnectOven extends IPSModule {
           $this->EnableAction('setTime');
           $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_OvenRemoteStart", 3);
           $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_OvenDoorState", 4);
-          $this->RegisterVariableInteger("temperature", "Temperature", "Temperature", 5);
+          $this->RegisterVariableFloat("temperature", "Temperature", "Temperature", 5);
           $this->RegisterVariableString("remainTime", "Verbleibende Programm Zeit", "", 6);
           $this->RegisterVariableInteger("progress", "Fortschritt", "HC_OvenProgress", 7);
           $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_OvenStartStop", 8);
@@ -204,7 +204,7 @@ class HomeConnectOven extends IPSModule {
               // Set Variable value
               $this->SetValue("remoteStart", $options_recall['BSH.Common.Status.RemoteControlStartAllowed'] );
               $this->SetValue("remoteControl", $options_recall['BSH.Common.Status.RemoteControlActive'] );
-              $this->SetValue("temperature", $options_recall['Cooking.Oven.Status.CurrentCavityTemperature']);
+              $this->SetValue("temperature", round( $options_recall['Cooking.Oven.Status.CurrentCavityTemperature'], 2));
               $this->SetValue("progress", $program_progress );
               $this->SetValue("remainTime", $program_remaining_time);
               $this->SetValue("remainStartTime", $program_remaining_start_time );
