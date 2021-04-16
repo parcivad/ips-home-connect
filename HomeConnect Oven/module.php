@@ -385,7 +385,7 @@ class HomeConnectOven extends IPSModule {
           if (!IPS_VariableProfileExists('HC_OvenSetTime')) {
               IPS_CreateVariableProfile('HC_OvenSetTime', 1);
               IPS_SetVariableProfileIcon('HC_OvenSetTime', 'Clock');
-              IPS_SetVariableProfileText("HC_OvenSetTime", "", "min,");
+              IPS_SetVariableProfileText("HC_OvenSetTime", "", "min.");
               IPS_SetVariableProfileValues("HC_OvenSetTime", 10, 180, 1 );
           }
       }
