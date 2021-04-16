@@ -200,7 +200,10 @@ class HomeConnectWasher extends IPSModule {
 
           //============================================================ Check Notifications
           if ( $this->ReadPropertyBoolean("notify_finish") ) {
-              if ( $this->GetValue("state") == 3 && $recallProgram['options'][7]['value'] <= 300 && $this->GetValue("remainTime") != 0 ) {
+              $now = "1970-01-01 " . $this->GetValue("remainTime");
+              $set = date("H:i:s", strtotime($now));
+
+              if ( $this->GetValue("state") == 3 && $set <= 300 && $this->GetValue("remainTime") != 0 ) {
                   $this->SendNotify($this->ReadPropertyString("name") . " ist in unter 5min fertig");
               }
           }
