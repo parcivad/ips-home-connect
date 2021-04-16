@@ -114,7 +114,7 @@ class HomeConnectWasher extends IPSModule {
      * @return string could return error
      */
       public function refresh() {
-          //============================================================ Check Timer
+          //====================================================================================================================== Check Timer
           $hour = date('G');
 
           if ( $hour >= $this->ReadPropertyInteger("first_refresh") && $hour <= $this->ReadPropertyInteger("second_refresh") ) {
@@ -124,17 +124,16 @@ class HomeConnectWasher extends IPSModule {
               // Setting timer slow
               $this->SetTimerInterval("refresh", 900000 );
           }
-          //============================================================ Check Timer
+          //====================================================================================================================== Check Timer
 
-          // Only refresh when set
+          //====================================================================================================================== Refreshing
           if ( $this->ReadPropertyBoolean("refresh_on_off") ) {
+              //make api call
               $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
-
               // catch null exception
               if ( $recall == null ) { return "error"; }
 
-              // Getting each data into variables
-              // Check Remote control
+              //================================================================================================================== Refreshing
               if ( $recall['data']['status'][1]['value'] ) {
                   $this->WriteAttributeString("remoteControlAllowed", "Dein Gerät erlaubt eine Fernbedienung");
               } else {
@@ -175,6 +174,8 @@ class HomeConnectWasher extends IPSModule {
 
               } else {
                   // Api call
+                  $this->SetTimerInterval('DownCountStart', 0);
+                  $this->SetTimerInterval('DownCountProgram', 0);
                   $recallSelected = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/selected")['data'];
                   $this->SetListValue( explode( ".", $recallSelected['key'] )[3] );
                   $program_remaining_time = "00:00:00";
@@ -719,11 +720,16 @@ class HomeConnectWasher extends IPSModule {
 
       /** Counting Seconds down
        * @param string $var_name
+       * @param string $timer
        */
-      public function DownCount( string $var_name ) {
-          $now = "1970-01-01 " . $this->GetValue( $var_name );
-          $set = date("H:i:s", strtotime($now) - 1);
-          $this->SetValue( $var_name, $set);
+      public function DownCount( string $var_name, string $timer ) {
+          if ( $this->GetValue('state') == 3 || $this->GetValue('state') == 2 ) {
+              $now = "1970-01-01 " . $this->GetValue( $var_name );
+              $set = date("H:i:s", strtotime($now) - 1);
+              $this->SetValue( $var_name, $set);
+          } else {
+              $this->SetValue( $var_name, "==:==:==");
+          }
       }
 
       /**
