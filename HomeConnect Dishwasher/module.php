@@ -216,7 +216,7 @@ class HomeConnectDishwasher extends IPSModule {
 
 
           if ( $this->ReadAttributeBoolean("first_start") ) {
-              $this->BuildList("HC_DishwasherMode_" . $this->ReadPropertyString("name"));
+              $this->BuildList("HC_DishwasherMode");
               $this->WriteAttributeBoolean("first_start", false );
           }
 
@@ -386,8 +386,6 @@ class HomeConnectDishwasher extends IPSModule {
        * @return array[] Form Actions
        */
       protected function FormActions() {
-          $name = $this->ReadPropertyString("name");
-
           return[
               [
                   "type" => "Button",
@@ -407,7 +405,7 @@ class HomeConnectDishwasher extends IPSModule {
               [
                   "type" => "Button",
                   "caption" => "Profile refresh [nur bei falschen oder zu  wenig Daten]",
-                  "onClick" => 'HCDishwasher_BuildList( $id, "HCDishwasherMode_' . $name . '");',
+                  "onClick" => 'HCDishwasher_BuildList( $id, "HCDishwasherMode");',
               ]
           ];
       }
