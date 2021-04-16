@@ -97,7 +97,7 @@ class HomeConnectDiscovery extends IPSModule {
                         $module = "{F8AE3556-6835-DD3C-E8E0-F686BE81850D}";
                         break;
                     case "Oven":
-                        $module = "{FA7DC5F5-E0AA-23DD-3CD0-85EDDEA5E3AC}";
+                        $module = "{4D8D592A-63C7-B2BD-243F-C6BF1DCAD66C}";
                         break;
                     case "CoffeeMaker":
                         $module = "{D5EF280F-8F60-C250-008F-8B17C4B69FD2}";
