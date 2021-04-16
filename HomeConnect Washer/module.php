@@ -96,13 +96,11 @@ class HomeConnectWasher extends IPSModule {
                   break;
               case 'start_stop':
                   if ($Value) {
-                      $this->start($this->GetListValue(), 15);
+                      $this->start($this->GetListValue(), 3);
                       $this->SetValue('start_stop', true);
-                      $this->refresh();
                   } else {
                       $this->stop();
                       $this->SetValue('start_stop', false);
-                      $this->refresh();
                   }
           }
 
@@ -209,9 +207,10 @@ class HomeConnectWasher extends IPSModule {
      * @param string $mode Mode
      * @param int $delay Delay in seconds until the device starts
      */
-      public function start( string $mode, int $delay ) {
+      public function start( string $mode, int $delay )
+      {
 
-          $this->SetActive( true );
+          $this->SetActive(true);
 
           sleep(1);
 
@@ -223,16 +222,16 @@ class HomeConnectWasher extends IPSModule {
           $opt = '{"data":{"key":"' . $mode . '","options":[{"key":"BSH.Common.Option.StartInRelative","value":"' . $delay . '","unit":"seconds"}]}}';
 
           // Send
-          if ( $this->GetValue("remoteStart") ) {
+          if ($this->GetValue("remoteStart")) {
               // Check Door state
-              if ( !$this->GetValue("door") ) {
+              if (!$this->GetValue("door")) {
                   // Check if the device is on
-                  if ( $this->GetValue("state") == 1 ) {
+                  if ($this->GetValue("state") == 1) {
                       Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
 
                       //============================================================ Check Notifications
-                      if ( $this->ReadPropertyBoolean("notify_start") ) {
-                          $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm " . $mode . " gestarted!");
+                      if ($this->ReadPropertyBoolean("notify_start")) {
+                          $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm " . explode(".", $mode)[3] . " gestarted!");
                       }
                       //============================================================ Check Notifications
                   } else {
@@ -244,8 +243,6 @@ class HomeConnectWasher extends IPSModule {
           } else {
               throw new LogicException("Remote start must be allowed");
           }
-
-          $this->refresh();
       }
 
     /**
@@ -276,8 +273,6 @@ class HomeConnectWasher extends IPSModule {
           } else {
               throw new LogicException("Remote control must be allowed");
           }
-
-          $this->refresh();
       }
 
     /**
