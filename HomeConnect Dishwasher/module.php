@@ -700,7 +700,7 @@ class HomeConnectDishwasher extends IPSModule {
        * @param string $name
        */
       protected function SetListValue( string $name ) {
-          $profile = IPS_GetVariableProfile( 'HC_DishwasherMode' )['Associations'];
+          $profile = IPS_GetVariableProfile( "HC_DishwasherMode_" . $this->ReadPropertyString("name") )['Associations'];
           $profile_count = count( $profile );
 
           $profile_list = array();
