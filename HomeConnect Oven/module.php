@@ -659,7 +659,7 @@ class HomeConnectOven extends IPSModule {
                   IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
                   IPS_SetHidden( $this->GetIDForIdent('progress'), true );
                   IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
-                  IPS_SetHidden( $this->GetIDForIdent('setTime'), true );
+                  IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
                   break;
               case 1:
                   IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
@@ -667,7 +667,7 @@ class HomeConnectOven extends IPSModule {
                   IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
                   IPS_SetHidden( $this->GetIDForIdent('progress'), true );
                   IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
-                  IPS_SetHidden( $this->GetIDForIdent('setTime'), true );
+                  IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
                   break;
               case 2:
                   IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
@@ -683,7 +683,7 @@ class HomeConnectOven extends IPSModule {
                   IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
                   IPS_SetHidden( $this->GetIDForIdent('progress'), false );
                   IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
-                  IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('setTime'), true );
                   break;
               default:
                   IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
