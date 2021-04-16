@@ -1,6 +1,6 @@
 # IP-Symcon HomeConnect
-Das ist ein IP-Symcon HomeConnect Modul. Es dient dazu mit verschieden Gerät von Siemens und Bosch zu kommunizieren. Dafür ist die Cloud Basis HomeConnect benötigt.
-Diese wird von Bosch bereitgestellt. 
+Das ist ein IP-Symcon HomeConnect Modul. Es dient dazu mit verschieden Gerät von Siemens und Bosch zu kommunizieren. Dafür wird die Cloud Basis, HomeConnect benötigt.
+Diese wird von Bosch und Siemens bereitgestellt.
 Für das nutzen dieses Moduls wird ein HomeConnect Account benötigt.
 
 ## Inhaltsverzeichnis
