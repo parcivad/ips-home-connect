@@ -45,6 +45,8 @@ class HomeConnectWasher extends IPSModule {
 
           // Erstellt einen Timer mit dem Namen "Update" und einem Intervall von 5 minutes.
           $this->RegisterTimer("refresh", 300000, "HCDishwasher_refresh($this->InstanceID);");
+          $this->RegisterTimer("DownCountStart", 0, 'HCDishwasher_DownCount("remainStartTime");');
+          $this->RegisterTimer("DownCountProgram", 0, 'HCDishwasher_DownCount("remainTime");');
 
           // Register Variable and Profiles
           $this->registerProfiles();
@@ -159,7 +161,13 @@ class HomeConnectWasher extends IPSModule {
                   // filter data
                   $this->SetListValue( explode( ".", $recallProgram['key'] )[3] );
                   if ( $OperationState == 2 ) {
+                      // Register DownCount and set time to start
                       $program_remaining_start_time = gmdate("H:i:s", $recallProgram['options'][0]['value']);
+                      $this->SetTimerInterval('DownCountStart', 1001);
+                      $this->SetTimerInterval('DownCountProgram', 0);
+                  } else if ( $OperationState == 3 ){
+                      $this->SetTimerInterval('DownCountProgram', 1001);
+                      $this->SetTimerInterval('DownCountStart', 0);
                   }
                   $program_remaining_time = gmdate("H:i:s", $recallProgram['options'][7]['value']);
                   $program_progress = $recallProgram['options'][6]['value'];
@@ -704,6 +712,12 @@ class HomeConnectWasher extends IPSModule {
           }
 
           return $profile_list[$this->GetValue('mode' )];
+      }
+
+      public function DownCount( string $var ) {
+          $now = "1970-01-01 " . GetValue( $var );
+          $set = date("H:i:s", strtotime($now) - 1);
+          SetValue( $var, $set);
       }
 
       /**
