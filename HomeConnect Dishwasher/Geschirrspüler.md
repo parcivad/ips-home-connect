@@ -4,6 +4,11 @@ Zudem lassen sich Informationen wie die Verbleibende Zeit oder die Programme geb
 
 ### Instanz Einstellungen
 
+<p align="center">
+  <img width="auto" height="auto" src="https://github.com/LegendDragon11/img/blob/main/InstanzGeschirrspüler.png">
+</p>
+
+
 In den Instanz Einstellungen kann unter `Refresh` eine Zeitspanne gesetzt werden ( von 12 Uhr bis 18 Uhr )in der Automatisch geupdated wird (5min abstand) außerhalb dieser Zeit updated das Programm alle 15min.
 
 Zudem kann eine Benachrichtigung für ein Mobiles Gerät und das Webfront eingstellt werden. Es kann auch das gleiche Webfront wir beide Geräte genutzt werden.
