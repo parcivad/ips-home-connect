@@ -129,11 +129,11 @@ class HomeConnectDishwasher extends IPSModule {
           //====================================================================================================================== Refreshing
           if ( $this->ReadPropertyBoolean("refresh_on_off") ) {
               //make api call
-              $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
+              $recall_api = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
               // catch null exception
-              if ( $recall == null ) { return "error"; }
+              if ( $recall_api == null ) { return "error"; }
               // Build Options
-              $options_recall = $this->getKeys($recall, 'status');
+              $options_recall = $this->getKeys($recall_api, 'status');
 
               //================================================================================================================== Refreshing
               if ( $options_recall['BSH.Common.Status.RemoteControlActive'] ) {
@@ -746,17 +746,17 @@ class HomeConnectDishwasher extends IPSModule {
        */
       protected function getKeys( array $input, string $row ) {
           // Get Options out of data
-          $options = json_decode($input, true)['data'][$row];
+          $opt = $input['data'][$row];
 
           // Define vars and lenght
-          $options_count = count( $options );
+          $options_count = count( $opt );
           $option_list[] = array();
 
           // Build options list
           for( $i = 0; $i < $options_count; $i++) {
               // Get Data to set
-              $option_name = $options[$i]['key'];
-              $option_value= $options[$i]['value'];
+              $option_name = $opt[$i]['key'];
+              $option_value= $opt[$i]['value'];
 
               $options_list[$option_name] = $option_value;
           }
