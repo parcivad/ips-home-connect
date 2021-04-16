@@ -60,11 +60,16 @@ class HomeConnectOven extends IPSModule {
           $this->RegisterVariableString("remainStartTime", "Start in", "", 1);
           $this->RegisterVariableInteger("mode", "Programm", "HC_OvenMode", 2);
           $this->EnableAction('mode');
+          $this->RegisterVariableInteger("setTemperature", "Gesetzte Temperatur", "HC_OvenSetTemperature", 230);
+          $this->EnableAction('setTemperature');
+          $this->RegisterVariableInteger("setTime", "Gesetzte Laufzeit", "UnixTimeStampTime", 2);
+          $this->EnableAction('setTime');
           $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_OvenRemoteStart", 3);
           $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_OvenDoorState", 4);
-          $this->RegisterVariableString("remainTime", "Verbleibende Programm Zeit", "", 5);
-          $this->RegisterVariableInteger("progress", "Fortschritt", "HC_OvenProgress", 6);
-          $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_OvenStartStop", 7);
+          $this->RegisterVariableInteger("temperature", "Temperature", "~Temperaure", 5);
+          $this->RegisterVariableString("remainTime", "Verbleibende Programm Zeit", "", 6);
+          $this->RegisterVariableInteger("progress", "Fortschritt", "HC_OvenProgress", 7);
+          $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_OvenStartStop", 8);
           $this->EnableAction('start_stop');
       }
 
@@ -79,7 +84,6 @@ class HomeConnectOven extends IPSModule {
 
 
       //--------------------------------------------------< Reaction >----------------------------------------
-    //TODO: add start program with temperature var and duration
       public function RequestAction($Ident, $Value)
       {
           switch ($Ident) {
@@ -100,12 +104,21 @@ class HomeConnectOven extends IPSModule {
               case 'start_stop':
                   if ($Value) {
                       $program = $this->GetListValue();
-                      $this->start($program, 3);
+                      $temp = $this->GetValue('setTemperature');
+                      $duration = $this->GetValue('setTime');
+                      $this->start($program, $temp, $duration);
                       $this->SetValue('start_stop', true);
                   } else {
                       $this->stop();
                       $this->SetValue('start_stop', false);
                   }
+                  break;
+              case 'setTemperature':
+                  $this->SetValue('setTemperature', $Value);
+                  break;
+              case 'setTime':
+                  $this->SetValue('setTime', $Value);
+                  break;
           }
 
           $this->Hide();
@@ -191,6 +204,7 @@ class HomeConnectOven extends IPSModule {
               // Set Variable value
               $this->SetValue("remoteStart", $options_recall['BSH.Common.Status.RemoteControlStartAllowed'] );
               $this->SetValue("remoteControl", $options_recall['BSH.Common.Status.RemoteControlActive'] );
+              $this->SetValue("temperature", $options_recall['Cooking.Oven.Status.CurrentCavityTemperature']);
               $this->SetValue("progress", $program_progress );
               $this->SetValue("remainTime", $program_remaining_time);
               $this->SetValue("remainStartTime", $program_remaining_start_time );
@@ -362,6 +376,11 @@ class HomeConnectOven extends IPSModule {
               IPS_SetVariableProfileIcon('HC_OvenRemoteStart', 'Lock');
               IPS_SetVariableProfileAssociation("HC_OvenRemoteStart", false, "Nicht erlaubt", "", 0xfa3200 );
               IPS_SetVariableProfileAssociation("HC_OvenRemoteStart", true, "Erlaubt", "", 0x11ff00 );
+          }
+          if (!IPS_VariableProfileExists('HC_OvenSetTemperature')) {
+              IPS_CreateVariableProfile('HC_OvenSetTemperature', 1);
+              IPS_SetVariableProfileIcon('HC_OvenSetTemperature', 'Temperature');
+              IPS_SetVariableProfileValues("HC_OvenSetTemperature", 65, 270, 1 );
           }
       }
 
@@ -640,6 +659,7 @@ class HomeConnectOven extends IPSModule {
                   IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
                   IPS_SetHidden( $this->GetIDForIdent('progress'), true );
                   IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
+                  IPS_SetHidden( $this->GetIDForIdent('setTime'), true );
                   break;
               case 1:
                   IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
@@ -647,6 +667,7 @@ class HomeConnectOven extends IPSModule {
                   IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
                   IPS_SetHidden( $this->GetIDForIdent('progress'), true );
                   IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
+                  IPS_SetHidden( $this->GetIDForIdent('setTime'), true );
                   break;
               case 2:
                   IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
@@ -654,6 +675,7 @@ class HomeConnectOven extends IPSModule {
                   IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
                   IPS_SetHidden( $this->GetIDForIdent('progress'), true );
                   IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('setTime'), true );
                   break;
               case 3:
                   IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
@@ -661,6 +683,7 @@ class HomeConnectOven extends IPSModule {
                   IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
                   IPS_SetHidden( $this->GetIDForIdent('progress'), false );
                   IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
+                  IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
                   break;
               default:
                   IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
@@ -668,8 +691,17 @@ class HomeConnectOven extends IPSModule {
                   IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
                   IPS_SetHidden( $this->GetIDForIdent('progress'), false );
                   IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
           }
+
+          if ( $this->GetValue('temperature') > 30 ) {
+              IPS_SetHidden( $this->GetIDForIdent('temperature'), false );
+          } else {
+              IPS_SetHidden( $this->GetIDForIdent('temperature'), true );
+          }
+
       }
+
 
       /** Send Text
        * @param string $text Text in the Notification
