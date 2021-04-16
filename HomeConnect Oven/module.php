@@ -657,6 +657,7 @@ class HomeConnectOven extends IPSModule {
           return $form;
       }
 
+
       protected function Hide() {
           switch ($this->GetValue('state')) {
               case 0:
@@ -700,14 +701,13 @@ class HomeConnectOven extends IPSModule {
                   IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
           }
 
-          if ( $this->GetValue('temperature') > 30 ) {
+          if ( $this->GetValue('temperature') > 60 ) {
               IPS_SetHidden( $this->GetIDForIdent('temperature'), false );
           } else {
               IPS_SetHidden( $this->GetIDForIdent('temperature'), true );
           }
 
       }
-
 
       /** Send Text
        * @param string $text Text in the Notification
