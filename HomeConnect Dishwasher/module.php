@@ -58,7 +58,7 @@ class HomeConnectDishwasher extends IPSModule {
           $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_DishwasherState", 0);
           $this->EnableAction('state');
           $this->RegisterVariableString("remainStartTime", "Start in", "", 1);
-          $this->RegisterVariableInteger("mode", "Programm", "HC_DishwasherMode_" . $this->ReadPropertyString("name"), 2);
+          $this->RegisterVariableInteger("mode", "Programm", "HC_DishwasherMode", 2);
           $this->EnableAction('mode');
           $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_DishwasherRemoteStart", 3);
           $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_DishwasherDoorState", 4);
@@ -335,9 +335,9 @@ class HomeConnectDishwasher extends IPSModule {
               IPS_SetVariableProfileAssociation("HC_DishwasherState", 2, "Startet in", "", 0xfa8e00 );
               IPS_SetVariableProfileAssociation("HC_DishwasherState", 3, "Program läuft", "", 0xfa3200 );
           }
-          if (!IPS_VariableProfileExists("HC_DishwasherMode_" . $this->ReadPropertyString("name"))) {
-              IPS_CreateVariableProfile("HC_DishwasherMode_" . $this->ReadPropertyString("name"), 1);
-              IPS_SetVariableProfileIcon("HC_DishwasherMode_" . $this->ReadPropertyString("name"), 'Drops');
+          if (!IPS_VariableProfileExists("HC_DishwasherMode") {
+              IPS_CreateVariableProfile("HC_DishwasherMode", 1);
+              IPS_SetVariableProfileIcon("HC_DishwasherMode", 'Drops');
           }
           if (!IPS_VariableProfileExists('HC_DishwasherProgress')) {
               IPS_CreateVariableProfile('HC_DishwasherProgress', 1);
@@ -700,7 +700,7 @@ class HomeConnectDishwasher extends IPSModule {
        * @param string $name
        */
       protected function SetListValue( string $name ) {
-          $profile = IPS_GetVariableProfile( "HC_DishwasherMode_" . $this->ReadPropertyString("name") )['Associations'];
+          $profile = IPS_GetVariableProfile( "HC_DishwasherMode" )['Associations'];
           $profile_count = count( $profile );
 
           $profile_list = array();
