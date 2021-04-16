@@ -51,7 +51,7 @@ class HomeConnectDishwasher extends IPSModule {
           // Register Variable and Profiles
           $this->registerProfiles();
 
-          $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_WasherRemoteStart", -2);
+          $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_DishwasherRemoteStart", -2);
           IPS_SetHidden($this->GetIDForIdent("remoteControl"), true);
           $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -2);
           IPS_SetHidden($this->GetIDForIdent('LastRefresh'), true);
@@ -60,7 +60,7 @@ class HomeConnectDishwasher extends IPSModule {
           $this->RegisterVariableString("remainStartTime", "Start in", "", 1);
           $this->RegisterVariableInteger("mode", "Programm", "HC_DishwasherMode_" . $this->ReadPropertyString("name"), 2);
           $this->EnableAction('mode');
-          $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_WasherRemoteStart", 3);
+          $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_DishwasherRemoteStart", 3);
           $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_DishwasherDoorState", 4);
           $this->RegisterVariableString("remainTime", "Verbleibende Programm Zeit", "", 5);
           $this->RegisterVariableInteger("progress", "Fortschritt", "HC_DishwasherProgress", 6);
@@ -356,11 +356,11 @@ class HomeConnectDishwasher extends IPSModule {
               IPS_SetVariableProfileAssociation("HC_DishwasherStartStop", false, "Stop", "", 0x828282 );
               IPS_SetVariableProfileAssociation("HC_DishwasherStartStop", true, "Start", "", 0x11ff00 );
           }
-          if (!IPS_VariableProfileExists('HC_WasherRemoteStart')) {
-              IPS_CreateVariableProfile('HC_WasherRemoteStart', 0);
-              IPS_SetVariableProfileIcon('HC_WasherRemoteStart', 'Lock');
-              IPS_SetVariableProfileAssociation("HC_WasherRemoteStart", false, "Nicht erlaubt", "", 0xfa3200 );
-              IPS_SetVariableProfileAssociation("HC_WasherRemoteStart", true, "Erlaubt", "", 0x11ff00 );
+          if (!IPS_VariableProfileExists('HC_DishwasherRemoteStart')) {
+              IPS_CreateVariableProfile('HC_DishwasherRemoteStart', 0);
+              IPS_SetVariableProfileIcon('HC_DishwasherRemoteStart', 'Lock');
+              IPS_SetVariableProfileAssociation("HC_DishwasherRemoteStart", false, "Nicht erlaubt", "", 0xfa3200 );
+              IPS_SetVariableProfileAssociation("HC_DishwasherRemoteStart", true, "Erlaubt", "", 0x11ff00 );
           }
       }
 
@@ -407,7 +407,7 @@ class HomeConnectDishwasher extends IPSModule {
               [
                   "type" => "Button",
                   "caption" => "Profile refresh [nur bei falschen oder zu  wenig Daten]",
-                  "onClick" => 'HCDishwasher_BuildList( $id, "HC_DishwasherMode_' . $name . '");',
+                  "onClick" => 'HCDishwasher_BuildList( $id, "HCDishwasherMode_' . $name . '");',
               ]
           ];
       }
