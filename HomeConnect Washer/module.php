@@ -96,7 +96,8 @@ class HomeConnectWasher extends IPSModule {
                   break;
               case 'start_stop':
                   if ($Value) {
-                      $this->start($this->GetListValue(), 3);
+                      $program = $this->GetListValue();
+                      $this->start($program, 3);
                       $this->SetValue('start_stop', true);
                   } else {
                       $this->stop();
