@@ -62,11 +62,11 @@ class HomeConnectOven extends IPSModule {
           $this->EnableAction('mode');
           $this->RegisterVariableInteger("setTemperature", "Gesetzte Temperatur", "HC_OvenSetTemperature", 230);
           $this->EnableAction('setTemperature');
-          $this->RegisterVariableInteger("setTime", "Gesetzte Laufzeit", "UnixTimeStampTime", 2);
+          $this->RegisterVariableInteger("setTime", "Gesetzte Laufzeit", "UnixTimestampTime", 2);
           $this->EnableAction('setTime');
           $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_OvenRemoteStart", 3);
           $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_OvenDoorState", 4);
-          $this->RegisterVariableInteger("temperature", "Temperature", "~Temperaure", 5);
+          $this->RegisterVariableInteger("temperature", "Temperature", "Temperature", 5);
           $this->RegisterVariableString("remainTime", "Verbleibende Programm Zeit", "", 6);
           $this->RegisterVariableInteger("progress", "Fortschritt", "HC_OvenProgress", 7);
           $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_OvenStartStop", 8);
