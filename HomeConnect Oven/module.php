@@ -60,16 +60,16 @@ class HomeConnectOven extends IPSModule {
           $this->RegisterVariableString("remainStartTime", "Start in", "", 1);
           $this->RegisterVariableInteger("mode", "Programm", "HC_OvenMode", 2);
           $this->EnableAction('mode');
-          $this->RegisterVariableInteger("setTemperature", "Gesetzte Temperatur", "HC_OvenSetTemperature", 230);
+          $this->RegisterVariableInteger("setTemperature", "Gesetzte Temperatur", "HC_OvenSetTemperature", 2);
           $this->EnableAction('setTemperature');
-          $this->RegisterVariableInteger("setTime", "Gesetzte Laufzeit", "UnixTimestampTime", 2);
+          $this->RegisterVariableInteger("setTime", "Gesetzte Laufzeit", "UnixTimestampTime", 3);
           $this->EnableAction('setTime');
-          $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_OvenRemoteStart", 3);
-          $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_OvenDoorState", 4);
-          $this->RegisterVariableFloat("temperature", "Temperature", "Temperature", 5);
-          $this->RegisterVariableString("remainTime", "Verbleibende Programm Zeit", "", 6);
-          $this->RegisterVariableInteger("progress", "Fortschritt", "HC_OvenProgress", 7);
-          $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_OvenStartStop", 8);
+          $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_OvenRemoteStart", 4);
+          $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_OvenDoorState", 5);
+          $this->RegisterVariableFloat("temperature", "Temperature", "Temperature", 6);
+          $this->RegisterVariableString("remainTime", "Verbleibende Programm Zeit", "", 7);
+          $this->RegisterVariableInteger("progress", "Fortschritt", "HC_OvenProgress", 8);
+          $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_OvenStartStop", 9);
           $this->EnableAction('start_stop');
       }
 
