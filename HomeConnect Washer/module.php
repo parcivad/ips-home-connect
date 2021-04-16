@@ -45,8 +45,8 @@ class HomeConnectWasher extends IPSModule {
 
           // Erstellt einen Timer mit dem Namen "Update" und einem Intervall von 5 minutes.
           $this->RegisterTimer("refresh", 300000, "HCDishwasher_refresh($this->InstanceID);");
-          $this->RegisterTimer("DownCountStart", 0, 'HCDishwasher_DownCount("remainStartTime");');
-          $this->RegisterTimer("DownCountProgram", 0, 'HCDishwasher_DownCount("remainTime");');
+          $this->RegisterTimer("DownCountStart", 0, "HCDishwasher_DownCount($this->InstanceID, 'remainStartTime');");
+          $this->RegisterTimer("DownCountProgram", 0, "HCDishwasher_DownCount($this->InstanceID, 'remainTime');");
 
           // Register Variable and Profiles
           $this->registerProfiles();
@@ -718,12 +718,12 @@ class HomeConnectWasher extends IPSModule {
       }
 
       /** Counting Seconds down
-       * @param string $var
+       * @param string $var_name
        */
-      public function DownCount( string $var ) {
-          $now = "1970-01-01 " . $this->GetValue( $var );
+      public function DownCount( string $var_name ) {
+          $now = "1970-01-01 " . $this->GetValue( $var_name );
           $set = date("H:i:s", strtotime($now) - 1);
-          $this->SetValue( $var, $set);
+          $this->SetValue( $var_name, $set);
       }
 
       /**
