@@ -4,7 +4,7 @@ require_once( dirname(dirname(__FILE__) ) . "/libs/tools/HomeConnectApi.php");
 require_once( dirname(dirname(__FILE__) ) . "/libs/tools/tm/tm.php");
 $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/libs/tools/tm/data.json" ), true );
 
-class HomeConnectWasher extends IPSModule {
+class HomeConnectDishwasher extends IPSModule {
 
       /** This function will be called on the creation of this Module
        * @return bool|void
