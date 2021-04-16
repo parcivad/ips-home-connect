@@ -62,7 +62,7 @@ class HomeConnectOven extends IPSModule {
           $this->EnableAction('mode');
           $this->RegisterVariableInteger("setTemperature", "Gesetzte Temperatur", "HC_OvenSetTemperature", 3);
           $this->EnableAction('setTemperature');
-          $this->RegisterVariableInteger("setTime", "Gesetzte Laufzeit", "UnixTimestampTime", 4);
+          $this->RegisterVariableInteger("setTime", "Gesetzte Laufzeit", "HC_OvenSetTime", 4);
           $this->EnableAction('setTime');
           $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_OvenRemoteStart", 5);
           $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_OvenDoorState", 6);
@@ -105,7 +105,7 @@ class HomeConnectOven extends IPSModule {
                   if ($Value) {
                       $program = $this->GetListValue();
                       $temp = $this->GetValue('setTemperature');
-                      $duration = $this->GetValue('setTime');
+                      $duration = $this->GetValue('setTime') * 60;
                       $this->start($program, $temp, $duration);
                       $this->SetValue('start_stop', true);
                   } else {
@@ -381,6 +381,12 @@ class HomeConnectOven extends IPSModule {
               IPS_CreateVariableProfile('HC_OvenSetTemperature', 1);
               IPS_SetVariableProfileIcon('HC_OvenSetTemperature', 'Temperature');
               IPS_SetVariableProfileValues("HC_OvenSetTemperature", 65, 270, 1 );
+          }
+          if (!IPS_VariableProfileExists('HC_OvenSetTime')) {
+              IPS_CreateVariableProfile('HC_OvenSetTime', 1);
+              IPS_SetVariableProfileIcon('HC_OvenSetTime', 'Clock');
+              IPS_SetVariableProfileText("HC_OvenSetTime", "", "min,");
+              IPS_SetVariableProfileValues("HC_OvenSetTime", 10, 180, 1 );
           }
       }
 
