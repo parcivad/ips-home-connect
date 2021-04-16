@@ -182,8 +182,7 @@ class HomeConnectOven extends IPSModule {
                   // Api call
                   $this->SetTimerInterval('DownCountStart', 0);
                   $this->SetTimerInterval('DownCountProgram', 0);
-                  $recallSelected = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/selected")['data'];
-                  $this->SetListValue( explode( ".", $recallSelected['key'] )[4] );
+                  $this->SetListValue( "HotAir" );
                   $program_remaining_time = "00:00:00";
                   $program_progress = 0;
                   $this->SetValue('start_stop', false );
