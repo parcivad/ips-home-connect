@@ -45,7 +45,7 @@ class HomeConnectWasher extends IPSModule {
 
           // Erstellt einen Timer mit dem Namen "Update" und einem Intervall von 5 minutes.
           $this->RegisterTimer("refresh", 300000, "HCDishwasher_refresh($this->InstanceID);");
-          $this->RegisterTimer("DownCountStart", 0, "HCDishwasher_DownCount($this->InstanceID, 'remainStartTime');");
+          $this->RegisterTimer("DownCountStart", 0, "HCDishwasher_DownCount($this->InstanceID, 'remainStartTime'");
           $this->RegisterTimer("DownCountProgram", 0, "HCDishwasher_DownCount($this->InstanceID, 'remainTime');");
 
           // Register Variable and Profiles
@@ -58,7 +58,7 @@ class HomeConnectWasher extends IPSModule {
           $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_DishwasherState", 0);
           $this->EnableAction('state');
           $this->RegisterVariableString("remainStartTime", "Start in", "", 1);
-          $this->RegisterVariableInteger("mode", "Programm", "HC_DishwasherMode", 2);
+          $this->RegisterVariableInteger("mode", "Programm", "HC_DishwasherMode_" . $this->ReadPropertyString("name"), 2);
           $this->EnableAction('mode');
           $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_WasherRemoteStart", 3);
           $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_DishwasherDoorState", 4);
@@ -132,15 +132,17 @@ class HomeConnectWasher extends IPSModule {
               $recall = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
               // catch null exception
               if ( $recall == null ) { return "error"; }
+              // Build Options
+              $options_recall = $this->getKeys($recall, 'status');
 
               //================================================================================================================== Refreshing
-              if ( $recall['data']['status'][1]['value'] ) {
+              if ( $options_recall['BSH.Common.Status.RemoteControlActive'] ) {
                   $this->WriteAttributeString("remoteControlAllowed", "Dein Gerät erlaubt eine Fernbedienung");
               } else {
                   $this->WriteAttributeString("remoteControlAllowed", "Dein Gerät erlaubt keine Fernbedienung");
               }
               // Check Remote start
-              if ( $recall['data']['status'][0]['value'] ) {
+              if ( $options_recall['BSH.Common.Status.RemoteControlStartAllowed'] ) {
                   $this->WriteAttributeString("remoteStartAllowed", "Dein Gerät erlaub ein Fernstart" );
               } else {
                   $this->WriteAttributeString("remoteStartAllowed", "Dein Gerät erlaub keinen Fernstart" );
@@ -148,8 +150,8 @@ class HomeConnectWasher extends IPSModule {
 
               //============================================================ Sorting Data and save
               // Door State and Operation state
-              $DoorState =  $this->HC( $recall['data']['status'][2]['value'] );
-              $OperationState = $this->HC( $recall['data']['status'][3]['value'] );
+              $DoorState =  $this->HC( $options_recall['BSH.Common.Status.DoorState'] );
+              $OperationState = $this->HC( $options_recall['BSH.Common.Status.OperationState'] );
 
               $program_remaining_time = "==:==:==";
               $program_remaining_start_time = "==:==:==";
@@ -158,18 +160,21 @@ class HomeConnectWasher extends IPSModule {
                   // Api call
                   $recallProgram = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active")['data'];
                   // filter data
+                  $options = $this->getKeys($recallProgram, 'options');
+
                   $this->SetListValue( explode( ".", $recallProgram['key'] )[3] );
+
                   if ( $OperationState == 2 ) {
                       // Register DownCount and set time to start
-                      $program_remaining_start_time = gmdate("H:i:s", $recallProgram['options'][0]['value']);
+                      $program_remaining_start_time = gmdate("H:i:s", $options['BSH.Common.Option.StartInRelative']);
                       $this->SetTimerInterval('DownCountStart', 1001);
                       $this->SetTimerInterval('DownCountProgram', 0);
                   } else if ( $OperationState == 3 ){
                       $this->SetTimerInterval('DownCountProgram', 1001);
                       $this->SetTimerInterval('DownCountStart', 0);
                   }
-                  $program_remaining_time = gmdate("H:i:s", $recallProgram['options'][7]['value']);
-                  $program_progress = $recallProgram['options'][6]['value'];
+                  $program_remaining_time = gmdate("H:i:s", $options['BSH.Common.Option.RemainingProgramTime']);
+                  $program_progress = $options['BSH.Common.Option.ProgramProgress'];
                   $this->SetValue('start_stop', true );
 
               } else {
@@ -184,8 +189,8 @@ class HomeConnectWasher extends IPSModule {
               }
 
               // Set Variable value
-              $this->SetValue("remoteStart", $recall['data']['status'][0]['value'] );
-              $this->SetValue("remoteControl", $recall['data']['status'][1]['value'] );
+              $this->SetValue("remoteStart", $options_recall['BSH.Common.Status.RemoteControlStartAllowed'] );
+              $this->SetValue("remoteControl", $options_recall['BSH.Common.Status.RemoteControlActive'] );
               $this->SetValue("progress", $program_progress );
               $this->SetValue("remainTime", $program_remaining_time);
               $this->SetValue("remainStartTime", $program_remaining_start_time );
@@ -330,9 +335,9 @@ class HomeConnectWasher extends IPSModule {
               IPS_SetVariableProfileAssociation("HC_DishwasherState", 2, "Startet in", "", 0xfa8e00 );
               IPS_SetVariableProfileAssociation("HC_DishwasherState", 3, "Program läuft", "", 0xfa3200 );
           }
-          if (!IPS_VariableProfileExists('HC_DishwasherMode')) {
-              IPS_CreateVariableProfile('HC_DishwasherMode', 1);
-              IPS_SetVariableProfileIcon('HC_DishwasherMode', 'Drops');
+          if (!IPS_VariableProfileExists("HC_DishwasherMode_" . $this->ReadPropertyString("name"))) {
+              IPS_CreateVariableProfile("HC_DishwasherMode_" . $this->ReadPropertyString("name"), 1);
+              IPS_SetVariableProfileIcon("HC_DishwasherMode_" . $this->ReadPropertyString("name"), 'Drops');
           }
           if (!IPS_VariableProfileExists('HC_DishwasherProgress')) {
               IPS_CreateVariableProfile('HC_DishwasherProgress', 1);
@@ -400,7 +405,7 @@ class HomeConnectWasher extends IPSModule {
               [
                   "type" => "Button",
                   "caption" => "Profile refresh [nur bei falschen oder zu  wenig Daten]",
-                  "onClick" => 'HCDishwasher_BuildList( $id, "HC_DishwasherMode");',
+                  "onClick" => 'HCDishwasher_BuildList( $id, "HC_DishwasherMode_' . $this->ReadPropertyString("name") . ');',
               ]
           ];
       }
@@ -723,9 +728,8 @@ class HomeConnectWasher extends IPSModule {
 
       /** Counting Seconds down
        * @param string $var_name
-       * @param string $timer
        */
-      public function DownCount( string $var_name, string $timer ) {
+      public function DownCount( string $var_name ) {
           if ( $this->GetValue('state') == 3 || $this->GetValue('state') == 2 ) {
               $now = "1970-01-01 " . $this->GetValue( $var_name );
               $set = date("H:i:s", strtotime($now) - 1);
@@ -733,6 +737,31 @@ class HomeConnectWasher extends IPSModule {
           } else {
               $this->SetValue( $var_name, "==:==:==");
           }
+      }
+
+      /** Function to show all options of a running Device [for dev]
+       * @param array $input input array after api call
+       * @param string $row The next array options after data
+       * @return mixed return array with KEY => VALUE
+       */
+      protected function getKeys( array $input, string $row ) {
+          // Get Options out of data
+          $options = json_decode($input, true)['data'][$row];
+
+          // Define vars and lenght
+          $options_count = count( $options );
+          $option_list[] = array();
+
+          // Build options list
+          for( $i = 0; $i < $options_count; $i++) {
+              // Get Data to set
+              $option_name = $options[$i]['key'];
+              $option_value= $options[$i]['value'];
+
+              $options_list[$option_name] = $option_value;
+          }
+
+          return $options_list;
       }
 
       /**
