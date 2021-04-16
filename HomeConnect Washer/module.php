@@ -192,6 +192,9 @@ class HomeConnectWasher extends IPSModule {
               $this->SetValue("state", $OperationState );
               $this->SetValue( "LastRefresh", time() );
               //============================================================ Sorting Data and save
+          } else {
+              $this->SetTimerInterval('DownCountStart', 0);
+              $this->SetTimerInterval('DownCountProgram', 0);
           }
 
           //============================================================ Check Notifications
@@ -714,10 +717,13 @@ class HomeConnectWasher extends IPSModule {
           return $profile_list[$this->GetValue('mode' )];
       }
 
+      /** Counting Seconds down
+       * @param string $var
+       */
       public function DownCount( string $var ) {
-          $now = "1970-01-01 " . GetValue( $var );
+          $now = "1970-01-01 " . $this->GetValue( $var );
           $set = date("H:i:s", strtotime($now) - 1);
-          SetValue( $var, $set);
+          $this->SetValue( $var, $set);
       }
 
       /**
