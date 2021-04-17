@@ -4,6 +4,8 @@ require_once( dirname(dirname(__FILE__) ) . "/libs/tools/HomeConnectApi.php");
 require_once( dirname(dirname(__FILE__) ) . "/libs/tools/tm/tm.php");
 $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/libs/tools/tm/data.json" ), true );
 
+
+// HomeConnect Oven class with special oven settings
 class HomeConnectOven extends IPSModule {
 
       /** This function will be called on the creation of this Module
@@ -20,57 +22,64 @@ class HomeConnectOven extends IPSModule {
           $this->RegisterPropertyString('company', '');
           $this->RegisterPropertyString('haId', '');
 
-          // Refresh Settings
+          // Refresh Settings [Set by User]
           $this->RegisterPropertyInteger("first_refresh", 1);
           $this->RegisterPropertyInteger("second_refresh", 1);
           $this->RegisterPropertyBoolean("refresh_on_off", true);
-          // Notify Settings
+          // Notify Settings [Set by User]
           $this->RegisterPropertyInteger("notify_instance", 0);
           $this->RegisterPropertyString("notify_sound", "");
           $this->RegisterPropertyBoolean("notify_start", false);
           $this->RegisterPropertyBoolean("notify_stop", false);
           $this->RegisterPropertyBoolean("notify_finish", false);
-          // Notify Settings
+          // Notify Settings [Set by User]
           $this->RegisterPropertyInteger("web_notify_instance", 0);
           $this->RegisterPropertyInteger("web_notify_Timeout", 10);
           $this->RegisterPropertyBoolean("web_notify_start", false);
           $this->RegisterPropertyBoolean("web_notify_stop", false);
           $this->RegisterPropertyBoolean("web_notify_finish", false);
 
+          // Check if the user wants to hide or show varaibles
+          $this->RegisterPropertyBoolean("hide_show", true);
 
-          // Register Information Panel
+          // Remote start and Build list [Set by refresh function]
           $this->RegisterAttributeString("remoteControlAllowed", "Dein Gerät erlaubt keine Fernbedienung");
           $this->RegisterAttributeString("remoteStartAllowed", "Dein Gerät erlaub keinen Fernstart");
           $this->RegisterAttributeBoolean("first_start", true );
 
-          // Erstellt einen Timer mit dem Namen "Update" und einem Intervall von 5 minutes.
+          // Register Timers [refresh Timer, Count down until start, Count down until program ends]
           $this->RegisterTimer("refresh", 300000, "HCOven_refresh($this->InstanceID);");
           $this->RegisterTimer("DownCountStart", 0, "HCOven_DownCount($this->InstanceID, 'remainStartTime'");
           $this->RegisterTimer("DownCountProgram", 0, "HCOven_DownCount($this->InstanceID, 'remainTime');");
 
-          // Register Variable and Profiles
+          // Register Variable and Profiles [look in class]
           $this->registerProfiles();
 
+          // Register Variables
           $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_OvenRemoteStart", -2);
-          IPS_SetHidden($this->GetIDForIdent("remoteControl"), true);
           $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -2);
-          IPS_SetHidden($this->GetIDForIdent('LastRefresh'), true);
           $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_OvenState", 0);
-          $this->EnableAction('state');
           $this->RegisterVariableString("remainStartTime", "Start in", "", 1);
           $this->RegisterVariableInteger("mode", "Programm", "HC_OvenMode", 2);
-          $this->EnableAction('mode');
           $this->RegisterVariableInteger("setTemperature", "Gesetzte Temperatur", "HC_OvenSetTemperature", 3);
-          $this->EnableAction('setTemperature');
           $this->RegisterVariableInteger("setTime", "Gesetzte Laufzeit", "HC_OvenSetTime", 4);
-          $this->EnableAction('setTime');
           $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_OvenRemoteStart", 5);
           $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_OvenDoorState", 6);
           $this->RegisterVariableFloat("temperature", "Temperature", "Temperature", 7);
           $this->RegisterVariableString("remainTime", "Verbleibende Programm Zeit", "", 8);
           $this->RegisterVariableInteger("progress", "Fortschritt", "HC_OvenProgress", 9);
           $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_OvenStartStop", 10);
+
+          // Enable Action for variables, for change reaction look up RequestAction();
           $this->EnableAction('start_stop');
+          $this->EnableAction('state');
+          $this->EnableAction('mode');
+          $this->EnableAction('setTemperature');
+          $this->EnableAction('setTime');
+
+          // Set Hide, the user can link the instance with no unimportant info
+          IPS_SetHidden($this->GetIDForIdent("remoteControl"), true);
+          IPS_SetHidden($this->GetIDForIdent('LastRefresh'), true);
       }
 
       /** This function will be called by IP Symcon when the User change vars in the Module Interface
@@ -123,72 +132,88 @@ class HomeConnectOven extends IPSModule {
 
           $this->Hide();
       }
-    //--------------------------------------------------< User functions >----------------------------------
-    /** Function to refresh the device values
-     * @return string could return error
-     */
+      //--------------------------------------------------< User functions >----------------------------------
+      /** Function to refresh the device values and set active program when active
+       * @return string could return error
+       */
       public function refresh() {
           //====================================================================================================================== Check Timer
+          // Get current Hour
           $hour = date('G');
 
+          // Check Refresh time set by the user. After that set the interval of the timer (fast or slow)
           if ( $hour >= $this->ReadPropertyInteger("first_refresh") && $hour <= $this->ReadPropertyInteger("second_refresh") ) {
-              // Setting timer
               $this->SetTimerInterval("refresh", 300000 );
           } else {
-              // Setting timer slow
               $this->SetTimerInterval("refresh", 900000 );
           }
-          //====================================================================================================================== Check Timer
 
           //====================================================================================================================== Refreshing
+          // Check if the user activated the refresh function
           if ( $this->ReadPropertyBoolean("refresh_on_off") ) {
-              //make api call
+              // Make a Api call to get the current status of the device (inactive, ready, delayed start, active)
               $recall_api = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
-              // catch null exception
-              if ( $recall_api == null ) { return "error"; }
-              // Build Options
+              // Build a Key => Value array with the getKeys function (look down in the code)
               $options_recall = $this->getKeys($recall_api, 'status');
 
-              //================================================================================================================== Refreshing
+              //================================================================================================================== Refreshing Permissions
+              // Check if the RemoteControl active is [Set by Device]
               if ( $options_recall['BSH.Common.Status.RemoteControlActive'] ) {
                   $this->WriteAttributeString("remoteControlAllowed", "Dein Gerät erlaubt eine Fernbedienung");
+                  $this->SetValue("remoteControl", true );
               } else {
                   $this->WriteAttributeString("remoteControlAllowed", "Dein Gerät erlaubt keine Fernbedienung");
+                  $this->SetValue("remoteControl", false );
               }
-              // Check Remote start
+              // Check if the RemoteControl is active [Set by User on device]
               if ( $options_recall['BSH.Common.Status.RemoteControlStartAllowed'] ) {
                   $this->WriteAttributeString("remoteStartAllowed", "Dein Gerät erlaub ein Fernstart" );
+                  $this->SetValue("remoteStart", true );
               } else {
                   $this->WriteAttributeString("remoteStartAllowed", "Dein Gerät erlaub keinen Fernstart" );
+                  $this->SetValue("remoteStart", false );
               }
 
-              //============================================================ Sorting Data and save
-              // Door State and Operation state
+
+              //================================================================================================================== Refreshing Device Program
+              // Get door state and operation state from the Key => Value array (see above)
               $DoorState =  $this->HC( $options_recall['BSH.Common.Status.DoorState'] );
               $OperationState = $this->HC( $options_recall['BSH.Common.Status.OperationState'] );
 
-              $program_remaining_time = "==:==:==";
-              $program_remaining_start_time = "==:==:==";
-
+              // Check if the device is active or in delayed start
               if ( $OperationState == 3 || $OperationState == 2 ) {
-                  // Api call
+                  // Api call to get the active program
                   $recallProgram = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active");
-                  // filter data
+                  // Build a Key => Value array with the getKeys options (see bottom of the code)
                   $options = $this->getKeys($recallProgram, 'options');
 
+                  // Set current program mode
                   $this->SetListValue( explode( ".", $recallProgram['data']['key'] )[4] );
 
-                  if ( $OperationState == 2 ) {
-                      // Register DownCount and set time to start
-                      $program_remaining_start_time = gmdate("H:i:s", $options['BSH.Common.Option.StartInRelative']);
-                      $this->SetTimerInterval('DownCountStart', 1001);
-                      $this->SetTimerInterval('DownCountProgram', 0);
-                  } else if ( $OperationState == 3 ){
-                      $this->SetTimerInterval('DownCountProgram', 1001);
-                      $this->SetTimerInterval('DownCountStart', 0);
+                  // Tell apart between device active and delayed start
+                  switch ( $OperationState ) {
+                      case 2:
+                          // Set the remaining time until the device will start (out of the $options array)
+                          $this->SetValue("remainStartTime", gmdate("H:i:s", $options['BSH.Common.Option.StartInRelative']) );
+                          // Set counter timer, to count down
+                          $this->SetTimerInterval('DownCountStart', 1001);
+                          $this->SetTimerInterval('DownCountProgram', 0);
+                          break;
+                      case 3:
+                          // Set counters for the left program time (because the device is active)
+                          $this->SetTimerInterval('DownCountStart', 0);
+                          $this->SetTimerInterval('DownCountProgram', 1001);
+                          break;
+                      default:
+                          // Set counters off, no device information (safety feature)
+                          $this->SetTimerInterval('DownCountStart', 0);
+                          $this->SetTimerInterval('DownCountProgram', 0);
                   }
-                  $program_remaining_time = gmdate("H:i:s", $options['BSH.Common.Option.RemainingProgramTime']);
-                  $program_progress = $options['BSH.Common.Option.ProgramProgress'];
+
+                  // get remaining time (you can get this in state 2 or 3)
+                  $this->SetValue("remainTime", gmdate("H:i:s", $options['BSH.Common.Option.RemainingProgramTime']) );
+                  //
+                  $this->SetValue("progress", $options['BSH.Common.Option.ProgramProgress'] );
                   $this->SetValue('start_stop', true );
 
               } else {
@@ -196,57 +221,56 @@ class HomeConnectOven extends IPSModule {
                   $this->SetTimerInterval('DownCountStart', 0);
                   $this->SetTimerInterval('DownCountProgram', 0);
                   $this->SetListValue( "HotAir" );
-                  $program_remaining_time = "00:00:00";
-                  $program_progress = 0;
+                  $this->SetValue("remainTime", "==:==:==");
+                  $this->SetValue("remainStartTime", "==:==:==" );
+                  $this->SetValue("progress", 0 );
                   $this->SetValue('start_stop', false );
               }
 
-              // Set Variable value
-              $this->SetValue("remoteStart", $options_recall['BSH.Common.Status.RemoteControlStartAllowed'] );
-              $this->SetValue("remoteControl", $options_recall['BSH.Common.Status.RemoteControlActive'] );
+              //================================================================================================================== Refreshing Basic Variables
               $this->SetValue("temperature", round( $options_recall['Cooking.Oven.Status.CurrentCavityTemperature'], 2));
-              $this->SetValue("progress", $program_progress );
-              $this->SetValue("remainTime", $program_remaining_time);
-              $this->SetValue("remainStartTime", $program_remaining_start_time );
               $this->SetValue("door", $DoorState );
               $this->SetValue("state", $OperationState );
+              // Set last refresh ( user information)
               $this->SetValue( "LastRefresh", time() );
-              //============================================================ Sorting Data and save
           } else {
+              // For safety turn the counter timers off
               $this->SetTimerInterval('DownCountStart', 0);
               $this->SetTimerInterval('DownCountProgram', 0);
           }
 
-
+          //================================================================================================================== Settings for the first start after refresh
           if ( $this->ReadAttributeBoolean("first_start") ) {
               $this->BuildList("HC_OvenMode");
               $this->WriteAttributeBoolean("first_start", false );
           }
 
+          // Let the function Hide() check if there variables to check or uncheck
           $this->Hide();
           return true;
       }
 
-    /** Function to start Modes for the Dishwasher
-     * @param string $mode Mode
-     * @param int $temp Temperature to reach
-     * @param int $duration Time the program should run
-     */
+      /** Function to start Modes for the Dishwasher
+       * @param string $mode Mode
+       * @param int $temp Temperature to reach
+       * @param int $duration Time the program should run
+       */
       public function start( string $mode,  int $temp, int $duration )
       {
-
+          // Set the device ready ( device must be ready for start )
           $this->SetActive(true);
-
+          // Wait short until the device in ready state
           sleep(1);
-
+          // Refresh variables (like door state)
           $this->refresh();
 
+          // Build the program string the user set
           $run_program = "Cooking.Oven.Program.HeatingMode." . $mode;
 
-          // Settings
+          // Build the json for the api
           $opt = '{"data":{"key":"' . $run_program . '","options":[{"key":"Cooking.Oven.Option.SetpointTemperature","value":'. $temp .',"unit":"°C"},{"key":"BSH.Common.Option.Duration","value":' . $duration .',"unit":"seconds"}]}}';
 
-          // Send
+          //====================================================================================================================== Send start
           if ($this->GetValue("remoteStart")) {
               // Check Door state
               if (!$this->GetValue("door")) {
@@ -260,7 +284,7 @@ class HomeConnectOven extends IPSModule {
                       }
                       //============================================================ Check Notifications
                   } else {
-                      throw new UnexpectedValueException("Something went wrong (try again)");
+                      throw new UnexpectedValueException("The Device " . $this->ReadPropertyString("name") . " is not ready");
                   }
               } else {
                   throw new LogicException("Door state must be closed");
@@ -270,40 +294,40 @@ class HomeConnectOven extends IPSModule {
           }
       }
 
-    /**
-     * Function to stop a running program
-     */
+      /**
+       * Function to stop a running program
+       */
       public function stop() {
-
+          // basic refresh for state and control permission
           $this->refresh();
 
+          //====================================================================================================================== Send stop
           if ( $this->GetValue("remoteControl") ) {
-              if ( $this->GetValue("state") == 3 ) {
-                  Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
-
-                  //============================================================ Check Notifications
-                  if ( $this->ReadPropertyBoolean("notify_stop") ) {
-                      $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm gestoppt!");
-                  }
-                  //============================================================ Check Notifications
-              } else if ( $this->GetValue("state") == 2 ) {
-                  $this->SetActive(false);
-
-                  //============================================================ Check Notifications
-                  if ( $this->ReadPropertyBoolean("notify_stop") ) {
-                      $this->SendNotify($this->ReadPropertyString("name") . " hat den Verzögerten start und das Programm gestoppt!");
-                  }
-                  //============================================================ Check Notifications
+              // Check if the device is running a program
+              switch ( $this->GetValue("state") ) {
+                  // stop running program
+                  case 3:
+                      // Send custom delete to stop current program
+                      Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
+                      break;
+                  // stop delayed start
+                  case 2:
+                      // Turn the device off ( this stops the delayed start )
+                      $this->SetActive(false);
+                      break;
+                  default:
+                      throw new LogicException("No Program running on " . $this->ReadPropertyString("name") );
               }
+          // throw logic exception for no permission
           } else {
               throw new LogicException("Remote control must be allowed");
           }
       }
 
-    /**
-     * Function to turn the dishwasher on
-     * @param bool $state switch
-     */
+      /**
+       * Function to turn the dishwasher on
+       * @param bool $state switch
+       */
       public function SetActive( bool $state ) {
           if ( $state ) {
               $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.On","type": "BSH.Common.EnumType.PowerState"}}';
@@ -314,18 +338,23 @@ class HomeConnectOven extends IPSModule {
           Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/settings/BSH.Common.Setting.PowerState", $power);
       }
 
+      /** Test function for buttons in the instance settings
+       * @param $type
+       */
       public function test( $type ) {
           switch ($type) {
+              // sending handy test message with ips function
               case "handy_message":
                   WFC_PushNotification( $this->ReadPropertyInteger("notify_instance"), "HomeConnect", "Test Message", $this->ReadPropertyString("notify_sound"), $this->InstanceID );
                   break;
+              // sending web message with ips function
               case "web_message":
                   WFC_SendNotification( $this->ReadPropertyInteger("web_notify_instance"), "HomeConnect", "Test Message", "Power", $this->ReadPropertyInteger("web_notify_Timeout") );
                   break;
           }
       }
 
-    //-----------------------------------------------------< Profiles >------------------------------
+      //-----------------------------------------------------< Profiles >------------------------------
       /** This Function will register all Profiles for the Module
        */
       protected function registerProfiles() {
@@ -379,8 +408,7 @@ class HomeConnectOven extends IPSModule {
           }
       }
 
-
-    //-----------------------------------------------------< Setting Form.json >------------------------------
+      //-----------------------------------------------------< Setting Form.json >------------------------------
       /** This Function will set the IP Symcon Form.json
        * @return false|string Form json
        */
@@ -648,52 +676,62 @@ class HomeConnectOven extends IPSModule {
 
 
       protected function Hide() {
-          switch ($this->GetValue('state')) {
-              case 0:
-                  IPS_SetHidden( $this->GetIDForIdent('remoteStart'), true );
-                  IPS_SetHidden( $this->GetIDForIdent('door'), true );
-                  IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
-                  IPS_SetHidden( $this->GetIDForIdent('progress'), true );
-                  IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
-                  IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
-                  break;
-              case 1:
-                  IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('door'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
-                  IPS_SetHidden( $this->GetIDForIdent('progress'), true );
-                  IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
-                  IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
-                  break;
-              case 2:
-                  IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('door'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
-                  IPS_SetHidden( $this->GetIDForIdent('progress'), true );
-                  IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('setTime'), true );
-                  break;
-              case 3:
-                  IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('door'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('progress'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
-                  IPS_SetHidden( $this->GetIDForIdent('setTime'), true );
-                  break;
-              default:
-                  IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('door'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('progress'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
-          }
+          if ( $this->ReadPropertyBoolean("hide_show")) {
+              switch ($this->GetValue('state')) {
+                  case 0:
+                      IPS_SetHidden( $this->GetIDForIdent('remoteStart'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('door'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('progress'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
+                      break;
+                  case 1:
+                      IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('door'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('progress'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
+                      break;
+                  case 2:
+                      IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('door'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('progress'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('setTime'), true );
+                      break;
+                  case 3:
+                      IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('door'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('progress'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('setTime'), true );
+                      break;
+                  default:
+                      IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('door'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('progress'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
+              }
 
-          if ( $this->GetValue('temperature') > 60 ) {
-              IPS_SetHidden( $this->GetIDForIdent('temperature'), false );
+              if ( $this->GetValue('temperature') > 60 ) {
+                  IPS_SetHidden( $this->GetIDForIdent('temperature'), false );
+              } else {
+                  IPS_SetHidden( $this->GetIDForIdent('temperature'), true );
+              }
           } else {
-              IPS_SetHidden( $this->GetIDForIdent('temperature'), true );
+              IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
+              IPS_SetHidden( $this->GetIDForIdent('door'), false );
+              IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
+              IPS_SetHidden( $this->GetIDForIdent('progress'), false );
+              IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
+              IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
+              IPS_SetHidden( $this->GetIDForIdent('temperature'), false );
           }
 
       }
@@ -702,9 +740,11 @@ class HomeConnectOven extends IPSModule {
        * @param string $text Text in the Notification
        */
       protected function SendNotify( string $text ) {
+          // Send notification for mobile devices (if on)
           if ( $this->ReadPropertyInteger("notify_instance") != 0 ) {
               WFC_PushNotification( $this->ReadPropertyInteger("notify_instance"), "HomeConnect", $text, $this->ReadPropertyString("notify_sound"), $this->InstanceID );
           }
+          // Send notification for webfront (if on)
           if ( $this->ReadPropertyInteger("web_notify_instance") != 0 ) {
               WFC_SendNotification( $this->ReadPropertyInteger("web_notify_instance"), "HomeConnect", $text, "Power", $this->ReadPropertyInteger("web_notify_Timeout") );
           }
@@ -714,9 +754,12 @@ class HomeConnectOven extends IPSModule {
        * @param string $profile Name of the profile
        */
       public function BuildList( string $profile ) {
+          // make api call to get available programs on this device
           $programs = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/available")['data']['programs'];
+          // count programs
           $programs_count = count( $programs );
 
+          // build list with associations
           for ($i = 0; $i < $programs_count ; $i++) {
               IPS_SetVariableProfileAssociation($profile, $i, explode( ".", $programs[$i]["key"])[4], "", 0x828282 );
           }
@@ -726,15 +769,17 @@ class HomeConnectOven extends IPSModule {
        * @param string $name
        */
       protected function SetListValue( string $name ) {
+          // Get ID with Associations
           $profile = IPS_GetVariableProfile( "HC_OvenMode" )['Associations'];
+          // count Associations
           $profile_count = count( $profile );
-
+          // Make a list ( "Associations Name (mode)" => "Value of Associations")
           $profile_list = array();
-
+          // Build list
           for ( $i = 0; $i < $profile_count; $i++ ) {
               $profile_list[$profile[$i]["Name"]] = $profile[$i]["Value"];
           }
-
+          // Set Value to Associations name
           $this->SetValue('mode', $profile_list[$name] );
       }
 
@@ -742,15 +787,17 @@ class HomeConnectOven extends IPSModule {
        * @return mixed return name
        */
       protected function GetListValue() {
+          // Get ID with Associations
           $profile = IPS_GetVariableProfile( 'HC_OvenMode' )['Associations'];
+          // count Associations
           $profile_count = count( $profile );
-
+          // Make a list ( "Value of Association" => "Associations Name (mode)")
           $profile_list = array();
-
+          // Build list
           for ( $i = 0; $i < $profile_count; $i++ ) {
               $profile_list[$profile[$i]["Value"]] = $profile[$i]["Name"];
           }
-
+          // Return mode name (string) to integer
           return $profile_list[$this->GetValue('mode' )];
       }
 
@@ -758,12 +805,20 @@ class HomeConnectOven extends IPSModule {
        * @param string $var_name
        */
       public function DownCount( string $var_name ) {
+          // Counting down if device is in active or delayed start state
           if ( $this->GetValue('state') == 3 || $this->GetValue('state') == 2 ) {
+              // get current timestamp
               $now = "1970-01-01 " . $this->GetValue( $var_name );
+              // set timestamp in date format (after -1)
               $set = date("H:i:s", strtotime($now) - 1);
+              // Set Value
               $this->SetValue( $var_name, $set);
           } else {
+              // set no number
               $this->SetValue( $var_name, "==:==:==");
+              // turn timer off (no reason to count down)
+              $this->SetTimerInterval('DownCountStart', 0);
+              $this->SetTimerInterval('DownCountProgram', 0);
           }
       }
 
@@ -788,7 +843,7 @@ class HomeConnectOven extends IPSModule {
 
               $options_list[$option_name] = $option_value;
           }
-
+          // Options list (KEY => VALUE)
           return $options_list;
       }
 
@@ -797,6 +852,7 @@ class HomeConnectOven extends IPSModule {
        * @return bool returns true or false for HomeConnect Api result
        */
       private function HC($var ) {
+          // Return Variable to BSH Common type
         switch ( $var ) {
             //------------------------ DOOR
             case "BSH.Common.EnumType.DoorState.Open":
