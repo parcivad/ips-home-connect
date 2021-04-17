@@ -212,12 +212,12 @@ class HomeConnectOven extends IPSModule {
 
                   // get remaining time (you can get this in state 2 or 3)
                   $this->SetValue("remainTime", gmdate("H:i:s", $options['BSH.Common.Option.RemainingProgramTime']) );
-                  //
+                  // Set Program progress
                   $this->SetValue("progress", $options['BSH.Common.Option.ProgramProgress'] );
                   $this->SetValue('start_stop', true );
 
               } else {
-                  // Api call
+                  // Set default mode
                   $this->SetTimerInterval('DownCountStart', 0);
                   $this->SetTimerInterval('DownCountProgram', 0);
                   $this->SetListValue( "HotAir" );
@@ -316,10 +316,11 @@ class HomeConnectOven extends IPSModule {
                       $this->SetActive(false);
                       break;
                   default:
+                      // throw logic exception for no reason to stop
                       throw new LogicException("No Program running on " . $this->ReadPropertyString("name") );
               }
-          // throw logic exception for no permission
           } else {
+              // throw logic exception for no permission
               throw new LogicException("Remote control must be allowed");
           }
       }
@@ -642,6 +643,11 @@ class HomeConnectOven extends IPSModule {
                       ],
                   ],
               ],
+              [
+                  "type" => "CheckBox",
+                  "name" => "hide_show",
+                  "caption" => "Dynamisches ein-/ausblenden",
+              ],
           ];
       }
 
@@ -853,7 +859,7 @@ class HomeConnectOven extends IPSModule {
        * @return bool returns true or false for HomeConnect Api result
        */
       private function HC($var ) {
-          // Return Variable to BSH Common type
+        // Return Variable to BSH Common type
         switch ( $var ) {
             //------------------------ DOOR
             case "BSH.Common.EnumType.DoorState.Open":

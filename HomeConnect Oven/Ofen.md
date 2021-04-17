@@ -6,7 +6,7 @@ Zudem lassen sich Informationen wie die Verbleibende Zeit oder die Temperatur ge
   - [Variablen](#variablen)
   - [Variablen Webfront](#variablen-webfront)
   - [Ofen set()](#ofen-set)
-    - [Geräte Zustand steuern](#gert-zustand-steuern)
+    - [Zustand steuern](#zustand-steuern)
     - [Programm starten](#programm-starten-4-requests)
     - [Programm stoppen](#programm-stoppen-3-requests)
     - [Manuell refreshen](#manuell-refreshen-1-2-requests)
@@ -50,7 +50,7 @@ Name | Type | Werte | Funktionen
 
 ## Ofen Set
 Alle Eigenschaften die gesetzt werden können.
-### Gerät Zustand steuern
+### Zustand steuern
 Im Webfront lässt sich das Gerät An und Aus schalten. Die Zustände "Startet in" und "Programm läuft" können nicht gesetzt werden, da sie über die Funktion Start/Stop gesteuert werden.
 
 
