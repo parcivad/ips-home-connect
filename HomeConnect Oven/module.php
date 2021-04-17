@@ -217,17 +217,6 @@ class HomeConnectOven extends IPSModule {
               $this->SetTimerInterval('DownCountProgram', 0);
           }
 
-          //============================================================ Check Notifications
-          if ( $this->ReadPropertyBoolean("notify_finish") ) {
-              $now = "1970-01-01 " . $this->GetValue("remainTime");
-              $set = date("H:i:s", strtotime($now));
-
-              if ( $this->GetValue("state") == 3 && $set <= 300 && $this->GetValue("remainTime") != 0 ) {
-                  $this->SendNotify($this->ReadPropertyString("name") . " ist in unter 5min fertig");
-              }
-          }
-          //============================================================ Check Notifications
-
 
           if ( $this->ReadAttributeBoolean("first_start") ) {
               $this->BuildList("HC_OvenMode");
