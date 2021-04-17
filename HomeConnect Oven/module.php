@@ -399,6 +399,7 @@ class HomeConnectOven extends IPSModule {
               IPS_CreateVariableProfile('HC_OvenSetTemperature', 1);
               IPS_SetVariableProfileIcon('HC_OvenSetTemperature', 'Temperature');
               IPS_SetVariableProfileValues("HC_OvenSetTemperature", 65, 270, 1 );
+              IPS_SetVariableProfileText("HC_OvenSetTemperature", "", "°C");
           }
           if (!IPS_VariableProfileExists('HC_OvenSetTime')) {
               IPS_CreateVariableProfile('HC_OvenSetTime', 1);
