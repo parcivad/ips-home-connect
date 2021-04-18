@@ -37,6 +37,9 @@ class HomeConnectDishwasher extends IPSModule {
           $this->RegisterPropertyBoolean("web_notify_stop", false);
           $this->RegisterPropertyBoolean("web_notify_finish", false);
 
+          // Attribute for just one finish message
+          $this->RegisterAttributeBoolean('finish_message_sent', false);
+
           // Check if the user wants to hide or show varaibles
           $this->RegisterPropertyBoolean("hide_show", true);
 
@@ -46,7 +49,7 @@ class HomeConnectDishwasher extends IPSModule {
           $this->RegisterAttributeBoolean("first_start", true );
 
           // Register Timers [refresh Timer, Count down until start, Count down until program ends]
-          $this->RegisterTimer("refresh", 300000, "HCDishwasher_refresh($this->InstanceID);");
+          $this->RegisterTimer("refresh", 300000, "HCDishwasher_refresh( $this->InstanceID );");
           $this->RegisterTimer("DownCountStart", 0, "HCDishwasher_DownCount($this->InstanceID, 'remainStartTime'");
           $this->RegisterTimer("DownCountProgram", 0, "HCDishwasher_DownCount($this->InstanceID, 'remainTime');");
 
@@ -56,10 +59,8 @@ class HomeConnectDishwasher extends IPSModule {
           $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_DishwasherRemoteStart", -2);
           $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -2);
           $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_DishwasherState", 0);
-          $this->EnableAction('state');
           $this->RegisterVariableString("remainStartTime", "Start in", "", 1);
           $this->RegisterVariableInteger("mode", "Programm", "HC_DishwasherMode", 2);
-          $this->EnableAction('mode');
           $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_DishwasherRemoteStart", 3);
           $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_DishwasherDoorState", 4);
           $this->RegisterVariableString("remainTime", "Verbleibende Programm Zeit", "", 5);
@@ -213,6 +214,8 @@ class HomeConnectDishwasher extends IPSModule {
                   $this->SetValue("remainStartTime", "==:==:==" );
                   $this->SetValue("progress", 0 );
                   $this->SetValue('start_stop', false );
+
+                  $this->WriteAttributeBoolean( 'finish_message_sent', false);
               }
 
               //================================================================================================================== Refreshing Basic Variables
@@ -225,6 +228,8 @@ class HomeConnectDishwasher extends IPSModule {
               // For safety turn the counter timers off
               $this->SetTimerInterval('DownCountStart', 0);
               $this->SetTimerInterval('DownCountProgram', 0);
+              // Set message sent to false (device is not active)
+              $this->WriteAttributeBoolean( 'finish_message_sent', false);
           }
 
           //================================================================================================================== Settings for the first start after refresh
@@ -418,7 +423,7 @@ class HomeConnectDishwasher extends IPSModule {
               [
                   "type" => "Button",
                   "caption" => "Refresh",
-                  "onClick" => 'HCDishwasher_refresh( $id, );',
+                  "onClick" => 'HCDishwasher_refresh( $id );',
               ],
               [
                   "type" => "Button",
@@ -776,8 +781,21 @@ class HomeConnectDishwasher extends IPSModule {
               $now = "1970-01-01 " . $this->GetValue( $var_name );
               // set timestamp in date format (after -1)
               $set = date("H:i:s", strtotime($now) - 1);
-              // Set Value
-              $this->SetValue( $var_name, $set);
+
+              //======================================= Notify the user
+              if ( $this->GetValue('state') == 3 && $set <= 300 && !$this->ReadAttributeBoolean('finish_message_sent') ) {
+                  $this->SendNotify($this->ReadPropertyString('name') . " ist in unter 5min fertig.");
+                  $this->WriteAttributeBoolean('finish_message_sent', true);
+              }
+              //======================================= Notify the user
+
+              if ( $set != 0 ) {
+                  // Set Value
+                  $this->SetValue( $var_name, $set);
+              } else {
+                  // Set Value
+                  $this->SetValue( $var_name, "==:==:==");
+              }
           } else {
               // set no number
               $this->SetValue( $var_name, "==:==:==");
