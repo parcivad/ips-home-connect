@@ -782,13 +782,13 @@ class HomeConnectDishwasher extends IPSModule {
               $set = date("H:i:s", strtotime($now) - 1);
 
               //======================================= Notify the user
-              if ( $this->GetValue('state') == 3 && strtotime($now) <= 300 && !$this->ReadAttributeBoolean('finish_message_sent') ) {
+              if ( $this->GetValue('state') == 3 && strtotime($now) <= -3300 && !$this->ReadAttributeBoolean('finish_message_sent') ) {
                   $this->SendNotify($this->ReadPropertyString('name') . " ist in unter 5min fertig.");
                   $this->WriteAttributeBoolean('finish_message_sent', true);
               }
               //======================================= Notify the user
 
-              if ( $set != 0 ) {
+              if ( $set <= -3600 ) {
                   // Set Value
                   $this->SetValue( $var_name, $set);
               } else {
