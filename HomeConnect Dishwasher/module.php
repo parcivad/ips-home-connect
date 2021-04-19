@@ -219,7 +219,6 @@ class HomeConnectDishwasher extends IPSModule {
               }
 
               //================================================================================================================== Refreshing Basic Variables
-              $this->SetValue("temperature", round( $options_recall['Cooking.Oven.Status.CurrentCavityTemperature'], 2));
               $this->SetValue("door", $DoorState );
               $this->SetValue("state", $OperationState );
               // Set last refresh ( user information)
