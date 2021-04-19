@@ -788,7 +788,7 @@ class HomeConnectDishwasher extends IPSModule {
               }
               //======================================= Notify the user
 
-              if ( $set <= -3600 ) {
+              if ( strtotime($now) < -3600 ) {
                   // Set Value
                   $this->SetValue( $var_name, $set);
               } else {
