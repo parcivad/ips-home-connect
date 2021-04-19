@@ -177,6 +177,12 @@ class HomeConnectDishwasher extends IPSModule {
                   // Set current program mode
                   $this->SetListValue( explode( ".", $recallProgram['data']['key'] )[3] );
 
+                  // get remaining time (you can get this in state 2 or 3)
+                  $this->SetValue("remainTime", gmdate("H:i:s", $options['BSH.Common.Option.RemainingProgramTime']) );
+                  // Set Program progress
+                  $this->SetValue("progress", $options['BSH.Common.Option.ProgramProgress'] );
+                  $this->SetValue('start_stop', true );
+
                   switch ( $OperationState ) {
                       case 2:
                           // Set the remaining time until the device will start (out of the $options array)
@@ -195,12 +201,6 @@ class HomeConnectDishwasher extends IPSModule {
                           $this->SetTimerInterval('DownCountStart', 0);
                           $this->SetTimerInterval('DownCountProgram', 0);
                   }
-
-                  // get remaining time (you can get this in state 2 or 3)
-                  $this->SetValue("remainTime", gmdate("H:i:s", $options['BSH.Common.Option.RemainingProgramTime']) );
-                  // Set Program progress
-                  $this->SetValue("progress", $options['BSH.Common.Option.ProgramProgress'] );
-                  $this->SetValue('start_stop', true );
               } else {
                   // Api call to set selected program on the device
                   $recallSelected = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/selected")['data'];

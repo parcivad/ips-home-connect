@@ -193,6 +193,12 @@ class HomeConnectOven extends IPSModule {
                   // Set current program mode
                   $this->SetListValue( explode( ".", $recallProgram['data']['key'] )[4] );
 
+                  // get remaining time (you can get this in state 2 or 3)
+                  $this->SetValue("remainTime", gmdate("H:i:s", $options['BSH.Common.Option.RemainingProgramTime']) );
+                  // Set Program progress
+                  $this->SetValue("progress", $options['BSH.Common.Option.ProgramProgress'] );
+                  $this->SetValue('start_stop', true );
+
                   // Tell apart between device active and delayed start
                   switch ( $OperationState ) {
                       case 2:
@@ -212,12 +218,6 @@ class HomeConnectOven extends IPSModule {
                           $this->SetTimerInterval('DownCountStart', 0);
                           $this->SetTimerInterval('DownCountProgram', 0);
                   }
-
-                  // get remaining time (you can get this in state 2 or 3)
-                  $this->SetValue("remainTime", gmdate("H:i:s", $options['BSH.Common.Option.RemainingProgramTime']) );
-                  // Set Program progress
-                  $this->SetValue("progress", $options['BSH.Common.Option.ProgramProgress'] );
-                  $this->SetValue('start_stop', true );
 
               } else {
                   // Set default mode
