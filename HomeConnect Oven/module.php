@@ -825,21 +825,8 @@ class HomeConnectOven extends IPSModule {
               $now = "1970-01-01 " . $this->GetValue( $var_name );
               // set timestamp in date format (after -1)
               $set = date("H:i:s", strtotime($now) - 1);
-
-              //======================================= Notify the user
-              if ( $this->GetValue('state') == 3 && strtotime($now) < -3300 && !$this->ReadAttributeBoolean('finish_message_sent') ) {
-                  $this->SendNotify($this->ReadPropertyString('name') . " ist in unter 5min fertig.");
-                  $this->WriteAttributeBoolean('finish_message_sent', true);
-              }
-              //======================================= Notify the user
-
-              if ( strtotime($now) < -3600 ) {
-                  // Set Value
-                  $this->SetValue( $var_name, $set);
-              } else {
-                  // Set Value
-                  $this->SetValue( $var_name, "==:==:==");
-              }
+              // Set Value
+              $this->SetValue( $var_name, $set);
           } else {
               // set no number
               $this->SetValue( $var_name, "==:==:==");
