@@ -209,7 +209,6 @@ class HomeConnectDishwasher extends IPSModule {
                   // Set default mode
                   $this->SetTimerInterval('DownCountStart', 0);
                   $this->SetTimerInterval('DownCountProgram', 0);
-                  $this->SetListValue( "HotAir" );
                   $this->SetValue("remainTime", "==:==:==");
                   $this->SetValue("remainStartTime", "==:==:==" );
                   $this->SetValue("progress", 0 );
@@ -683,8 +682,8 @@ class HomeConnectDishwasher extends IPSModule {
                       IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
                       break;
                   case 3:
-                      IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
-                      IPS_SetHidden( $this->GetIDForIdent('door'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('remoteStart'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('door'), true );
                       IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
                       IPS_SetHidden( $this->GetIDForIdent('progress'), false );
                       IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );

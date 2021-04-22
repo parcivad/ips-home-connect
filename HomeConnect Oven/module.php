@@ -717,8 +717,8 @@ class HomeConnectOven extends IPSModule {
                       IPS_SetHidden( $this->GetIDForIdent('setTime'), true );
                       break;
                   case 3:
-                      IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
-                      IPS_SetHidden( $this->GetIDForIdent('door'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('remoteStart'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('door'), true );
                       IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
                       IPS_SetHidden( $this->GetIDForIdent('progress'), false );
                       IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
