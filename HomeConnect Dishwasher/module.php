@@ -778,7 +778,9 @@ class HomeConnectDishwasher extends IPSModule {
               // get current timestamp
               $now = "1970-01-01 " . $this->GetValue( $var_name );
               // set timestamp in date format (after -1)
-              $set = date("H:i:s", strtotime($now) - 1);
+              $time = strtotime($now) + 3600;
+              // set time
+              $set = gmdate("H:i:s", $time - 1);
               // Set Value
               $this->SetValue( $var_name, $set);
           } else {
