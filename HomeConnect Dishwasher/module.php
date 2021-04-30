@@ -748,7 +748,7 @@ class HomeConnectDishwasher extends IPSModule {
 
           // build list with associations
           for ($i = 0; $i < $programs_count ; $i++) {
-              if ( $this->ReadAttributeBoolean("mode_translate") ) {
+              if ( $this->ReadPropertyBoolean("mode_translate") ) {
                   IPS_SetVariableProfileAssociation($profile, $i, explode( ".", DishwasherTranslateMode( $programs[$i]["key"])[3], true ), "", 0x828282 );
               } else {
                   IPS_SetVariableProfileAssociation($profile, $i, explode( ".", $programs[$i]["key"])[3], "", 0x828282 );
