@@ -197,8 +197,6 @@ class HomeConnectOven extends IPSModule {
                   // Set current program mode
                   $this->SetListValue( explode( ".", $recallProgram['data']['key'] )[4] );
 
-                  // get remaining time (you can get this in state 2 or 3)
-                  $this->SetValue("remainTime", gmdate("H:i:s", $options['BSH.Common.Option.RemainingProgramTime']) );
                   // Set Program progress
                   $this->SetValue("progress", $options['BSH.Common.Option.ProgramProgress'] );
                   $this->SetValue('start_stop', true );
@@ -221,6 +219,14 @@ class HomeConnectOven extends IPSModule {
                           // Set counters off, no device information (safety feature)
                           $this->SetTimerInterval('DownCountStart', 0);
                           $this->SetTimerInterval('DownCountProgram', 0);
+                  }
+
+                  // get remaining time (you can get this in state 2 or 3)
+                  if ( isset($options['BSH.Common.Option.RemainingProgramTime']) ) {
+                      $this->SetValue("remainTime", gmdate("H:i:s", $options['BSH.Common.Option.RemainingProgramTime']) );
+                  } else {
+                      $this->SetValue("remainTime", "==:==:==" );
+                      $this->SetTimerInterval('DownCountProgram', 0);
                   }
 
               } else {
