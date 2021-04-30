@@ -39,16 +39,15 @@ function Api($endpoint="") {
     $response_json = json_decode( $response, true );
 
     // In case of token error [api can cancel the token every time]
-    if ( $response_json["error"]["key"] == "invalid_token" ) {
-        // In case of while repeat [slowing double request down]
-        sleep(1);
-        // refresh token
-        refreshToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7", "");
-        // retry api call
-        return Api($endpoint);
-    }
+    if ( !isset($response_json["error"]["key"] ) ) return json_decode( $response, true );
+    else if ( $response_json["error"]["key"] != "invalid_token" ) return null;
 
-    return json_decode( $response, true );
+    // In case of while repeat [slowing double request down]
+    sleep(1);
+    // refresh token
+    refreshToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7", "");
+    // retry api call
+    return Api($endpoint);
 }
 
 /**
@@ -128,14 +127,13 @@ function Api_put(string $endpoint, string $json ) {
     $response_json = json_decode( $response, true );
 
     // In case of token error [api can cancel the token every time]
-    if ( $response_json["error"]["key"] == "invalid_token" ) {
-        // In case of while repeat [slowing double request down]
-        sleep(1);
-        // refresh token
-        refreshToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7", "");
-        // retry api call
-        return Api_put($endpoint, $json);
-    }
+    if ( !isset($response_json["error"]["key"] ) ) return json_decode( $response, true );
+    else if ( $response_json["error"]["key"] != "invalid_token" ) return null;
 
-    return json_decode( $response, true );
+    // In case of while repeat [slowing double request down]
+    sleep(1);
+    // refresh token
+    refreshToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7", "");
+    // retry api call
+    return Api($endpoint);
 }
