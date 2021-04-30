@@ -655,9 +655,20 @@ class HomeConnectOven extends IPSModule {
                   ],
               ],
               [
-                  "type" => "CheckBox",
-                  "name" => "hide_show",
-                  "caption" => "Dynamisches ein-/ausblenden",
+                  "type" => "ExpansionPanel",
+                  "caption" => "Variable Settings",
+                  "items" => [
+                      [
+                          "type" => "CheckBox",
+                          "name" => "hide_show",
+                          "caption" => "Dynamisches ein-/ausblenden",
+                      ],
+                      [
+                          "type" => "CheckBox",
+                          "name" => "mode_translate",
+                          "caption" => "Modus Profil übersetzen (Option aus um die Modi zu sehen die Gesetzt werden können)",
+                      ],
+                  ],
               ],
           ];
       }
