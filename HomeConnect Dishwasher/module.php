@@ -772,7 +772,7 @@ class HomeConnectDishwasher extends IPSModule {
           }
           // Set Value to Associations name
           if ( $this->ReadPropertyBoolean("mode_translate")) {
-              $name = DishwasherTranslateMode( $name, false );
+              $name = DishwasherTranslateMode( $name, true );
           }
           $this->SetValue('mode', $profile_list[$name] );
       }
