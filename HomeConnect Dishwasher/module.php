@@ -1,8 +1,10 @@
 <?php
 
 require_once( dirname(dirname(__FILE__) ) . "/libs/tools/HomeConnectApi.php");
+require_once( dirname(dirname(__FILE__) ) . "/libs/tools/HCTranslate.php");
 require_once( dirname(dirname(__FILE__) ) . "/libs/tools/tm/tm.php");
 $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/libs/tools/tm/data.json" ), true );
+
 
 class HomeConnectDishwasher extends IPSModule {
 
@@ -42,6 +44,9 @@ class HomeConnectDishwasher extends IPSModule {
 
           // Check if the user wants to hide or show varaibles
           $this->RegisterPropertyBoolean("hide_show", true);
+
+          // Check if the user wants to translate the mode varialbe
+          $this->RegisterPropertyBoolean("mode_translate", true);
 
           // Remote start and Build list [Set by refresh function]
           $this->RegisterAttributeString("remoteControlAllowed", "Dein Gerät erlaubt keine Fernbedienung");
@@ -425,7 +430,7 @@ class HomeConnectDishwasher extends IPSModule {
               ],
               [
                   "type" => "Button",
-                  "caption" => "Profile refresh [nur bei falschen oder zu  wenig Daten]",
+                  "caption" => "Profile refresh",
                   "onClick" => 'HCDishwasher_BuildList( $id, "HC_DishwasherMode");',
               ]
           ];
@@ -620,9 +625,20 @@ class HomeConnectDishwasher extends IPSModule {
                   ],
               ],
               [
-                  "type" => "CheckBox",
-                  "name" => "hide_show",
-                  "caption" => "Dynamisches ein-/ausblenden",
+                  "type" => "ExpansionPanel",
+                  "caption" => "Variable Settings",
+                  "items" => [
+                      [
+                          "type" => "CheckBox",
+                          "name" => "hide_show",
+                          "caption" => "Dynamisches ein-/ausblenden",
+                      ],
+                      [
+                          "type" => "CheckBox",
+                          "name" => "mode_translate",
+                          "caption" => "Modus Profil übersetzen (Option aus um die Modi zu sehen die Gesetzt werden können)",
+                      ],
+                  ],
               ],
           ];
       }
@@ -656,6 +672,9 @@ class HomeConnectDishwasher extends IPSModule {
 
           return $form;
       }
+
+
+    //-----------------------------------------------------< Module Functions >------------------------------
 
       protected function Hide() {
           if ( $this->ReadPropertyBoolean("hide_show") ) {
@@ -729,7 +748,11 @@ class HomeConnectDishwasher extends IPSModule {
 
           // build list with associations
           for ($i = 0; $i < $programs_count ; $i++) {
-              IPS_SetVariableProfileAssociation($profile, $i, explode( ".", $programs[$i]["key"])[3], "", 0x828282 );
+              if ( $this->ReadAttributeBoolean("mode_translate") ) {
+                  IPS_SetVariableProfileAssociation($profile, $i, explode( ".", DishwasherTranslateMode( $programs[$i]["key"])[3], true ), "", 0x828282 );
+              } else {
+                  IPS_SetVariableProfileAssociation($profile, $i, explode( ".", $programs[$i]["key"])[3], "", 0x828282 );
+              }
           }
       }
 
@@ -748,6 +771,9 @@ class HomeConnectDishwasher extends IPSModule {
               $profile_list[$profile[$i]["Name"]] = $profile[$i]["Value"];
           }
           // Set Value to Associations name
+          if ( $this->ReadPropertyBoolean("mode_translate")) {
+              $name = DishwasherTranslateMode( $name, false );
+          }
           $this->SetValue('mode', $profile_list[$name] );
       }
 
@@ -766,7 +792,10 @@ class HomeConnectDishwasher extends IPSModule {
               $profile_list[$profile[$i]["Value"]] = $profile[$i]["Name"];
           }
           // Return mode name (string) to integer
-          return $profile_list[$this->GetValue('mode' )];
+          if ( $this->ReadPropertyBoolean("mode_translate") ) {
+              return DishwasherTranslateMode( $profile_list[$this->GetValue('mode')], false);
+          }
+          return $profile_list[$this->GetValue('mode')];
       }
 
       /** Counting Seconds down
