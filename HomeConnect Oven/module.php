@@ -460,7 +460,7 @@ class HomeConnectOven extends IPSModule {
               ],
               [
                   "type" => "Button",
-                  "caption" => "Profile refresh [nur bei falschen oder zu  wenig Daten]",
+                  "caption" => "Profile refresh",
                   "onClick" => 'HCOven_BuildList( $id, "HC_OvenMode");',
               ]
           ];
