@@ -45,6 +45,9 @@ class HomeConnectOven extends IPSModule {
           // Check if the user wants to hide or show varaibles
           $this->RegisterPropertyBoolean("hide_show", true);
 
+          // Check if the user wants to translate the mode varialbe
+          $this->RegisterPropertyBoolean("mode_translate", true);
+
           // Remote start and Build list [Set by refresh function]
           $this->RegisterAttributeString("remoteControlAllowed", "Dein Gerät erlaubt keine Fernbedienung");
           $this->RegisterAttributeString("remoteStartAllowed", "Dein Gerät erlaub keinen Fernstart");
@@ -688,7 +691,7 @@ class HomeConnectOven extends IPSModule {
           return $form;
       }
 
-
+      //-----------------------------------------------------< Module Functions >------------------------------
       protected function Hide() {
           if ( $this->ReadPropertyBoolean("hide_show")) {
               switch ($this->GetValue('state')) {
@@ -775,7 +778,11 @@ class HomeConnectOven extends IPSModule {
 
           // build list with associations
           for ($i = 0; $i < $programs_count ; $i++) {
-              IPS_SetVariableProfileAssociation($profile, $i, explode( ".", $programs[$i]["key"])[4], "", 0x828282 );
+              if ( $this->ReadPropertyBoolean("mode_translate") ) {
+                  IPS_SetVariableProfileAssociation($profile, $i, DishwasherTranslateMode( explode( ".",$programs[$i]["key"])[4], true ), "", 0x828282 );
+              } else {
+                  IPS_SetVariableProfileAssociation($profile, $i, explode( ".", $programs[$i]["key"])[4], "", 0x828282 );
+              }
           }
       }
 
@@ -794,6 +801,9 @@ class HomeConnectOven extends IPSModule {
               $profile_list[$profile[$i]["Name"]] = $profile[$i]["Value"];
           }
           // Set Value to Associations name
+          if ( $this->ReadPropertyBoolean("mode_translate")) {
+              $name = DishwasherTranslateMode( $name, true );
+          }
           $this->SetValue('mode', $profile_list[$name] );
       }
 
@@ -812,7 +822,10 @@ class HomeConnectOven extends IPSModule {
               $profile_list[$profile[$i]["Value"]] = $profile[$i]["Name"];
           }
           // Return mode name (string) to integer
-          return $profile_list[$this->GetValue('mode' )];
+          if ( $this->ReadPropertyBoolean("mode_translate") ) {
+              return DishwasherTranslateMode( $profile_list[$this->GetValue('mode')], false);
+          }
+          return $profile_list[$this->GetValue('mode')];
       }
 
       /** Counting Seconds down

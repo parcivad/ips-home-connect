@@ -38,3 +38,36 @@ function DishwasherTranslateMode( string $ModeName, bool $direction) {
     // rewrite dictionary
     return array_flip($dictionary)[$ModeName];
 }
+
+/** Function to translate the mode into a readable string
+ * @param string $ModeName The abstract or readable string
+ * @param bool $direction TRUE =  HC name => Readable string  //   FALSE = Readable string => HC name
+ * @return string
+ */
+function OvenTranslateMode( string $ModeName, bool $direction) {
+    $dictionary = array(
+        "PreHeating" => "Vorheizen",
+        "HotAir" => "Umluft",
+        "HotAirEco" => "Umluft Eco",
+        "HotAirGrilling" => "Umluft grilling",
+        "TopBottomHeating" => "Ober/-Unterhitze",
+        "TopBottomHeatingEco" => "Ober/-Unterhitze Eco",
+        "BottomHeating" => "Unterhitze",
+        "PizzaSetting" => "Pizza",
+        "SlowCook" => "Langsames kochen",
+        "IntensiveHeat" => "Intensives heizen",
+        "KeepWarm" => "Warm halten",
+        "PreheatOvenware" => "Vorheizen Geschirr",
+        "FrozenHeatupSpecial" => "Gefrorenes Aufheizen",
+        "Desiccation" => "Extrem Trocknen",
+        "Defrost" => "Auftauen",
+        "Proof" => "Brot geringe Temperatur",
+    );
+
+    // Translate HC NAME => READABLE STRING
+    if ( $direction ) { return $dictionary[$ModeName]; }
+
+    // Translate READABLE STRING => HC NAME
+    // rewrite dictionary
+    return array_flip($dictionary)[$ModeName];
+}
