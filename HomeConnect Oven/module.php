@@ -234,8 +234,8 @@ class HomeConnectOven extends IPSModule {
                   $this->SetTimerInterval('DownCountStart', 0);
                   $this->SetTimerInterval('DownCountProgram', 0);
                   $this->SetListValue( "HotAir" );
-                  $this->SetValue("remainTime", "==:==:==");
-                  $this->SetValue("remainStartTime", "==:==:==" );
+                  $this->SetValue("remainTime", "--:--:--");
+                  $this->SetValue("remainStartTime", "--:--:--" );
                   $this->SetValue("progress", 0 );
                   $this->SetValue('start_stop', false );
 
@@ -294,10 +294,9 @@ class HomeConnectOven extends IPSModule {
                   // Check if the device is on
                   if ($this->GetValue("state") == 1) {
                       Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
-
                       //============================================================ Check Notifications
                       if ($this->ReadPropertyBoolean("notify_start")) {
-                          $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm " . explode(".", $mode)[4] . " gestarted!");
+                          $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm " . explode(".", $mode) . " gestarted!");
                       }
                       //============================================================ Check Notifications
                   } else {
@@ -326,6 +325,7 @@ class HomeConnectOven extends IPSModule {
                   case 3:
                       // Send custom delete to stop current program
                       Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
+                      $this->SetValue("state", 1 );
                       break;
                   // stop delayed start
                   case 2:
@@ -862,7 +862,7 @@ class HomeConnectOven extends IPSModule {
               $this->SetValue( $var_name, $set);
           } else {
               // set no number
-              $this->SetValue( $var_name, "==:==:==");
+              $this->SetValue( $var_name, "--:--:--");
               // turn timer off (no reason to count down)
               $this->SetTimerInterval('DownCountStart', 0);
               $this->SetTimerInterval('DownCountProgram', 0);

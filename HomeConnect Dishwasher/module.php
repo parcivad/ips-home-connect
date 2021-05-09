@@ -214,8 +214,8 @@ class HomeConnectDishwasher extends IPSModule {
                   // Set default mode
                   $this->SetTimerInterval('DownCountStart', 0);
                   $this->SetTimerInterval('DownCountProgram', 0);
-                  $this->SetValue("remainTime", "==:==:==");
-                  $this->SetValue("remainStartTime", "==:==:==" );
+                  $this->SetValue("remainTime", "--:--:--");
+                  $this->SetValue("remainStartTime", "--:--:--" );
                   $this->SetValue("progress", 0 );
                   $this->SetValue('start_stop', false );
 
@@ -272,10 +272,9 @@ class HomeConnectDishwasher extends IPSModule {
                   // Check if the device is on
                   if ($this->GetValue("state") == 1) {
                       Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
-
                       //============================================================ Check Notifications
                       if ($this->ReadPropertyBoolean("notify_start")) {
-                          $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm " . explode(".", $mode)[3] . " gestarted!");
+                          $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm " . explode(".", $mode) . " gestarted!");
                       }
                       //============================================================ Check Notifications
                   } else {
@@ -304,6 +303,12 @@ class HomeConnectDishwasher extends IPSModule {
                   case 3:
                       // Send custom delete to stop current program
                       Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
+                      $this->SetValue("state", 1 );
+                      //============================================================ Check Notifications
+                      if ($this->ReadPropertyBoolean("notify_stop")) {
+                          $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm gestoppt!");
+                      }
+                      //============================================================ Check Notifications
                       break;
                   // stop delayed start
                   case 2:
@@ -814,7 +819,7 @@ class HomeConnectDishwasher extends IPSModule {
               $this->SetValue( $var_name, $set);
           } else {
               // set no number
-              $this->SetValue( $var_name, "==:==:==");
+              $this->SetValue( $var_name, "--:--:--");
               // turn timer off (no reason to count down)
               $this->SetTimerInterval('DownCountStart', 0);
               $this->SetTimerInterval('DownCountProgram', 0);
