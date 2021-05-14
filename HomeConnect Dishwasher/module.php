@@ -222,6 +222,13 @@ class HomeConnectDishwasher extends IPSModule {
                   $this->WriteAttributeBoolean( 'finish_message_sent', false);
               }
 
+              //================================================================================================================== Check if device is done
+              if ( $this->GetValue('state') == 3 && $OperationState != 3 && !$this->ReadAttributeBoolean('finish_message_sent' )) {
+                  if ( $this->GetValue('state') == 3 && $this->ReadPropertyBoolean('notify_finish') || $this->ReadPropertyBoolean('web_notify_finish')  ) {
+                      $this->SendNotify("Der " . $this->ReadPropertyString('name') . " ist mit dem Programm fertig!");
+                  }
+                  $this->WriteAttributeBoolean('finish_message_sent', true );
+              }
               //================================================================================================================== Refreshing Basic Variables
               $this->SetValue("door", $DoorState );
               $this->SetValue("state", $OperationState );
@@ -814,7 +821,7 @@ class HomeConnectDishwasher extends IPSModule {
               // set timestamp in date format (after -1)
               $time = strtotime($now) + 3600;
 
-              if ( $time >= 0 ) {
+              if ( $time >= 0 && $time < 28800 ) {
                   // set time
                   $set = gmdate("H:i:s", $time - 1);
                   // Set Value

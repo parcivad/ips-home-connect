@@ -225,7 +225,7 @@ class HomeConnectOven extends IPSModule {
                   if ( isset($options['BSH.Common.Option.RemainingProgramTime']) ) {
                       $this->SetValue("remainTime", gmdate("H:i:s", $options['BSH.Common.Option.RemainingProgramTime']) );
                   } else {
-                      $this->SetValue("remainTime", "==:==:==" );
+                      $this->SetValue("remainTime", "--:--:--" );
                       $this->SetTimerInterval('DownCountProgram', 0);
                   }
 
@@ -238,16 +238,24 @@ class HomeConnectOven extends IPSModule {
                   $this->SetValue("remainStartTime", "--:--:--" );
                   $this->SetValue("progress", 0 );
                   $this->SetValue('start_stop', false );
-
+                  // reset finish message
                   $this->WriteAttributeBoolean( 'finish_message_sent', false);
               }
 
+              //================================================================================================================== Check if device is done
+              if ( $this->GetValue('state') == 3 && $OperationState != 3 && !$this->ReadAttributeBoolean('finish_message_sent' )) {
+                  if ( $this->GetValue('state') == 3 && $this->ReadPropertyBoolean('notify_finish') || $this->ReadPropertyBoolean('web_notify_finish')  ) {
+                      $this->SendNotify("Der " . $this->ReadPropertyString('name') . " ist mit dem Programm fertig!");
+                  }
+                  $this->WriteAttributeBoolean('finish_message_sent', true );
+              }
               //================================================================================================================== Refreshing Basic Variables
               $this->SetValue("temperature", round( $options_recall['Cooking.Oven.Status.CurrentCavityTemperature'], 2));
               $this->SetValue("door", $DoorState );
               $this->SetValue("state", $OperationState );
               // Set last refresh ( user information)
               $this->SetValue( "LastRefresh", time() );
+
           } else {
               // For safety turn the counter timers off
               $this->SetTimerInterval('DownCountStart', 0);
@@ -857,7 +865,7 @@ class HomeConnectOven extends IPSModule {
               // set timestamp in date format (after -1)
               $time = strtotime($now) + 3600;
 
-              if ( $time >= 0 ) {
+              if ( $time >= 0 && $time < 28800 ) {
                   // set time
                   $set = gmdate("H:i:s", $time - 1);
                   // Set Value
