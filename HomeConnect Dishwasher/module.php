@@ -281,7 +281,7 @@ class HomeConnectDishwasher extends IPSModule {
                       Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
                       //============================================================ Check Notifications
                       if ($this->ReadPropertyBoolean("notify_start")) {
-                          $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm " . explode(".", $mode) . " gestarted!");
+                          $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm " . DishwasherTranslateMode($mode, true) . " gestarted!");
                       }
                       //============================================================ Check Notifications
                   } else {
