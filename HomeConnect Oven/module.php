@@ -856,10 +856,21 @@ class HomeConnectOven extends IPSModule {
               $now = "1970-01-01 " . $this->GetValue( $var_name );
               // set timestamp in date format (after -1)
               $time = strtotime($now) + 3600;
-              // set time
-              $set = gmdate("H:i:s", $time - 1);
-              // Set Value
-              $this->SetValue( $var_name, $set);
+
+              if ( $time >= 0 ) {
+                  // set time
+                  $set = gmdate("H:i:s", $time - 1);
+                  // Set Value
+                  $this->SetValue( $var_name, $set);
+              } else {
+                  // set no number
+                  $this->SetValue( $var_name, "--:--:--");
+                  // turn timer off (no reason to count down)
+                  $this->SetTimerInterval('DownCountStart', 0);
+                  $this->SetTimerInterval('DownCountProgram', 0);
+                  // refresh data
+                  $this->refresh();
+              }
           } else {
               // set no number
               $this->SetValue( $var_name, "--:--:--");
