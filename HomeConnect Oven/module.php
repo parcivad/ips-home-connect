@@ -124,7 +124,7 @@ class HomeConnectOven extends IPSModule {
                       $duration = $this->GetValue('setTime') * 60;
 
                       # catch "BakingSensor"
-                      if ( $program == "BakingSensor" ) {
+                      if ( $program == "Dish" ) {
                           echo "Dieses Programm kann nicht gestartet werden";
                           return;
                       }
@@ -202,7 +202,11 @@ class HomeConnectOven extends IPSModule {
                   $options = $this->getKeys($recallProgram, 'options');
 
                   // Set current program mode
-                  $this->SetListValue( explode( ".", $recallProgram['data']['key'] )[4] );
+                  if ( explode( ".", $recallProgram['data']['key'] )[3] != "HeatingMode" ) {
+                      $this->SetListValue( explode( ".", $recallProgram['data']['key'] )[4] );
+                  } else {
+                      $this->SetListValue( "Dish" );
+                  }
 
                   // Set Program progress
                   $this->SetValue("progress", $options['BSH.Common.Option.ProgramProgress'] );
@@ -296,7 +300,7 @@ class HomeConnectOven extends IPSModule {
           // Refresh variables (like door state)
           $this->refresh();
 
-          if ( $mode == "BakingSensor" ) { throw new LogicException("Progamm BackingSensor can`t be set"); }
+          if ( $mode == "Dish" ) { throw new LogicException("Dish programs can`t be started"); }
 
           // Build the program string the user set
           $run_program = "Cooking.Oven.Program.HeatingMode." . $mode;
@@ -821,9 +825,9 @@ class HomeConnectOven extends IPSModule {
           }
 
           if ( $this->ReadPropertyBoolean("mode_translate") ) {
-              IPS_SetVariableProfileAssociation($profile, $programs_count, OvenTranslateMode("BakingSensor", true ), "", 0x828282 );
+              IPS_SetVariableProfileAssociation($profile, $programs_count, OvenTranslateMode("Dish", true ), "", 0x828282 );
           } else {
-              IPS_SetVariableProfileAssociation($profile, $programs_count, "BakingSensor", "", 0x828282 );
+              IPS_SetVariableProfileAssociation($profile, $programs_count, "Dish", "", 0x828282 );
           }
       }
 

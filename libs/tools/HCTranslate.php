@@ -62,7 +62,7 @@ function OvenTranslateMode( string $ModeName, bool $direction) {
         "Desiccation" => "Extrem Trocknen",
         "Defrost" => "Auftauen",
         "Proof" => "Brot geringe Temperatur",
-        "BakingSensor" => "Backsensor Programm"
+        "Dish" => "Gericht"
     );
 
     // Translate HC NAME => READABLE STRING
