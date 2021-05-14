@@ -49,7 +49,7 @@ function OvenTranslateMode( string $ModeName, bool $direction) {
         "PreHeating" => "Vorheizen",
         "HotAir" => "Umluft",
         "HotAirEco" => "Umluft Eco",
-        "HotAirGrilling" => "Umluft grilling",
+        "HotAirGrilling" => "Umluft grillen",
         "TopBottomHeating" => "Ober/-Unterhitze",
         "TopBottomHeatingEco" => "Ober/-Unterhitze Eco",
         "BottomHeating" => "Unterhitze",
@@ -62,6 +62,7 @@ function OvenTranslateMode( string $ModeName, bool $direction) {
         "Desiccation" => "Extrem Trocknen",
         "Defrost" => "Auftauen",
         "Proof" => "Brot geringe Temperatur",
+        "BakingSensor" => "Backsensor Programm"
     );
 
     // Translate HC NAME => READABLE STRING
