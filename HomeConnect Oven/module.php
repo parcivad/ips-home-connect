@@ -122,6 +122,13 @@ class HomeConnectOven extends IPSModule {
                       $program = $this->GetListValue();
                       $temp = $this->GetValue('setTemperature');
                       $duration = $this->GetValue('setTime') * 60;
+
+                      # catch "BakingSensor"
+                      if ( $program == "BakingSensor" ) {
+                          echo "Dieses Programm kann nicht gestartet werden";
+                          return;
+                      }
+
                       $this->start($program, $temp, $duration);
                       $this->SetValue('start_stop', true);
                   } else {
@@ -288,6 +295,8 @@ class HomeConnectOven extends IPSModule {
           sleep(1);
           // Refresh variables (like door state)
           $this->refresh();
+
+          if ( $mode == "BakingSensor" ) { throw new LogicException("Progamm BackingSensor can`t be set"); }
 
           // Build the program string the user set
           $run_program = "Cooking.Oven.Program.HeatingMode." . $mode;
@@ -809,6 +818,12 @@ class HomeConnectOven extends IPSModule {
               } else {
                   IPS_SetVariableProfileAssociation($profile, $i, explode( ".", $programs[$i]["key"])[4], "", 0x828282 );
               }
+          }
+
+          if ( $this->ReadPropertyBoolean("mode_translate") ) {
+              IPS_SetVariableProfileAssociation($profile, $programs_count, OvenTranslateMode("BakingSensor", true ), "", 0x828282 );
+          } else {
+              IPS_SetVariableProfileAssociation($profile, $programs_count, "BakingSensor", "", 0x828282 );
           }
       }
 
