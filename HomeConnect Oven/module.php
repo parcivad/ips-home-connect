@@ -202,7 +202,7 @@ class HomeConnectOven extends IPSModule {
                   $options = $this->getKeys($recallProgram, 'options');
 
                   // Set current program mode
-                  if ( explode( ".", $recallProgram['data']['key'] )[3] != "HeatingMode" ) {
+                  if ( explode( ".", $recallProgram['data']['key'] )[3] == "HeatingMode" ) {
                       $this->SetListValue( explode( ".", $recallProgram['data']['key'] )[4] );
                   } else {
                       $this->SetListValue( "Dish" );
