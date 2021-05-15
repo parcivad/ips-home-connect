@@ -1,6 +1,6 @@
 # Ofen
 Der Ofen kann gestartet, gestoppt, an und aus geschaltet werden. 
-Zudem lassen sich Informationen wie die Verbleibende Zeit oder die Temperatur geben lassen.
+Zudem lassen sich Informationen wie die verbleibende Zeit oder die Temperatur geben lassen.
 
 - [Instanz Einstellungen](#instanz-einstellungen)
   - [Variablen](#variablen)
@@ -18,9 +18,9 @@ Zudem lassen sich Informationen wie die Verbleibende Zeit oder die Temperatur ge
 </p>
 
 
-In den Instanz Einstellungen kann unter `Refresh` eine Zeitspanne gesetzt werden ( von 12 Uhr bis 18 Uhr )in der Automatisch geupdated wird (5min abstand) außerhalb dieser Zeit updated das Programm alle 15min.
+In den instanz Einstellungen kann unter `Refresh` eine Zeitspanne gesetzt werden ( von 12 Uhr bis 18 Uhr )in der Automatisch geupdated wird (5min abstand) außerhalb dieser Zeit updated das Programm alle 15min.
 
-Zudem kann eine Benachrichtigung für ein Mobiles Gerät und das Webfront eingstellt werden. Es kann auch das gleiche Webfront wir beide Geräte genutzt werden.
+Zudem kann eine Benachrichtigung für ein Mobile Gerät und das Webfront eingestellt werden. Es kann auch das gleiche Webfront für beide Geräte genutzt werden, solange dieses auf beide Eingestellt ist.
 ```diff
 -Die Berechtigung RemoteControl lässt sich in der Home Connect App einstellen
 -Die Berechtigung RemoteStart muss jedes mal auf dem Gerät gedrückt werden
@@ -28,7 +28,7 @@ Zudem kann eine Benachrichtigung für ein Mobiles Gerät und das Webfront eingst
 ## Variablen
 Name | Type | Werte | Funktionen
 :--- | :---: | :---  | :---:
-`Last Refresh` | UnixTimeStamp | time | Zeigt die Zeit vom letzen aktualisieren
+`Last Refresh` | UnixTimeStamp | time | Zeigt die Zeit vom letzten aktualisieren
 `Remote Control` | Boolean | true, false | Zeigt ob die Permission Control gegeben ist
 `Geräte Zustand`| Integer | 0 Aus; 1 An; 2 Verzögerter Start; 3 Programm läuft | Zeigt dem Nutzer den Zustand vom Gerät
 `Start in`| Date string | Date("H:i:s") | Zeigt verbleibende Zeit bis das ausgewählte Programm startet
@@ -51,28 +51,28 @@ Name | Type | Werte | Funktionen
 ## Ofen Set
 Alle Eigenschaften die gesetzt werden können.
 ### Zustand steuern
-Im Webfront lässt sich das Gerät An und Aus schalten. Die Zustände "Startet in" und "Programm läuft" können nicht gesetzt werden, da sie über die Funktion Start/Stop gesteuert werden.
+Im Webfront lässt sich das Gerät an und aus schalten. Die Zustände "Startet in" und "Programm läuft" können nicht gesetzt werden, da sie über die Funktion Start/Stop gesteuert werden.
 
 
-Im Code kann das Gerät an oder aus geschaltet werden mit (bei dem starten von dem Gerät muss es NICHT extra angeschaltet werden).
+Im Code kann das Gerät an oder aus geschaltet werden mit (bei dem start von dem Gerät muss es NICHT extra angeschaltet werden).
 ```php
-HCOven_SetActive( InstaceID, <false/true> );
+HCOven_SetActive( InstaceID, false/true );
 ```
 ```diff
 -Für diese Aktion wird die Berechtigung RemoteControl benötigt!
 ```
 ### Programm starten [4 REQUESTS]
-Ein Programm kann im Webfront gestartet werden, beim drücken auf dem start knopf wird der aktuelle Modus ausgewählt und gestartet
+Ein Programm kann im Webfront gestartet werden, beim Drücken auf dem start knopf wird der aktuelle Modus ausgewählt und gestartet
 
 Im Code kann das Programm auch noch verzögert gestartet werden mit.
 ```php
-HCOven_start( "<Modus als String>",  <Temperatur in °C als integer>, <Dauer wie lange das Programm laufen soll in Sekunden> );
+HCOven_start( "<Programm als String zb. Auto2>",  Temperatur in °C als integer, Dauer wie lange das Programm laufen soll in Sekunden );
 ```
 ```diff
 -Für diese Aktion wird die Berechtigung RemoteControl und RemoteStart benötigt!
 ```
 ### Programm stoppen [3 REQUESTS]
-Ein Programm kann über das Webfront gestoppt werden, dass geht auch wenn sich das Gerät im Zustand "Start in" befindet.
+Ein Programm kann über das Webfront gestoppt werden, das ist auch möglich, wenn sich das Gerät im Zustand "Start in" befindet.
 
 Im Code kann das Programm mit ... gestoppt werden.
 ```php
