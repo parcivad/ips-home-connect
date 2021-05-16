@@ -1,5 +1,5 @@
 # IP-Symcon HomeConnect
-Das ist ein IP-Symcon HomeConnect Modul. Es dient dazu mit verschieden Gerät von Siemens und Bosch zu kommunizieren. Dafür wird die Cloud Basis, HomeConnect benötigt.
+Das ist ein IP-Symcon HomeConnect Modul. Es dient dazu, mit verschieden Geräten von Siemens und Bosch zu kommunizieren. Dafür wird die Cloud Basis, HomeConnect benötigt.
 Diese wird von Bosch und Siemens bereitgestellt.
 Für das Nutzen dieses Moduls wird ein HomeConnect Account benötigt.
 
@@ -35,15 +35,15 @@ Durch verschiedene Einstellungen in der Geräte Instanz (`Variablen ein-/ausblen
 IP-Symcon Webfront ermöglicht, durch Beispielsweise einen *`Link`*.
 
 ## Refreshen
-Zur Erinnerung, eine Gerät-Instanz updated max. alle 5min automatisch. Das heißt das sie nach einem ``Start/Stopp`` 5min
-warten müssen bis sie aktuelle Informationen sehen.
+Zur Erinnerung, eine Gerät-Instanz updated max. alle 5min automatisch. Das heißt, dass sie nach einem ``Start/Stopp`` 5min
+warten müssen, bis sie aktuelle Informationen sehen.
 
-Bei Programmen die eine feste Laufzeit haben wird die ``aktuelle`` Zeit angezeit (Modul eingener Timer). Falls keine feste
+Bei Programmen die eine feste Laufzeit haben, wird die ``aktuelle`` Zeit angezeit (Modul eingener Timer). Falls keine feste
 Laufzeit feststeht, *zb. beim Vorheizen von einem Ofen*, wird in der Variable `Verbleibende Zeit` *--:--:--* angezeigt.
 
-Ebenfalls kann natürlich auch manuell per ``refresh()`` aktualisiert werden. Diese Funktion ist aber eher dafür gedacht
+Ebenfalls kann natürlich auch manuell per ``refresh()`` aktualisiert werden. Diese Funktion ist aber eher dafür gedacht,
 vor einem ``start()`` die Berechtigung oder Türzustand abzufragen. Denn falls einer dieser Berechtigungen fehlt, wird ein Fehler
-geworfen.
+ausgelöst.
 
 ## Rate-Limits
-Auch dieses Modul muss die [HomeConnect Rate-Limits](https://api-docs.home-connect.com/general?#rate-limiting) einhalten, deshalb ist es jedem Benutzer dieses Moduls erlaubt max. 1.000 Anfragen [Requests] zu senden. 
+Auch dieses Modul muss die [HomeConnect Rate-Limits](https://api-docs.home-connect.com/general?#rate-limiting) einhalten, deshalb ist es jedem Benutzer dieses Moduls erlaubt max. 1.000 Anfragen [Requests] pro Tag zu senden. 
