@@ -884,6 +884,8 @@ class HomeConnectDishwasher extends IPSModule {
           if ( isset( $input['data'] ) ) {
               // Get Options out of data
               $opt = $input['data'][$row];
+              // no error appeared
+              $this->SetValue('error', 0 );
 
               // Define vars and length
               $options_count = count( $opt );
