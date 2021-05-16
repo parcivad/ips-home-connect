@@ -72,6 +72,10 @@ class HomeConnectDishwasher extends IPSModule {
           $this->RegisterVariableInteger("progress", "Fortschritt", "HC_DishwasherProgress", 6);
           $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_DishwasherStartStop", 7);
 
+          // error codes
+          $this->RegisterVariableInteger("error", "error code", "HC_ErrorCode", 99 );
+          $this->SetValue('error', 105 );
+
           // Enable Action for variables, for change reaction look up RequestAction();
           $this->EnableAction('start_stop');
           $this->EnableAction('mode');
@@ -80,6 +84,7 @@ class HomeConnectDishwasher extends IPSModule {
           // Set Hide, the user can link the instance with no unimportant info
           IPS_SetHidden($this->GetIDForIdent("remoteControl"), true);
           IPS_SetHidden($this->GetIDForIdent('LastRefresh'), true);
+          $this->Hide();
       }
 
       /** This function will be called by IP Symcon when the User change vars in the Module Interface
@@ -400,6 +405,15 @@ class HomeConnectDishwasher extends IPSModule {
               IPS_SetVariableProfileAssociation("HC_DishwasherRemoteStart", false, "Nicht erlaubt", "", 0xfa3200 );
               IPS_SetVariableProfileAssociation("HC_DishwasherRemoteStart", true, "Erlaubt", "", 0x11ff00 );
           }
+          if (!IPS_VariableProfileExists('HC_ErrorCode')) {
+              IPS_CreateVariableProfile('HC_ErrorCode', 1);
+              IPS_SetVariableProfileIcon('HC_ErrorCode', 'Warning');
+              IPS_SetVariableProfileValues("HC_ErrorCode", 0, 2, 0 );
+              IPS_SetVariableProfileAssociation("HC_ErrorCode", 0, "Kein Fehler [0]", "", 0xfa3200 );
+              IPS_SetVariableProfileAssociation("HC_ErrorCode", 105, "Noch keine Daten empfangen! [ 105 ]", "", 0xfa8e00 );
+              IPS_SetVariableProfileAssociation("HC_ErrorCode", 401, "HomeConnect Gerät nicht verbunden! [ 401 ]", "", 0xfa3200 );
+              IPS_SetVariableProfileAssociation("HC_ErrorCode", 402, "Unbekanntes HomeConnect Programm! [ 402 ]", "", 0xfa3200 );
+          }
       }
 
 
@@ -689,49 +703,66 @@ class HomeConnectDishwasher extends IPSModule {
     //-----------------------------------------------------< Module Functions >------------------------------
 
       protected function Hide() {
-          if ( $this->ReadPropertyBoolean("hide_show") ) {
-              switch ($this->GetValue('state')) {
-                  case 0:
-                      IPS_SetHidden( $this->GetIDForIdent('remoteStart'), true );
-                      IPS_SetHidden( $this->GetIDForIdent('door'), true );
-                      IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
-                      IPS_SetHidden( $this->GetIDForIdent('progress'), true );
-                      IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
-                      break;
-                  case 1:
-                      IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
-                      IPS_SetHidden( $this->GetIDForIdent('door'), false );
-                      IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
-                      IPS_SetHidden( $this->GetIDForIdent('progress'), true );
-                      IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
-                      break;
-                  case 2:
-                      IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
-                      IPS_SetHidden( $this->GetIDForIdent('door'), false );
-                      IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
-                      IPS_SetHidden( $this->GetIDForIdent('progress'), true );
-                      IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
-                      break;
-                  case 3:
-                      IPS_SetHidden( $this->GetIDForIdent('remoteStart'), true );
-                      IPS_SetHidden( $this->GetIDForIdent('door'), true );
-                      IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
-                      IPS_SetHidden( $this->GetIDForIdent('progress'), false );
-                      IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
-                      break;
-                  default:
-                      IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
-                      IPS_SetHidden( $this->GetIDForIdent('door'), false );
-                      IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
-                      IPS_SetHidden( $this->GetIDForIdent('progress'), false );
-                      IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
+          if ( $this->GetValue('error') != 0 ) {
+              // show important vars in case of after error
+              IPS_SetHidden( $this->GetIDForIdent('state'), false );
+              IPS_SetHidden( $this->GetIDForIdent('mode'), false );
+              IPS_SetHidden( $this->GetIDForIdent('start_stop'), false );
+
+              if ( $this->ReadPropertyBoolean("hide_show") ) {
+                  switch ($this->GetValue('state')) {
+                      case 0:
+                          IPS_SetHidden( $this->GetIDForIdent('remoteStart'), true );
+                          IPS_SetHidden( $this->GetIDForIdent('door'), true );
+                          IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
+                          IPS_SetHidden( $this->GetIDForIdent('progress'), true );
+                          IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
+                          break;
+                      case 1:
+                          IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
+                          IPS_SetHidden( $this->GetIDForIdent('door'), false );
+                          IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
+                          IPS_SetHidden( $this->GetIDForIdent('progress'), true );
+                          IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
+                          break;
+                      case 2:
+                          IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
+                          IPS_SetHidden( $this->GetIDForIdent('door'), false );
+                          IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
+                          IPS_SetHidden( $this->GetIDForIdent('progress'), true );
+                          IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
+                          break;
+                      case 3:
+                          IPS_SetHidden( $this->GetIDForIdent('remoteStart'), true );
+                          IPS_SetHidden( $this->GetIDForIdent('door'), true );
+                          IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
+                          IPS_SetHidden( $this->GetIDForIdent('progress'), false );
+                          IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
+                          break;
+                      default:
+                          IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
+                          IPS_SetHidden( $this->GetIDForIdent('door'), false );
+                          IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
+                          IPS_SetHidden( $this->GetIDForIdent('progress'), false );
+                          IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
+                  }
+              } else {
+                  IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('door'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('progress'), false );
+                  IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
               }
+          // case of error
           } else {
-              IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
-              IPS_SetHidden( $this->GetIDForIdent('door'), false );
-              IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
-              IPS_SetHidden( $this->GetIDForIdent('progress'), false );
-              IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
+              IPS_SetHidden( $this->GetIDForIdent('remoteStart'), true );
+              IPS_SetHidden( $this->GetIDForIdent('state'), true );
+              IPS_SetHidden( $this->GetIDForIdent('mode'), true );
+              IPS_SetHidden( $this->GetIDForIdent('start_stop'), true );
+              IPS_SetHidden( $this->GetIDForIdent('door'), true );
+              IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
+              IPS_SetHidden( $this->GetIDForIdent('progress'), true );
+              IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
           }
       }
 
@@ -850,23 +881,37 @@ class HomeConnectDishwasher extends IPSModule {
        * @return mixed return array with KEY => VALUE
        */
       protected function getKeys( array $input, string $row ) {
-          // Get Options out of data
-          $opt = $input['data'][$row];
+          if ( isset( $input['data'] ) ) {
+              // Get Options out of data
+              $opt = $input['data'][$row];
 
-          // Define vars and lenght
-          $options_count = count( $opt );
-          $option_list[] = array();
+              // Define vars and length
+              $options_count = count( $opt );
+              $option_list[] = array();
 
-          // Build options list
-          for( $i = 0; $i < $options_count; $i++) {
-              // Get Data to set
-              $option_name = $opt[$i]['key'];
-              $option_value= $opt[$i]['value'];
+              // Build options list
+              for( $i = 0; $i < $options_count; $i++) {
+                  // Get Data to set
+                  $option_name = $opt[$i]['key'];
+                  $option_value= $opt[$i]['value'];
 
-              $options_list[$option_name] = $option_value;
+                  $options_list[$option_name] = $option_value;
+              }
+              // Options list (KEY => VALUE)
+              return $options_list;
+
+          } else if ( isset( $input['error'] ) ){
+              // catch defined error
+              switch ( $input['error']['key'] ) {
+                  case 'SDK.Error.HomeAppliance.Connection.Initialization.Failed':
+                      $this->SetValue('error', 401 );
+                      break;
+                  case 'SDK.Error.UnsupportedProgram':
+                      $this->SetValue('error', 402 );
+                      break;
+              }
+              throw new Error('HomeConnect Error appeared!');
           }
-          // Options list (KEY => VALUE)
-          return $options_list;
       }
 
       /**

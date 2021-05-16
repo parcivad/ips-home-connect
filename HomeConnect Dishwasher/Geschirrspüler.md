@@ -10,6 +10,7 @@ Zudem lassen sich Informationen wie die verbleibende Zeit oder die Programme geb
     - [Programm starten](#programm-starten-4-requests)
     - [Programm stoppen](#programm-stoppen-3-requests)
     - [Manuell refreshen](#manuell-refreshen-1-2-requests)
+- [Fehlercodes](#fehlercodes)
 
 ## Instanz Einstellungen
 
@@ -86,3 +87,14 @@ HCDishwasher_refresh( InstanceID );
 ```diff
 +Für diese Aktion wird nur die Authorizierung gebraucht.
 ```
+
+## Fehlercodes
+Für den Fall eines Fehlers besitzt die Geräte Instanz eine Variable namens `error`.
+Fehler Liste:
+
+Integer | Beschreibung | Grund
+:--- | :---: | ---:
+`0` | Kein Fehler | Es ist kein Fehler aufgetreten, die Variable wird versteckt.
+`105` | Keine Daten | Es wurden noch keine Daten abgefragt, die Variable wird gezeigt.
+`401` | Nicht Verbunden | Das HomeConnect Gerät ist nicht mit dem Internet/HomeConnect system verbunden.
+`402` | Unbekanntes Programm | Das Programm auf dem Gerät ist dem Modul unbekannt. 
