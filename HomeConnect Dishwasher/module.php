@@ -411,6 +411,8 @@ class HomeConnectDishwasher extends IPSModule {
               IPS_SetVariableProfileValues("HC_ErrorCode", 0, 2, 0 );
               IPS_SetVariableProfileAssociation("HC_ErrorCode", 0, "Kein Fehler [0]", "", 0xfa3200 );
               IPS_SetVariableProfileAssociation("HC_ErrorCode", 105, "Noch keine Daten empfangen! [ 105 ]", "", 0xfa8e00 );
+              IPS_SetVariableProfileAssociation("HC_ErrorCode", 106, "Unbekannter Fehler! [ 106 ]", "", 0xfa8e00 );
+              IPS_SetVariableProfileAssociation("HC_ErrorCode", 107, "Fehlgeschlagenes Token! [ 108 ]", "", 0xfa8e00 );
               IPS_SetVariableProfileAssociation("HC_ErrorCode", 401, "HomeConnect Gerät nicht verbunden! [ 401 ]", "", 0xfa3200 );
               IPS_SetVariableProfileAssociation("HC_ErrorCode", 402, "Unbekanntes HomeConnect Programm! [ 402 ]", "", 0xfa3200 );
           }
@@ -703,7 +705,7 @@ class HomeConnectDishwasher extends IPSModule {
     //-----------------------------------------------------< Module Functions >------------------------------
 
       protected function Hide() {
-          if ( $this->GetValue('error') != 0 ) {
+          if ( $this->GetValue('error') == 0 ) {
               // show important vars in case of after error
               IPS_SetHidden( $this->GetIDForIdent('state'), false );
               IPS_SetHidden( $this->GetIDForIdent('mode'), false );
@@ -884,8 +886,10 @@ class HomeConnectDishwasher extends IPSModule {
           if ( isset( $input['data'] ) ) {
               // Get Options out of data
               $opt = $input['data'][$row];
-              // no error appeared
-              $this->SetValue('error', 0 );
+              if ( $this->GetValue('error') == 0 ) {
+                  // no error appeared
+                  $this->SetValue('error', 0 );
+              }
 
               // Define vars and length
               $options_count = count( $opt );
@@ -911,8 +915,15 @@ class HomeConnectDishwasher extends IPSModule {
                   case 'SDK.Error.UnsupportedProgram':
                       $this->SetValue('error', 402 );
                       break;
+                  case 'invalid_token':
+                      $this->SetValue('error', 107 );
+                      refreshToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7", "");
               }
               throw new Error('HomeConnect Error appeared!');
+          } else {
+              // Unknown error
+              $this->SetValue('error', 106 );
+              throw new Error('Unknown Error appeared!');
           }
       }
 
