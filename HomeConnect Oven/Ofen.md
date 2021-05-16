@@ -93,11 +93,19 @@ HCOven_refresh( InstanceID );
 
 ## Fehlercodes
 Für den Fall eines Fehlers besitzt die Geräte Instanz eine Variable namens `error`.
-Fehler Liste:
+
+```Modul```
 
 Integer | Beschreibung | Grund
 :--- | :---: | ---:
 `0` | Kein Fehler | Es ist kein Fehler aufgetreten, die Variable wird versteckt.
 `105` | Keine Daten | Es wurden noch keine Daten abgefragt, die Variable wird gezeigt.
+`106` | Unbekannt | Unbekannter Fehler ist aufgetreten. (noch nicht erkannt)
+`107` | Token | Das System hat noch kein Zugriffs token (In der `Discovery Instanz`/`Geräte Instanz` auf Refresh drücken)
+
+```HomeConnect Fehler```
+
+Integer | Beschreibung | Grund
+:--- | :---: | ---:
 `401` | Nicht Verbunden | Das HomeConnect Gerät ist nicht mit dem Internet/HomeConnect system verbunden.
 `402` | Unbekanntes Programm | Das Programm auf dem Gerät ist dem Modul unbekannt. 

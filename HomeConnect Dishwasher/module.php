@@ -710,6 +710,7 @@ class HomeConnectDishwasher extends IPSModule {
               IPS_SetHidden( $this->GetIDForIdent('state'), false );
               IPS_SetHidden( $this->GetIDForIdent('mode'), false );
               IPS_SetHidden( $this->GetIDForIdent('start_stop'), false );
+              IPS_SetHidden( $this->GetIDForIdent('error'), true );
 
               if ( $this->ReadPropertyBoolean("hide_show") ) {
                   switch ($this->GetValue('state')) {
@@ -765,6 +766,7 @@ class HomeConnectDishwasher extends IPSModule {
               IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
               IPS_SetHidden( $this->GetIDForIdent('progress'), true );
               IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
+              IPS_SetHidden( $this->GetIDForIdent('error'), false );
           }
       }
 
