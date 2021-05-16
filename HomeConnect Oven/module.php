@@ -753,6 +753,7 @@ class HomeConnectOven extends IPSModule {
               IPS_SetHidden( $this->GetIDForIdent('state'), false );
               IPS_SetHidden( $this->GetIDForIdent('mode'), false );
               IPS_SetHidden( $this->GetIDForIdent('start_stop'), false );
+              IPS_SetHidden( $this->GetIDForIdent('setTemperature'), false );
               IPS_SetHidden( $this->GetIDForIdent('error'), true );
 
               if ( $this->ReadPropertyBoolean("hide_show")) {
@@ -822,6 +823,7 @@ class HomeConnectOven extends IPSModule {
               IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
               IPS_SetHidden( $this->GetIDForIdent('progress'), true );
               IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
+              IPS_SetHidden( $this->GetIDForIdent('setTemperature'), true );
               IPS_SetHidden( $this->GetIDForIdent('setTime'), true );
               IPS_SetHidden( $this->GetIDForIdent('temperature'), true );
               IPS_SetHidden( $this->GetIDForIdent('error'), false );
