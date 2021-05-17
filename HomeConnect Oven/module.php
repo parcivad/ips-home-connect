@@ -156,6 +156,7 @@ class HomeConnectOven extends IPSModule {
        * @return string could return error
        */
       public function refresh() {
+          // log
           IPS_LogMessage( $this->InstanceID, "Refreshing startet..." );
           //====================================================================================================================== Check Timer
           // Get current Hour
