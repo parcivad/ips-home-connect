@@ -55,7 +55,7 @@ class HomeConnectOven extends IPSModule {
           $this->RegisterAttributeBoolean("first_start", true );
 
           // Register Timers [refresh Timer, Count down until start, Count down until program ends]
-          $this->RegisterTimer($this->ReadPropertyString('name') . "-refresh", 300000, "HCOven_refresh($this->InstanceID);");
+          $this->RegisterTimer($this->InstanceID . "-refresh", 300000, "HCOven_refresh($this->InstanceID);");
           $this->RegisterTimer("DownCountStart", 0, "HCOven_DownCount($this->InstanceID, 'remainStartTime'");
           $this->RegisterTimer("DownCountProgram", 0, "HCOven_DownCount($this->InstanceID, 'remainTime');");
 
@@ -164,9 +164,9 @@ class HomeConnectOven extends IPSModule {
 
           // Check Refresh time set by the user. After that set the interval of the timer (fast or slow)
           if ( $hour >= $this->ReadPropertyInteger("first_refresh") && $hour <= $this->ReadPropertyInteger("second_refresh") ) {
-              $this->SetTimerInterval($this->ReadPropertyString('name') . "-refresh", 300000 );
+              $this->SetTimerInterval($this->InstanceID . "-refresh", 300000 );
           } else {
-              $this->SetTimerInterval($this->ReadPropertyString('name') . "-refresh", 900000 );
+              $this->SetTimerInterval($this->InstanceID . "-refresh", 900000 );
           }
 
           //====================================================================================================================== Refreshing
