@@ -290,7 +290,6 @@ class HomeConnectOven extends IPSModule {
 
           // Let the function Hide() check if there variables to check or uncheck
           $this->Hide();
-          IPS_LogMessage( $this->InstanceID, "Refreshing: " . $recallProgram );
           IPS_LogMessage( $this->InstanceID, "Refreshing end" );
           return true;
       }
