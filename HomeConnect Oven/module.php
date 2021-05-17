@@ -55,7 +55,7 @@ class HomeConnectOven extends IPSModule {
           $this->RegisterAttributeBoolean("first_start", true );
 
           // Register Timers [refresh Timer, Count down until start, Count down until program ends]
-          $this->RegisterTimer("refresh", 300000, "HCOven_refresh($this->InstanceID);");
+          $this->RegisterTimer($this->ReadPropertyString('name') . "-refresh", 300000, "HCOven_refresh($this->InstanceID);");
           $this->RegisterTimer("DownCountStart", 0, "HCOven_DownCount($this->InstanceID, 'remainStartTime'");
           $this->RegisterTimer("DownCountProgram", 0, "HCOven_DownCount($this->InstanceID, 'remainTime');");
 
@@ -156,22 +156,23 @@ class HomeConnectOven extends IPSModule {
        * @return string could return error
        */
       public function refresh() {
+          IPS_LogMessage( $this->InstanceID, "Refreshing startet..." );
           //====================================================================================================================== Check Timer
           // Get current Hour
           $hour = date('G');
 
           // Check Refresh time set by the user. After that set the interval of the timer (fast or slow)
           if ( $hour >= $this->ReadPropertyInteger("first_refresh") && $hour <= $this->ReadPropertyInteger("second_refresh") ) {
-              $this->SetTimerInterval("refresh", 300000 );
+              $this->SetTimerInterval($this->ReadPropertyString('name') . "-refresh", 300000 );
           } else {
-              $this->SetTimerInterval("refresh", 900000 );
+              $this->SetTimerInterval($this->ReadPropertyString('name') . "-refresh", 900000 );
           }
 
           //====================================================================================================================== Refreshing
           // Check if the user activated the refresh function
           if ( $this->ReadPropertyBoolean("refresh_on_off") ) {
               // Make a Api call to get the current status of the device (inactive, ready, delayed start, active)
-              $recall_api = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
+              $recall_api = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status" );
               // Build a Key => Value array with the getKeys function (look down in the code)
               $options_recall = $this->getKeys($recall_api, 'status');
 
@@ -288,6 +289,8 @@ class HomeConnectOven extends IPSModule {
 
           // Let the function Hide() check if there variables to check or uncheck
           $this->Hide();
+          IPS_LogMessage( $this->InstanceID, "Refreshing: " . $recallProgram );
+          IPS_LogMessage( $this->InstanceID, "Refreshing end" );
           return true;
       }
 
@@ -296,8 +299,10 @@ class HomeConnectOven extends IPSModule {
        * @param int $temp Temperature to reach
        * @param int $duration Time the program should run
        */
-      public function start( string $mode,  int $temp, int $duration )
-      {
+      public function start( string $mode,  int $temp, int $duration ) {
+          // log
+          IPS_LogMessage( $this->InstanceID, "Trying to start Device..." );
+
           // Set the device ready ( device must be ready for start )
           $this->SetActive(true);
           // Wait short until the device in ready state
@@ -315,16 +320,24 @@ class HomeConnectOven extends IPSModule {
 
           //====================================================================================================================== Send start
           if ($this->GetValue("remoteStart")) {
+              // log
+              IPS_LogMessage( $this->InstanceID, "Canceled (remote start not allowed)" );
               // Check Door state
               if (!$this->GetValue("door")) {
+                  // log
+                  IPS_LogMessage( $this->InstanceID, "Canceled (door open)" );
                   // Check if the device is on
                   if ($this->GetValue("state") == 1) {
                       Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
+                      // log
+                      IPS_LogMessage( $this->InstanceID, "Send start to HomeConnect" );
                       //============================================================ Check Notifications
                       if ($this->ReadPropertyBoolean("notify_start")) {
                           $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm " . OvenTranslateMode($mode, true) . " gestarted!");
                       }
                       //============================================================ Check Notifications
+                      // log
+                      IPS_LogMessage( $this->InstanceID, "Send start notify" );
                   } else {
                       throw new UnexpectedValueException("The Device " . $this->ReadPropertyString("name") . " is not ready");
                   }
@@ -340,25 +353,35 @@ class HomeConnectOven extends IPSModule {
        * Function to stop a running program
        */
       public function stop() {
+          // log
+          IPS_LogMessage( $this->InstanceID, "Trying to stop..." );
           // basic refresh for state and control permission
           $this->refresh();
 
           //====================================================================================================================== Send stop
           if ( $this->GetValue("remoteControl") ) {
+              // log
+              IPS_LogMessage( $this->InstanceID, "Canceled (remote control not allowed)" );
               // Check if the device is running a program
               switch ( $this->GetValue("state") ) {
                   // stop running program
                   case 3:
+                      // log
+                      IPS_LogMessage( $this->InstanceID, "Stopped while device was running a program" );
                       // Send custom delete to stop current program
                       Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
                       $this->SetValue("state", 1 );
                       break;
                   // stop delayed start
                   case 2:
+                      // log
+                      IPS_LogMessage( $this->InstanceID, "Stopped while device was in mode 'Prepare for start'" );
                       // Turn the device off ( this stops the delayed start )
                       $this->SetActive(false);
                       break;
                   default:
+                      // log
+                      IPS_LogMessage( $this->InstanceID, "Canceled (no program is running)" );
                       // throw logic exception for no reason to stop
                       throw new LogicException("No Program running on " . $this->ReadPropertyString("name") );
               }
@@ -375,10 +398,11 @@ class HomeConnectOven extends IPSModule {
       public function SetActive( bool $state ) {
           if ( $state ) {
               $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.On","type": "BSH.Common.EnumType.PowerState"}}';
-          } else {$power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.Standby","type": "BSH.Common.EnumType.PowerState"}}';
+          } else {
+              $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.Standby","type": "BSH.Common.EnumType.PowerState"}}'; }
 
-          }
-
+          // log
+          IPS_LogMessage( $this->InstanceID, "Send On/Off State to HomeConnect" );
           Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/settings/BSH.Common.Setting.PowerState", $power);
       }
 

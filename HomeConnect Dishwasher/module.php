@@ -54,7 +54,7 @@ class HomeConnectDishwasher extends IPSModule {
           $this->RegisterAttributeBoolean("first_start", true );
 
           // Register Timers [refresh Timer, Count down until start, Count down until program ends]
-          $this->RegisterTimer("refresh", 300000, "HCDishwasher_refresh( $this->InstanceID );");
+          $this->RegisterTimer($this->ReadPropertyString('name') . "-refresh", 300000, "HCDishwasher_refresh( $this->InstanceID );");
           $this->RegisterTimer("DownCountStart", 0, "HCDishwasher_DownCount($this->InstanceID, 'remainStartTime'");
           $this->RegisterTimer("DownCountProgram", 0, "HCDishwasher_DownCount($this->InstanceID, 'remainTime');");
 
@@ -140,10 +140,10 @@ class HomeConnectDishwasher extends IPSModule {
           // Check Refresh time set by the user. After that set the interval of the timer (fast or slow)
           if ( $hour >= $this->ReadPropertyInteger("first_refresh") && $hour <= $this->ReadPropertyInteger("second_refresh") ) {
               // Setting timer
-              $this->SetTimerInterval("refresh", 300000 );
+              $this->SetTimerInterval($this->ReadPropertyString('name') . "-refresh", 300000 );
           } else {
               // Setting timer slow
-              $this->SetTimerInterval("refresh", 900000 );
+              $this->SetTimerInterval($this->ReadPropertyString('name') . "-refresh", 900000 );
           }
 
           //====================================================================================================================== Refreshing
