@@ -187,9 +187,9 @@ function getToken( $url, $client_id, $client_secret ) {
         } else {
             // Throw error
             if ( isset($query["error"])) {
-                throw new Error($query["error_description"]);
+                throw new Exception($query["error_description"]);
 
-            } else throw new Error($query["message"]);
+            } else throw new Exception($query["message"]);
         }
     } else throw new Exception("No Authorization code present [First authorize then ask token]");
 }
@@ -200,6 +200,7 @@ function getToken( $url, $client_id, $client_secret ) {
  * @param string $client_secret client_secret of your client_id
  * @param string $scope Can be used to ask new permissions
  * @return mixed return token
+ * @throws Exception
  */
 function refreshToken( $url, $client_id, $client_secret, $scope ) {
     $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/tm/data.json" ), true );
@@ -271,13 +272,13 @@ function refreshToken( $url, $client_id, $client_secret, $scope ) {
                     // Show the user to login again
                     throw new Error("Please Login again!");
                 }
-                throw new Error($query["error_description"]);
+                throw new Exception($query["error_description"]);
             } else {
-                throw new Error($query["message"]);
+                throw new Exception($query["message"]);
             }
         }
     } else {
         // Throw simple error
-        throw new Error("No Authorization code present [First authorize then ask token]");
+        throw new Exception("No Authorization code present [First authorize then ask token]");
     }
 }

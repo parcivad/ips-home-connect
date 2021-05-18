@@ -81,6 +81,8 @@ class HomeConnectDiscovery extends IPSModule {
 
         // count the devices in the array
         $len = count($data);
+        // define $devices
+        $devices = [];
         // build array up
         for ($i = 0; $i < $len; $i++) {
             array_push($devices, $data[$i] );

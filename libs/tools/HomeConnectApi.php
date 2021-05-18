@@ -52,6 +52,7 @@ function Api($endpoint="") {
 /**
  * @param string $endpoint Sending this command to the Api of HomeConnect
  * @return array Return the API output
+ * @throws Exception
  */
 function Api_delete(string $endpoint ) {
     global $data;
@@ -59,7 +60,7 @@ function Api_delete(string $endpoint ) {
     try {
         $token = getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
     } catch (Exception $ex) {
-        throw new Error($ex);
+        throw new Exception($ex);
     }
 
     //----------------------------------------< Building Url with parameters >-------------
@@ -96,6 +97,7 @@ function Api_delete(string $endpoint ) {
  * @param string $endpoint Sending this command to the Api of HomeConnect
  * @param string $json Sending this command to the Api of HomeConnect
  * @return array Return the API output
+ * @throws Exception
  */
 function Api_put(string $endpoint, string $json ) {
     global $data;
@@ -103,7 +105,7 @@ function Api_put(string $endpoint, string $json ) {
     try {
         $token = getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
     } catch (Exception $ex) {
-        throw new Error($ex);
+        throw new Exception($ex);
     }
 
     //----------------------------------------< Building Url with parameters >-------------
