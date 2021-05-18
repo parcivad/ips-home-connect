@@ -776,7 +776,7 @@ class HomeConnectOven extends IPSModule {
        * @return array[] Form Status
        */
       protected function FormStatus() {
-          $form = [
+          return [
               [
                   'code'    => 101,
                   'icon'    => 'inactive',
@@ -794,12 +794,50 @@ class HomeConnectOven extends IPSModule {
               ],
               [
                   'code'    => 201,
+                  'icon'    => 'error',
+                  'caption' => 'Unknown error [CODE: 201]',
+              ],
+              [
+                  'code'    => 206,
+                  'icon'    => 'error',
+                  'caption' => 'No Authorization/Login [CODE: 206]',
+              ],
+              [
+                  'code'    => 207,
+                  'icon'    => 'error',
+                  'caption' => 'No Token [CODE: 207]',
+              ],
+              [
+                  'code'    => 401,
+                  'icon'    => 'error',
+                  'caption' => 'Device is not connected [CODE: 401]',
+              ],
+              [
+                  'code'    => 402,
                   'icon'    => 'inactive',
-                  'caption' => 'Please follow the instructions.',
+                  'caption' => 'Unknown Program [CODE: 402]',
+              ],
+              [
+                  'code'    => 403,
+                  'icon'    => 'error',
+                  'caption' => 'Program cant be started [CODE: 403]',
+              ],
+              [
+                  'code'    => 404,
+                  'icon'    => 'error',
+                  'caption' => 'Program cant be stopped [CODE: 404]',
+              ],
+              [
+                  'code'    => 405,
+                  'icon'    => 'inactive',
+                  'caption' => 'Request [CODE: 405]',
+              ],
+              [
+                  'code'    => 406,
+                  'icon'    => 'inactive',
+                  'caption' => 'Request/Send Limit is reached [CODE: 406]',
               ]
           ];
-
-          return $form;
       }
 
       //-----------------------------------------------------< Module Functions >------------------------------
