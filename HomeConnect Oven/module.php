@@ -1082,10 +1082,12 @@ class HomeConnectOven extends IPSModule {
        */
       protected function analyseEX( $ex ) {
           // check the Exception and set error code
-          //$ex = str_replace( $ex, 'Exception: ', '');
+          IPS_LogMessage($this->InstanceID, 'Error: ' . $ex);
+          $ex = str_replace( $ex, 'Exception: ', '');
+          IPS_LogMessage($this->InstanceID, 'Error: ' . $ex);
 
           switch ($ex) {
-              case 'Exception: Exception: No Authorization code present [First authorize then ask token]':
+              case 'No Authorization code present [First authorize then ask token]':
                   $this->SetStatus( 206 );
                   break;
               case 'invalid_token':
@@ -1098,7 +1100,6 @@ class HomeConnectOven extends IPSModule {
                   $this->SetStatus( 201 );
                   break;
           }
-          IPS_LogMessage($this->InstanceID, 'Error: ' . $ex);
       }
   }
 ?>
