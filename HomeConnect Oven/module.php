@@ -77,8 +77,7 @@ class HomeConnectOven extends IPSModule {
           $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_OvenStartStop", 10);
 
           // error codes
-          $this->RegisterVariableInteger("error", "error code", "HC_ErrorCode", 99 );
-          $this->SetValue('error', 105 );
+          $this->RegisterVariableString("info", "Info", "", 99 );
 
           // Enable Action for variables, for change reaction look up RequestAction();
           $this->EnableAction('start_stop');
@@ -90,6 +89,7 @@ class HomeConnectOven extends IPSModule {
           // Set Hide, the user can link the instance with no unimportant info
           IPS_SetHidden($this->GetIDForIdent("remoteControl"), true);
           IPS_SetHidden($this->GetIDForIdent('LastRefresh'), true);
+          IPS_SetHidden($this->GetIDForIdent('info'), true);
           $this->Hide();
       }
 
@@ -151,6 +151,7 @@ class HomeConnectOven extends IPSModule {
           $this->Hide();
       }
       //--------------------------------------------------< User functions >----------------------------------
+
       /** Function to refresh the device values and set active program when active
        * @return string could return error
        */
@@ -171,8 +172,13 @@ class HomeConnectOven extends IPSModule {
           //====================================================================================================================== Refreshing
           // Check if the user activated the refresh function
           if ( $this->ReadPropertyBoolean("refresh_on_off") ) {
-              // Make a Api call to get the current status of the device (inactive, ready, delayed start, active)
-              $recall_api = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status" );
+              try {
+                  // Make a Api call to get the current status of the device (inactive, ready, delayed start, active)
+                  $recall_api = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status" );
+              } catch (Exception $ex) {
+                  $this->analyseEX($ex);
+                  return false;
+              }
               // Build a Key => Value array with the getKeys function (look down in the code)
               $options_recall = $this->getKeys($recall_api, 'status');
 
@@ -202,8 +208,13 @@ class HomeConnectOven extends IPSModule {
 
               // Check if the device is active or in delayed start
               if ( $OperationState == 3 || $OperationState == 2 ) {
-                  // Api call to get the active program
-                  $recallProgram = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active");
+                  try {
+                      // Api call to get the active program
+                      $recallProgram = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active");
+                  } catch (Exception $ex) {
+                      $this->analyseEX($ex);
+                      return false;
+                  }
                   // Build a Key => Value array with the getKeys options (see bottom of the code)
                   $options = $this->getKeys($recallProgram, 'options');
 
@@ -293,11 +304,12 @@ class HomeConnectOven extends IPSModule {
           return true;
       }
 
-      /** Function to start Modes for the Dishwasher
-       * @param string $mode Mode
-       * @param int $temp Temperature to reach
-       * @param int $duration Time the program should run
-       */
+    /** Function to start Modes for the Dishwasher
+     * @param string $mode Mode
+     * @param int $temp Temperature to reach
+     * @param int $duration Time the program should run
+     * @throws Exception
+     */
       public function start( string $mode,  int $temp, int $duration ) {
           // log
           IPS_LogMessage( $this->InstanceID, "Trying to start Device..." );
@@ -327,30 +339,39 @@ class HomeConnectOven extends IPSModule {
                   IPS_LogMessage( $this->InstanceID, "Canceled (door open)" );
                   // Check if the device is on
                   if ($this->GetValue("state") == 1) {
-                      Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
-                      // log
-                      IPS_LogMessage( $this->InstanceID, "Send start to HomeConnect" );
-                      //============================================================ Check Notifications
-                      if ($this->ReadPropertyBoolean("notify_start")) {
-                          $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm " . OvenTranslateMode($mode, true) . " gestarted!");
+                      try {
+                          Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
+                          // log
+                          IPS_LogMessage( $this->InstanceID, "Started Program" );
+
+                          //============================================================ Check Notifications
+                          if ($this->ReadPropertyBoolean("notify_start")) {
+                              $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm " . OvenTranslateMode($mode, true) . " gestarted!");
+                          }
+                          //============================================================ Check Notifications
+                          // log
+                          IPS_LogMessage( $this->InstanceID, "Send start notify" );
+                      } catch (Exception $ex) {
+                          // log
+                          IPS_LogMessage( $this->InstanceID, "Start failed look for authorization in discovery instance" );
+                          $this->analyseEX($ex);
                       }
-                      //============================================================ Check Notifications
-                      // log
-                      IPS_LogMessage( $this->InstanceID, "Send start notify" );
+
                   } else {
-                      throw new UnexpectedValueException("The Device " . $this->ReadPropertyString("name") . " is not ready");
+                      throw new Exception("The Device " . $this->ReadPropertyString("name") . " is not ready/running a program");
                   }
               } else {
-                  throw new LogicException("Door state must be closed");
+                  throw new Exception("Door state must be closed");
               }
           } else {
-              throw new LogicException("Remote start must be allowed");
+              throw new Exception("Remote start must be allowed");
           }
       }
 
-      /**
-       * Function to stop a running program
-       */
+    /**
+     * Function to stop a running program
+     * @throws Exception
+     */
       public function stop() {
           // log
           IPS_LogMessage( $this->InstanceID, "Trying to stop..." );
@@ -365,11 +386,17 @@ class HomeConnectOven extends IPSModule {
               switch ( $this->GetValue("state") ) {
                   // stop running program
                   case 3:
-                      // log
-                      IPS_LogMessage( $this->InstanceID, "Stopped while device was running a program" );
-                      // Send custom delete to stop current program
-                      Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
-                      $this->SetValue("state", 1 );
+                      try {
+                          // Send custom delete to stop current program
+                          Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
+                          $this->SetValue("state", 1 );
+                          // log
+                          IPS_LogMessage( $this->InstanceID, "Stopped while device was running a program" );
+                      } catch (Exception $ex) {
+                          // log
+                          IPS_LogMessage( $this->InstanceID, "Program didnt stop" );
+                          $this->analyseEX($ex);
+                      }
                       break;
                   // stop delayed start
                   case 2:
@@ -382,11 +409,11 @@ class HomeConnectOven extends IPSModule {
                       // log
                       IPS_LogMessage( $this->InstanceID, "Canceled (no program is running)" );
                       // throw logic exception for no reason to stop
-                      throw new LogicException("No Program running on " . $this->ReadPropertyString("name") );
+                      throw new Exception("No Program running on " . $this->ReadPropertyString("name") );
               }
           } else {
               // throw logic exception for no permission
-              throw new LogicException("Remote control must be allowed");
+              throw new Exception("Remote control must be allowed");
           }
       }
 
@@ -400,9 +427,15 @@ class HomeConnectOven extends IPSModule {
           } else {
               $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.Standby","type": "BSH.Common.EnumType.PowerState"}}'; }
 
-          // log
-          IPS_LogMessage( $this->InstanceID, "Send On/Off State to HomeConnect" );
-          Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/settings/BSH.Common.Setting.PowerState", $power);
+          try {
+              Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/settings/BSH.Common.Setting.PowerState", $power);
+              // log
+              IPS_LogMessage( $this->InstanceID, "Send On/Off State to HomeConnect" );
+          } catch (Exception $ex) {
+              // log
+              IPS_LogMessage( $this->InstanceID, "Failed to send Device state" );
+              $this->analyseEX($ex);
+          }
       }
 
       /** Test function for buttons in the instance settings
@@ -771,87 +804,70 @@ class HomeConnectOven extends IPSModule {
 
       //-----------------------------------------------------< Module Functions >------------------------------
       protected function Hide() {
-          if ( $this->GetValue('error') == 0 ) {
-              // set visible in case after error
-              IPS_SetHidden( $this->GetIDForIdent('state'), false );
-              IPS_SetHidden( $this->GetIDForIdent('mode'), false );
-              IPS_SetHidden( $this->GetIDForIdent('start_stop'), false );
-              IPS_SetHidden( $this->GetIDForIdent('setTemperature'), false );
-              IPS_SetHidden( $this->GetIDForIdent('error'), true );
+          // set visible in case after error
+          IPS_SetHidden( $this->GetIDForIdent('state'), false );
+          IPS_SetHidden( $this->GetIDForIdent('mode'), false );
+          IPS_SetHidden( $this->GetIDForIdent('start_stop'), false );
+          IPS_SetHidden( $this->GetIDForIdent('setTemperature'), false );
+          IPS_SetHidden( $this->GetIDForIdent('error'), true );
 
-              if ( $this->ReadPropertyBoolean("hide_show")) {
-                  switch ($this->GetValue('state')) {
-                      case 0:
-                          IPS_SetHidden( $this->GetIDForIdent('remoteStart'), true );
-                          IPS_SetHidden( $this->GetIDForIdent('door'), true );
-                          IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
-                          IPS_SetHidden( $this->GetIDForIdent('progress'), true );
-                          IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
-                          IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
-                          break;
-                      case 1:
-                          IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
-                          IPS_SetHidden( $this->GetIDForIdent('door'), false );
-                          IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
-                          IPS_SetHidden( $this->GetIDForIdent('progress'), true );
-                          IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
-                          IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
-                          break;
-                      case 2:
-                          IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
-                          IPS_SetHidden( $this->GetIDForIdent('door'), false );
-                          IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
-                          IPS_SetHidden( $this->GetIDForIdent('progress'), true );
-                          IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
-                          IPS_SetHidden( $this->GetIDForIdent('setTime'), true );
-                          break;
-                      case 3:
-                          IPS_SetHidden( $this->GetIDForIdent('remoteStart'), true );
-                          IPS_SetHidden( $this->GetIDForIdent('door'), true );
-                          IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
-                          IPS_SetHidden( $this->GetIDForIdent('progress'), false );
-                          IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
-                          IPS_SetHidden( $this->GetIDForIdent('setTime'), true );
-                          break;
-                      default:
-                          IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
-                          IPS_SetHidden( $this->GetIDForIdent('door'), false );
-                          IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
-                          IPS_SetHidden( $this->GetIDForIdent('progress'), false );
-                          IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
-                          IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
-                  }
-
-                  if ( $this->GetValue('temperature') > 60 ) {
-                      IPS_SetHidden( $this->GetIDForIdent('temperature'), false );
-                  } else {
-                      IPS_SetHidden( $this->GetIDForIdent('temperature'), true );
-                  }
-              } else {
-                  IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('door'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('progress'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
-                  IPS_SetHidden( $this->GetIDForIdent('temperature'), false );
+          if ( $this->ReadPropertyBoolean("hide_show")) {
+              switch ($this->GetValue('state')) {
+                  case 0:
+                      IPS_SetHidden( $this->GetIDForIdent('remoteStart'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('door'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('progress'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
+                      break;
+                  case 1:
+                      IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('door'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('progress'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
+                      break;
+                  case 2:
+                      IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('door'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('progress'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('setTime'), true );
+                      break;
+                  case 3:
+                      IPS_SetHidden( $this->GetIDForIdent('remoteStart'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('door'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('progress'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
+                      IPS_SetHidden( $this->GetIDForIdent('setTime'), true );
+                      break;
+                  default:
+                      IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('door'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('progress'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
+                      IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
               }
-          // case of error
-          } else {
-              IPS_SetHidden( $this->GetIDForIdent('remoteStart'), true );
-              IPS_SetHidden( $this->GetIDForIdent('state'), true );
-              IPS_SetHidden( $this->GetIDForIdent('mode'), true );
-              IPS_SetHidden( $this->GetIDForIdent('start_stop'), true );
-              IPS_SetHidden( $this->GetIDForIdent('door'), true );
-              IPS_SetHidden( $this->GetIDForIdent('remainTime'), true );
-              IPS_SetHidden( $this->GetIDForIdent('progress'), true );
-              IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), true );
-              IPS_SetHidden( $this->GetIDForIdent('setTemperature'), true );
-              IPS_SetHidden( $this->GetIDForIdent('setTime'), true );
-              IPS_SetHidden( $this->GetIDForIdent('temperature'), true );
-              IPS_SetHidden( $this->GetIDForIdent('error'), false );
-          }
 
+              if ( $this->GetValue('temperature') > 60 ) {
+                  IPS_SetHidden( $this->GetIDForIdent('temperature'), false );
+              } else {
+                  IPS_SetHidden( $this->GetIDForIdent('temperature'), true );
+              }
+          } else {
+              IPS_SetHidden( $this->GetIDForIdent('remoteStart'), false );
+              IPS_SetHidden( $this->GetIDForIdent('door'), false );
+              IPS_SetHidden( $this->GetIDForIdent('remainTime'), false );
+              IPS_SetHidden( $this->GetIDForIdent('progress'), false );
+              IPS_SetHidden( $this->GetIDForIdent('remainStartTime'), false );
+              IPS_SetHidden( $this->GetIDForIdent('setTime'), false );
+              IPS_SetHidden( $this->GetIDForIdent('temperature'), false );
+          }
       }
 
       /** Send Text
@@ -872,8 +888,13 @@ class HomeConnectOven extends IPSModule {
        * @param string $profile Name of the profile
        */
       public function BuildList( string $profile ) {
-          // make api call to get available programs on this device
-          $programs = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/available")['data']['programs'];
+          try {
+              // make api call to get available programs on this device
+              $programs = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/available")['data']['programs'];
+          } catch (Exception $ex) {
+              $this->analyseEX($ex);
+              return;
+          }
           // count programs
           $programs_count = count( $programs );
 
@@ -979,7 +1000,7 @@ class HomeConnectOven extends IPSModule {
               // Get Options out of data
               $opt = $input['data'][$row];
               // no error appeared
-              $this->SetValue('error', 0 );
+              $this->SetStatus(102);
 
               // Define vars and length
               $options_count = count( $opt );
@@ -996,25 +1017,8 @@ class HomeConnectOven extends IPSModule {
               // Options list (KEY => VALUE)
               return $options_list;
 
-          } else if ( isset( $input['error'] ) ){
-              // catch defined error
-              switch ( $input['error']['key'] ) {
-                  case 'SDK.Error.HomeAppliance.Connection.Initialization.Failed':
-                      $this->SetValue('error', 401 );
-                      break;
-                  case 'SDK.Error.UnsupportedProgram':
-                      $this->SetValue('error', 402 );
-                      break;
-                  case 'invalid_token':
-                      $this->SetValue('error', 107 );
-                      refreshToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7", "");
-              }
-              throw new Error('HomeConnect Error appeared!');
-          } else {
-              // Unknown error
-              $this->SetValue('error', 106 );
-              throw new Error('Unknown Error appeared!');
           }
+          return false;
       }
 
       /**
@@ -1041,5 +1045,18 @@ class HomeConnectOven extends IPSModule {
         }
         return 0;
     }
+
+      /** Function the check failed Api call/Token call for errors
+       * @param $ex
+       */
+      protected function analyseEX( $ex ) {
+          // check the Exception and set error code
+          switch ($ex) {
+              case 'No Authorization code present [First authorize then ask token]':
+                  $this->SetStatus( 206 );
+              default:
+                  $this->SetStatus( 201 );
+          }
+      }
   }
 ?>
