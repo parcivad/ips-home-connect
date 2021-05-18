@@ -194,7 +194,7 @@ function getToken( $url, $client_id, $client_secret ) {
 
             } else throw new Exception($query["message"]);
         }
-    } else throw new Exception("No Authorization code present [First authorize then ask token]");
+    } else throw new Exception("No Authorization code present");
 }
 
 /** Function to get a new token (refresh) from the api
@@ -282,6 +282,6 @@ function refreshToken( $url, $client_id, $client_secret, $scope ) {
         }
     } else {
         // Throw simple error
-        throw new Exception("No Authorization code present [First authorize then ask token]");
+        throw new Exception("No Authorization code present");
     }
 }
