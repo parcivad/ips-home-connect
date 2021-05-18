@@ -507,17 +507,6 @@ class HomeConnectOven extends IPSModule {
               IPS_SetVariableProfileText("HC_OvenSetTime", "", "min.");
               IPS_SetVariableProfileValues("HC_OvenSetTime", 10, 180, 1 );
           }
-          if (!IPS_VariableProfileExists('HC_ErrorCode')) {
-              IPS_CreateVariableProfile('HC_ErrorCode', 1);
-              IPS_SetVariableProfileIcon('HC_ErrorCode', 'Warning');
-              IPS_SetVariableProfileValues("HC_ErrorCode", 0, 2, 0 );
-              IPS_SetVariableProfileAssociation("HC_ErrorCode", 0, "Kein Fehler [0]", "", 0xfa3200 );
-              IPS_SetVariableProfileAssociation("HC_ErrorCode", 105, "Noch keine Daten empfangen! [ 105 ]", "", 0xfa8e00 );
-              IPS_SetVariableProfileAssociation("HC_ErrorCode", 106, "Unbekannter Fehler! [ 106 ]", "", 0xfa8e00 );
-              IPS_SetVariableProfileAssociation("HC_ErrorCode", 107, "Fehlgeschlagenes Token! [ 108 ]", "", 0xfa8e00 );
-              IPS_SetVariableProfileAssociation("HC_ErrorCode", 401, "HomeConnect Gerät nicht verbunden! [ 401 ]", "", 0xfa3200 );
-              IPS_SetVariableProfileAssociation("HC_ErrorCode", 402, "Unbekanntes HomeConnect Programm! [ 402 ]", "", 0xfa3200 );
-          }
       }
 
       //-----------------------------------------------------< Setting Form.json >------------------------------

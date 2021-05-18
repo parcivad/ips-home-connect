@@ -96,13 +96,17 @@ Für den Fall eines Fehlers besitzt die Geräte Instanz eine Variable namens `er
 Integer | Beschreibung | Grund
 :--- | :---: | ---:
 `0` | Kein Fehler | Es ist kein Fehler aufgetreten, die Variable wird versteckt.
-`105` | Keine Daten | Es wurden noch keine Daten abgefragt, die Variable wird gezeigt.
-`106` | Unbekannt | Unbekannter Fehler ist aufgetreten. (noch nicht erkannt)
-`107` | Token | Das System hat noch kein Zugriffs token (In der `Discovery Instanz`/`Geräte Instanz` auf Refresh drücken)
+`201` | Unbekannt | Der Fehler ist dem System noch nicht bekannt. Überprüfe den Log um mehr Herauszufinden.
+`206` | Authorize | Der User ist noch nicht angemeldet.
+`207` | Token | Das System hat noch kein Zugriffs token (In der `Discovery Instanz`/`Geräte Instanz` auf Refresh drücken)
 
 ```HomeConnect Fehler```
 
 Integer | Beschreibung | Grund
 :--- | :---: | ---:
 `401` | Nicht Verbunden | Das HomeConnect Gerät ist nicht mit dem Internet/HomeConnect system verbunden.
-`402` | Unbekanntes Programm | Das Programm auf dem Gerät ist dem Modul unbekannt. 
+`402` | Unbekanntes Programm | Das Programm auf dem Gerät ist dem Modul unbekannt.
+`403` | Programm start | Das Programm konnte nicht gestartet werden.
+`404` | Programm stop | Das Programm konnte nicht gestoppt werden
+`405` | Request | Anfrage konnte nicht bearbeitet werden.
+`406` | Limit | Anfrage Limit erreicht!
