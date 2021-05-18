@@ -84,12 +84,12 @@ class HomeConnectDiscovery extends IPSModule {
             array_push($devices, $data[$i] );
         }
 
-        // list of all instaces with association: Name => InstanceID
+        // list of all instances with association: Name => InstanceID
         $instances = [];
         // list of oven modules
-        $devices = array_merge( IPS_GetInstanceListByModuleID ('{4D8D592A-63C7-B2BD-243F-C6BF1DCAD66C}'), IPS_GetInstanceListByModuleID ('{CCE508B4-7A15-4541-06B0-03C9DA28A5F1}'));
-        for( $i = 0; $i < count($devices); $i++ ) {
-            $instances[ IPS_GetName($devices[$i]) ] = IPS_GetInstance($devices[$i])['InstanceID'];
+        $instances_device = array_merge( IPS_GetInstanceListByModuleID ('{4D8D592A-63C7-B2BD-243F-C6BF1DCAD66C}'), IPS_GetInstanceListByModuleID ('{CCE508B4-7A15-4541-06B0-03C9DA28A5F1}'));
+        for( $i = 0; $i < count($instances_device); $i++ ) {
+            $instances[ IPS_GetName($instances_device[$i]) ] = IPS_GetInstance($instances_device[$i])['InstanceID'];
         }
 
         $config_list = [];
