@@ -1083,7 +1083,7 @@ class HomeConnectOven extends IPSModule {
       protected function analyseEX( $ex ) {
           // check the Exception and set error code
           IPS_LogMessage($this->InstanceID, 'Error: ' . $ex);
-          $ex = str_replace( $ex, 'Exception: ', '');
+          $ex = explode( $ex, 'Exception: ')[1];
           IPS_LogMessage($this->InstanceID, 'Error: ' . $ex);
 
           switch ($ex) {
