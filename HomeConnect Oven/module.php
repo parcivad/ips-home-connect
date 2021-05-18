@@ -1083,18 +1083,33 @@ class HomeConnectOven extends IPSModule {
       protected function analyseEX( Exception $ex ) {
           // check the Exception and set error code
           switch ( $ex->getMessage() ) {
+              // USER NOT LOGGED IN
               case 'No Authorization code present':
                   $this->SetStatus( 206 );
                   break;
+                  // TOKEN NOT PROVIDED
               case 'invalid_token':
               case 'missing or invalid request parameters':
                   $this->SetStatus( 207 );
                   break;
+                  // DEVICE NOT CONNECTED
+              case 'SDK.Error.HomeAppliance.Connection.Initialization.Failed':
+                  $this->SetStatus( 401 );
+                  break;
+                  // WRONG REQUEST
+              case 'SDK.Error.NoProgramActive':
+              case 'SDK.Error.UnsupportedProgram':
+                  $this->SetStatus( 402 );
+                  break;
+                  // FAILED/WRONG REQUEST
               case 'invalid_request':
+              case '404':
                   $this->SetStatus( 405 );
                   break;
+                  // ERROR...
               default:
                   $this->SetStatus( 201 );
+                  IPS_LogMessage( $this->InstanceID,'Unknown HomeConnect Error: ' . $ex->getMessage() );
                   break;
           }
       }
