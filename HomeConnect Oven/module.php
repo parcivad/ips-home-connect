@@ -1082,13 +1082,12 @@ class HomeConnectOven extends IPSModule {
        */
       protected function analyseEX( Exception $ex ) {
           // check the Exception and set error code
-          IPS_LogMessage($this->InstanceID, $ex->getMessage() );
-
           switch ( $ex->getMessage() ) {
               case 'No Authorization code present':
                   $this->SetStatus( 206 );
                   break;
               case 'invalid_token':
+              case 'missing or invalid request parameters':
                   $this->SetStatus( 207 );
                   break;
               case 'invalid_request':
