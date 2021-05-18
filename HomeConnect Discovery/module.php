@@ -39,6 +39,8 @@ class HomeConnectDiscovery extends IPSModule {
                 break;
             case "token":
                 return getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
+            case "data":
+                return "AuthCode: " . getAuthorizeCode() . "  /  Token: " . getAccessToken();
             case "reset":
                 resetData();
                 break;
@@ -82,6 +84,14 @@ class HomeConnectDiscovery extends IPSModule {
             array_push($devices, $data[$i] );
         }
 
+        // list of all instaces with association: Name => InstanceID
+        $instances = [];
+        // list of oven modules
+        $devices = array_merge( IPS_GetInstanceListByModuleID ('{4D8D592A-63C7-B2BD-243F-C6BF1DCAD66C}'), IPS_GetInstanceListByModuleID ('{CCE508B4-7A15-4541-06B0-03C9DA28A5F1}'));
+        for( $i = 0; $i < count($devices); $i++ ) {
+            $instances[ IPS_GetName($devices[$i]) ] = IPS_GetInstance($devices[$i])['InstanceID'];
+        }
+
         $config_list = [];
 
         if (!empty($devices)) {
@@ -91,25 +101,25 @@ class HomeConnectDiscovery extends IPSModule {
                 $connected = $device['connected'];
                 $type = $device['type'];
                 $haId = $device['haId'];
+                $instanceID = 0;
 
+                // Search for matching module
                 switch ( $type ) {
-                    case "Dryer":
-                        $module = "{F8AE3556-6835-DD3C-E8E0-F686BE81850D}";
-                        break;
                     case "Oven":
                         $module = "{4D8D592A-63C7-B2BD-243F-C6BF1DCAD66C}";
-                        break;
-                    case "CoffeeMaker":
-                        $module = "{D5EF280F-8F60-C250-008F-8B17C4B69FD2}";
-                        break;
-                    case "FridgeFreezer":
-                        $module = "{B03C2C23-A59C-026C-AD0B-CEA47312A5AB}";
                         break;
                     case "Dishwasher":
                         $module = "{CCE508B4-7A15-4541-06B0-03C9DA28A5F1}";
                         break;
+                    default:
+                        // TODO: correct error
+                        echo "cant be added!";
+                        $module = '{}';
+                        break;
                 }
 
+                // get instance if exist
+                if ( isset( $instances[$name] ) ) $instanceID = $instances[$name];
 
                 $config_list[] = [
                     'name' => $name,
@@ -117,6 +127,7 @@ class HomeConnectDiscovery extends IPSModule {
                     'company' => $brand,
                     'haId' => $haId,
                     'connected' => $connected,
+                    'instanceID' => $instanceID,
                     'create'     => [
                         'moduleID'      => $module,
                         'configuration' => [
@@ -202,7 +213,6 @@ class HomeConnectDiscovery extends IPSModule {
                 "name" => "Home-Connect Discovery",
                 "caption" => "HomeConnect Discovery",
                 "rowCount" => 14,
-                "add" => false,
                 "delete"=> true,
                 "columns" => [
                     [
