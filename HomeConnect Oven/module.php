@@ -1090,7 +1090,7 @@ class HomeConnectOven extends IPSModule {
                   $this->SetStatus( 207 );
                   break;
               default:
-                  $this->SetStatus( 201 );
+                  $this->SetStatus( 206 );
                   break;
           }
       }
