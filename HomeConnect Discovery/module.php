@@ -186,6 +186,12 @@ class HomeConnectDiscovery extends IPSModule {
         return[
             [
                 "type" => "Label",
+                "name" => "loggedIn",
+                "caption" => "Erfolgreich eingeloggt!",
+                "visible" => !$visible,
+            ],
+            [
+                "type" => "Label",
                 "name" => "loginInfo",
                 "caption" => "Logge dich bitte ein, indem du den Link in einem Browser öffnest. Wenn du fertig bist (der Browser keine Page mehr anzeigt) kopiere die ganze url und füge sie dann in das Eingabefeld ein.",
                 "visible" => $visible,
@@ -213,7 +219,8 @@ class HomeConnectDiscovery extends IPSModule {
                 "name" => "Home-Connect Discovery",
                 "caption" => "HomeConnect Discovery",
                 "rowCount" => 14,
-                "delete"=> true,
+                "add" => false,
+                "delete" => true,
                 "columns" => [
                     [
                         "caption" => "Name",
