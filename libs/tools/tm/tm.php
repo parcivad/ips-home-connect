@@ -111,6 +111,7 @@ function authorize( string $input ) {
  * @param string $client_id your client_id
  * @param string $client_secret client_secret of the client
  * @return mixed Return the access_token
+ * @throws ErrorException
  */
 function getToken( $url, $client_id, $client_secret ) {
     $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/tm/data.json" ), true );
@@ -186,14 +187,10 @@ function getToken( $url, $client_id, $client_secret ) {
             // Throw error
             if ( isset($query["error"])) {
                 throw new Error($query["error_description"]);
-            } else {
-                throw new Error($query["message"]);
-            }
+                
+            } else throw new Error($query["message"]);
         }
-    } else {
-        // Throw simple error
-        throw new Error("No Authorization code present [First authorize then ask token]");
-    }
+    } else throw new ErrorException("No Authorization code present [First authorize then ask token]");
 }
 
 /** Function to get a new token (refresh) from the api
