@@ -185,14 +185,21 @@ function getToken( $url, $client_id, $client_secret ) {
         } else {
             // Throw error
             if ( isset($query["error"])) {
-                throw new UnexpectedValueException("Error from your api: " . $query["error_description"]);
+                // handle a HomeConnect error
+                if ( $query["error_description"] == 'invalid authorization_code' ) {
+                    // Clear the file for new auth code (old one is wrong)
+                    resetData();
+                    // Show the user to login again
+                    throw new Error("Please Login again!");
+                }
+                throw new Error("Error from your api: " . $query["error_description"]);
             } else {
-                throw new UnexpectedValueException("Error from your api: " . $query["message"]);
+                throw new Error("Error from your api: " . $query["message"]);
             }
         }
     } else {
         // Throw simple error
-        throw new UnexpectedValueException("No Authorization code present [First authorize then ask token]");
+        throw new Error("No Authorization code present [First authorize then ask token]");
     }
 }
 
@@ -266,13 +273,20 @@ function refreshToken( $url, $client_id, $client_secret, $scope ) {
         } else {
             // Throw error
             if ( isset($query["error"])) {
-                throw new UnexpectedValueException("Error from your api: " . $query["error_description"]);
+                // handle a HomeConnect error
+                if ( $query["error_description"] == 'invalid authorization_code' ) {
+                    // Clear the file for new auth code (old one is wrong)
+                    resetData();
+                    // Show the user to login again
+                    throw new Error("Please Login again!");
+                }
+                throw new Error("Error from your api: " . $query["error_description"]);
             } else {
-                throw new UnexpectedValueException("Error from your api: " . $query["message"]);
+                throw new Error("Error from your api: " . $query["message"]);
             }
         }
     } else {
         // Throw simple error
-        throw new UnexpectedValueException("No Authorization code present [First authorize then ask token]");
+        throw new Error("No Authorization code present [First authorize then ask token]");
     }
 }

@@ -15,7 +15,7 @@ Zudem lassen sich Informationen wie die verbleibende Zeit oder die Programme geb
 ## Instanz Einstellungen
 
 <p align="center">
-  <img width="auto" height="auto" src="https://github.com/LegendDragon11/img/blob/main/InstanzGeschirrspüler%20new.png">
+  <img width="auto" height="auto" src="https://github.com/LegendDragon11/img/blob/main/InstanzGeschirrspüler.png">
 </p>
 
 
