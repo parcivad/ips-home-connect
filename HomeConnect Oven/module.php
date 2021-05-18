@@ -1092,7 +1092,11 @@ class HomeConnectOven extends IPSModule {
               case 'invalid_request':
                   $this->SetStatus( 405 );
                   break;
+              default:
+                  $this->SetStatus( 201 );
+                  break;
           }
+          IPS_LogMessage($this->InstanceID, 'Error: ' . $ex);
       }
   }
 ?>
