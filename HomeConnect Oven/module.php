@@ -1080,11 +1080,10 @@ class HomeConnectOven extends IPSModule {
       /** Function the check failed Api call/Token call for errors
        * @param $ex
        */
-      protected function analyseEX( $ex ) {
+      protected function analyseEX( Exception $ex ) {
           // check the Exception and set error code
-          IPS_LogMessage($this->InstanceID, 'Error: ' . $ex);
-          $ex = explode( $ex, 'Exception: ')[1];
-          IPS_LogMessage($this->InstanceID, 'Error: ' . $ex);
+          $ex = $ex->getMessage();
+          IPS_LogMessage($this->InstanceID, $ex);
 
           switch ($ex) {
               case 'No Authorization code present [First authorize then ask token]':
