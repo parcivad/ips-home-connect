@@ -8,10 +8,16 @@ $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/tools/tm
 function Api($endpoint="") {
     global $data;
 
+    try {
+        $token = getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
+    } catch (Exception $ex) {
+        throw new Error($ex);
+    }
+
     //----------------------------------------< Building Url with parameters >-------------
     $header_array = array(
         'content-type: application/vnd.bsh.sdk.v1+json',
-        'Authorization: Bearer ' . getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7")
+        'Authorization: Bearer ' . $token
     );
     // build url
     $url = "https://api.home-connect.com/api/" . $endpoint;
@@ -49,9 +55,15 @@ function Api($endpoint="") {
 function Api_delete(string $endpoint ) {
     global $data;
 
+    try {
+        $token = getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
+    } catch (Exception $ex) {
+        throw new Error($ex);
+    }
+
     //----------------------------------------< Building Url with parameters >-------------
     $header_array = array(
-        'Authorization: Bearer ' . getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7")
+        'Authorization: Bearer ' . $token
     );
     // build url
     $url = "https://api.home-connect.com/api/" . $endpoint;
@@ -87,10 +99,16 @@ function Api_delete(string $endpoint ) {
 function Api_put(string $endpoint, string $json ) {
     global $data;
 
+    try {
+        $token = getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
+    } catch (Exception $ex) {
+        throw new Error($ex);
+    }
+
     //----------------------------------------< Building Url with parameters >-------------
     $header_array = array(
         'content-type: application/vnd.bsh.sdk.v1+json',
-        'Authorization: Bearer ' . getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7")
+        'Authorization: Bearer ' . $token
     );
     // build url
     $url = "https://api.home-connect.com/api/" . $endpoint;
