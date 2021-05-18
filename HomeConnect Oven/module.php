@@ -1082,10 +1082,9 @@ class HomeConnectOven extends IPSModule {
        */
       protected function analyseEX( Exception $ex ) {
           // check the Exception and set error code
-          $ex = $ex->getMessage();
           IPS_LogMessage($this->InstanceID, $ex);
 
-          switch ($ex) {
+          switch ( $ex->getMessage() ) {
               case 'No Authorization code present [First authorize then ask token]':
                   $this->SetStatus( 206 );
                   break;
