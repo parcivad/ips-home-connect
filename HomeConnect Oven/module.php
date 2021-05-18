@@ -842,13 +842,6 @@ class HomeConnectOven extends IPSModule {
 
       //-----------------------------------------------------< Module Functions >------------------------------
       protected function Hide() {
-          // set visible in case after error
-          IPS_SetHidden( $this->GetIDForIdent('state'), false );
-          IPS_SetHidden( $this->GetIDForIdent('mode'), false );
-          IPS_SetHidden( $this->GetIDForIdent('start_stop'), false );
-          IPS_SetHidden( $this->GetIDForIdent('setTemperature'), false );
-          IPS_SetHidden( $this->GetIDForIdent('error'), true );
-
           if ( $this->ReadPropertyBoolean("hide_show")) {
               switch ($this->GetValue('state')) {
                   case 0:
