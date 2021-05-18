@@ -795,47 +795,47 @@ class HomeConnectOven extends IPSModule {
               [
                   'code'    => 201,
                   'icon'    => 'error',
-                  'caption' => 'Unknown error [CODE: 201]',
+                  'caption' => 'Unknown error   [ 201 ]',
               ],
               [
                   'code'    => 206,
                   'icon'    => 'error',
-                  'caption' => 'No Authorization/Login [CODE: 206]',
+                  'caption' => 'No Authorization/Login   [ 206 ]',
               ],
               [
                   'code'    => 207,
                   'icon'    => 'error',
-                  'caption' => 'No Token [CODE: 207]',
+                  'caption' => 'No Token   [ 207 ]',
               ],
               [
                   'code'    => 401,
                   'icon'    => 'error',
-                  'caption' => 'Device is not connected [CODE: 401]',
+                  'caption' => 'Device is not connected   [ 401 ]',
               ],
               [
                   'code'    => 402,
                   'icon'    => 'inactive',
-                  'caption' => 'Unknown Program [CODE: 402]',
+                  'caption' => 'Unknown Program   [ 402 ]',
               ],
               [
                   'code'    => 403,
                   'icon'    => 'error',
-                  'caption' => 'Program cant be started [CODE: 403]',
+                  'caption' => 'Program cant be started   [ 403 ]',
               ],
               [
                   'code'    => 404,
                   'icon'    => 'error',
-                  'caption' => 'Program cant be stopped [CODE: 404]',
+                  'caption' => 'Program cant be stopped   [ 404 ]',
               ],
               [
                   'code'    => 405,
                   'icon'    => 'inactive',
-                  'caption' => 'Request [CODE: 405]',
+                  'caption' => 'Request   [ 405 ]',
               ],
               [
                   'code'    => 406,
                   'icon'    => 'inactive',
-                  'caption' => 'Request/Send Limit is reached [CODE: 406]',
+                  'caption' => 'Request/Send Limit is reached   [ 406 ]',
               ]
           ];
       }
@@ -1092,8 +1092,13 @@ class HomeConnectOven extends IPSModule {
           switch ($ex) {
               case 'No Authorization code present [First authorize then ask token]':
                   $this->SetStatus( 206 );
+                  break;
+              case 'invalid_token':
+                  $this->SetStatus( 207 );
+                  break;
               default:
                   $this->SetStatus( 201 );
+                  break;
           }
       }
   }
