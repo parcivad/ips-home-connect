@@ -111,13 +111,14 @@ function authorize( string $input ) {
  * @param string $client_id your client_id
  * @param string $client_secret client_secret of the client
  * @return mixed Return the access_token
- * @throws ErrorException
  * @throws Exception
  */
 function getToken( $url, $client_id, $client_secret ) {
     $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/tm/data.json" ), true );
 
-    if ( is_string( $data["token"]["refresh_token"] ) ) {
+    $token = $data["token"]["refresh_token"];
+
+    if ( is_string( $token ) ) {
 
         $distance = time() - $data["token"]["last_token_call"];
         $limit = $data["token"]["expires_in"] - 3600;
@@ -128,8 +129,10 @@ function getToken( $url, $client_id, $client_secret ) {
         return $data["token"]["access_token"];
     }
 
+    $auth = $data["authorize"]["code"];
+
     // Check if there is a Authorization code
-    if ( is_string( $data["authorize"]["code"] ) )  {
+    if ( is_string( $auth ) )  {
 
         //================= Url build ===================
         $params_array = [
