@@ -101,7 +101,7 @@ class HomeConnectDiscovery extends IPSModule {
                 $connected = $device['connected'];
                 $type = $device['type'];
                 $haId = $device['haId'];
-                //$instanceID = 0;
+                $instanceID = 0;
                 $id = substr( $haId, -2 );
 
                 // Search for matching module
@@ -120,7 +120,7 @@ class HomeConnectDiscovery extends IPSModule {
                 }
 
                 // get instance if exist
-                //if ( isset( $instances[$name] ) ) $instanceID = $instances[$name];
+                if ( isset( $instances[$name] ) ) $instanceID = $instances[$name];
 
                 $config_list[] = [
                     'name' => $name,
@@ -129,7 +129,7 @@ class HomeConnectDiscovery extends IPSModule {
                     'haId' => $haId,
                     'connected' => $connected,
                     'id' => $id,
-                    //'instanceID' => $instanceID,
+                    'instanceID' => $instanceID,
                     'create'     => [
                         'moduleID'      => $module,
                         'configuration' => [
