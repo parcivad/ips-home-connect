@@ -1089,8 +1089,11 @@ class HomeConnectOven extends IPSModule {
               case 'invalid_token':
                   $this->SetStatus( 207 );
                   break;
+              case 'invalid_request':
+                  $this->SetStatus( 405 );
+                  break;
               default:
-                  $this->SetStatus( 206 );
+                  $this->SetStatus( 201 );
                   break;
           }
       }
