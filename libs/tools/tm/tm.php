@@ -1,6 +1,5 @@
 <?php
 // define data.json
-$data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/tm/data.json" ), true );
 require_once( dirname(dirname(__FILE__) ) . "/HomeConnectApi.php");
 
 /** Function to open urls in browser
@@ -22,43 +21,13 @@ function open( $url ) {
 
 /*================================= GETTER PART =================================*/
 function getAuthorizeCode() {
-    global $data;
+    $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/tm/data.json" ), true );
     return $data["authorize"]["code"];
 }
 
 function getAccessToken() {
-    global $data;
+    $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/tm/data.json" ), true );
     return $data["token"]["access_token"];
-}
-
-function getRefreshToken() {
-    global $data;
-    return $data["token"]["refresh_token"];
-}
-
-function getIdToken() {
-    global $data;
-    return $data["token"]["id_token"];
-}
-
-function getLastTokenCall() {
-    global $data;
-    return $data["token"]["last_token_call"];
-}
-
-function getTokenType() {
-    global $data;
-    return $data["token"]["token_type"];
-}
-
-function getExpiresIn() {
-    global $data;
-    return $data["token"]["expires_in"];
-}
-
-function getScopes() {
-    global $data;
-    return $data["token"]["scope"];
 }
 /*============================================================================*/
 
@@ -218,7 +187,7 @@ function refreshToken( $url, $client_id, $client_secret, $scope ) {
             "client_id" => $client_id,
             "client_secret" => $client_secret,
             "redirect_uri" => "http://localhost:8080",
-            "refresh_token" => getRefreshToken(),
+            "refresh_token" => $data["token"]["refresh_token"],
             "scope" => $scope
         ];
 
