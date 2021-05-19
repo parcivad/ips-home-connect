@@ -1,5 +1,6 @@
 <?php
 // define data.json
+$data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/tm/data.json" ), true );
 require_once( dirname(dirname(__FILE__) ) . "/HomeConnectApi.php");
 
 /** Function to open urls in browser
@@ -28,6 +29,36 @@ function getAuthorizeCode() {
 function getAccessToken() {
     $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/tm/data.json" ), true );
     return $data["token"]["access_token"];
+}
+
+function getRefreshToken() {
+    global $data;
+    return $data["token"]["refresh_token"];
+}
+
+function getIdToken() {
+    global $data;
+    return $data["token"]["id_token"];
+}
+
+function getLastTokenCall() {
+    global $data;
+    return $data["token"]["last_token_call"];
+}
+
+function getTokenType() {
+    global $data;
+    return $data["token"]["token_type"];
+}
+
+function getExpiresIn() {
+    global $data;
+    return $data["token"]["expires_in"];
+}
+
+function getScopes() {
+    global $data;
+    return $data["token"]["scope"];
 }
 /*============================================================================*/
 

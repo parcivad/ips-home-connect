@@ -807,7 +807,7 @@ class HomeConnectOven extends IPSModule {
               [
                   'code'    => 401,
                   'icon'    => 'error',
-                  'caption' => 'Device is not connected   [ 401 ]',
+                  'caption' => 'Device is offline   [ 401 ]',
               ],
               [
                   'code'    => 402,
