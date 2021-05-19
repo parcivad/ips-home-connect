@@ -1074,7 +1074,7 @@ class HomeConnectDishwasher extends IPSModule {
        */
       protected function _log(string $msg) {
           if ( $this->ReadPropertyBoolean('log') ) {
-              IPS_LogMessage("HomeConnectOven", $msg);
+              IPS_LogMessage("HomeConnectDishwasher", $msg);
           }
       }
   }

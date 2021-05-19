@@ -32,17 +32,25 @@ class HomeConnectDiscovery extends IPSModule {
     /** Function for Authorization and Token
      * @param $opt
      * @return bool|mixed
-     * @throws ErrorException
      */
     public function tm($opt) {
         switch ($opt) {
             case "auth":
-                // authorize through a button
-                authorize($this->ReadPropertyString("auth_url"));
+                try {
+                    // authorize through a button
+                    authorize($this->ReadPropertyString("auth_url"));
+                } catch (Exception $ex) {
+                    $this->analyseEX($ex);
+                }
                 break;
             case "token":
-                // refresh token with a button
-                return getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
+                try {
+                    // refresh token with a button
+                    return getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
+                } catch (Exception $ex) {
+                    $this->analyseEX($ex);
+                }
+                break;
             case "get":
                 // shows codes
                 global $data;
@@ -80,6 +88,7 @@ class HomeConnectDiscovery extends IPSModule {
             // else get device list:
             $data = Api("homeappliances")['data']['homeappliances'];
         } catch(Exception $ex) {
+            $this->analyseEX($ex);
             // Catch in case of error reset Data (most of the error caused by wrong auth code which can only get fixed by clearing the data.json file)
             resetData();
             // Return the User a information, what to do next
@@ -293,10 +302,104 @@ class HomeConnectDiscovery extends IPSModule {
             ],
             [
                 'code'    => 201,
-                'icon'    => 'inactive',
-                'caption' => 'Please follow the instructions.',
+                'icon'    => 'error',
+                'caption' => 'Unknown error   [ 201 ]',
             ],
+            [
+                'code'    => 206,
+                'icon'    => 'error',
+                'caption' => 'No Authorization/Login   [ 206 ]',
+            ],
+            [
+                'code'    => 207,
+                'icon'    => 'error',
+                'caption' => 'No Token   [ 207 ]',
+            ],
+            [
+                'code'    => 401,
+                'icon'    => 'error',
+                'caption' => 'Device is offline   [ 401 ]',
+            ],
+            [
+                'code'    => 402,
+                'icon'    => 'inactive',
+                'caption' => 'Unknown Program   [ 402 ]',
+            ],
+            [
+                'code'    => 403,
+                'icon'    => 'error',
+                'caption' => 'Program cant be started   [ 403 ]',
+            ],
+            [
+                'code'    => 404,
+                'icon'    => 'error',
+                'caption' => 'Program cant be stopped   [ 404 ]',
+            ],
+            [
+                'code'    => 405,
+                'icon'    => 'inactive',
+                'caption' => 'Request   [ 405 ]',
+            ],
+            [
+                'code'    => 406,
+                'icon'    => 'inactive',
+                'caption' => 'Request/Send Limit is reached   [ 406 ]',
+            ],
+            [
+                'code'    => 407,
+                'icon'    => 'error',
+                'caption' => 'HomeConnect Cloud is not available   [ 407 ]',
+            ],
+            [
+                'code'    => 408,
+                'icon'    => 'error',
+                'caption' => 'Error from HomeConnect    [ 408 ]',
+            ]
         ];
+    }
+
+    /** Function the check failed Api call/Token call for errors
+     * @param $ex
+     */
+    protected function analyseEX( Exception $ex ) {
+        // check the Exception and set error code
+        switch ( $ex->getMessage() ) {
+            // USER NOT LOGGED IN
+            case 'No Authorization code present':
+            case 'invalid_grant':
+                $this->SetStatus( 206 );
+                break;
+            // TOKEN NOT PROVIDED
+            case 'invalid_token':
+            case 'missing or invalid request parameters':
+                $this->SetStatus( 207 );
+                break;
+            // DEVICE NOT CONNECTED
+            case 'SDK.Error.HomeAppliance.Connection.Initialization.Failed':
+                $this->SetStatus( 401 );
+                break;
+            // WRONG REQUEST
+            case 'SDK.Error.NoProgramActive':
+            case 'SDK.Error.UnsupportedProgram':
+                $this->SetStatus( 402 );
+                break;
+            // FAILED/WRONG REQUEST
+            case 'invalid_request':
+            case '404':
+                $this->SetStatus( 405 );
+                break;
+            case '503':
+                $this->SetStatus( 407 );
+                break;
+            case '500':
+                $this->SetStatus( 408 );
+                break;
+            // ERROR...
+            default:
+                $this->SetStatus( 201 );
+                IPS_LogMessage( $this->InstanceID,'Unknown HomeConnect Error: ' . $ex->getMessage() );
+                break;
+        }
     }
 
 }
