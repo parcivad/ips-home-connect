@@ -47,6 +47,9 @@ class HomeConnectDishwasher extends IPSModule {
           // Check if the user wants to translate the mode varialbe
           $this->RegisterPropertyBoolean("mode_translate", true);
 
+          // Turn on/off of Log messages
+          $this->RegisterPropertyBoolean("log", false);
+
           // Remote start and Build list [Set by refresh function]
           $this->RegisterAttributeString("remoteControlAllowed", "Dein Gerät erlaubt keine Fernbedienung");
           $this->RegisterAttributeString("remoteStartAllowed", "Dein Gerät erlaub keinen Fernstart");
@@ -133,7 +136,7 @@ class HomeConnectDishwasher extends IPSModule {
        */
       public function refresh() {
           // log
-          IPS_LogMessage( $this->InstanceID, "Refreshing startet..." );
+          $this->_log( "Refreshing startet..." );
           //====================================================================================================================== Check Timer
           // Get current Hour
           $hour = date('G');
@@ -272,7 +275,7 @@ class HomeConnectDishwasher extends IPSModule {
           // Let the function Hide() check if there variables to check or uncheck
           $this->Hide();
           // log
-          IPS_LogMessage( $this->InstanceID, "Refreshing end");
+          $this->_log( "Refreshing end");
           return true;
       }
 
@@ -283,7 +286,7 @@ class HomeConnectDishwasher extends IPSModule {
      */
       public function start( string $mode, int $delay ) {
           // log
-          IPS_LogMessage( $this->InstanceID, "Trying to start Device..." );
+          $this->_log( "Trying to start Device..." );
           // Set the device ready ( device must be ready for start )
           $this->SetActive(true);
           // Wait short until the device in ready state
@@ -300,27 +303,27 @@ class HomeConnectDishwasher extends IPSModule {
           //====================================================================================================================== Send start
           if ($this->GetValue("remoteStart")) {
               // log
-              IPS_LogMessage( $this->InstanceID, "Canceled (remote start not allowed)" );
+              $this->_log( "Canceled (remote start not allowed)" );
               // Check Door state
               if (!$this->GetValue("door")) {
                   // log
-                  IPS_LogMessage( $this->InstanceID, "Canceled (door open)" );
+                  $this->_log(  "Canceled (door open)" );
                   // Check if the device is on
                   if ($this->GetValue("state") == 1) {
                       try {
                           Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
                           // log
-                          IPS_LogMessage( $this->InstanceID, "Send start to HomeConnect" );
+                          $this->_log( "Send start to HomeConnect" );
                           //============================================================ Check Notifications
                           if ($this->ReadPropertyBoolean("notify_start")) {
                               $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm " . DishwasherTranslateMode($mode, true) . " gestarted!");
                           }
                           //============================================================ Check Notifications
                           // log
-                          IPS_LogMessage( $this->InstanceID, "Send start notify" );
+                          $this->_log( "Send start notify" );
                       } catch (Exception $ex) {
                           // log
-                          IPS_LogMessage( $this->InstanceID, "Start failed look for authorization in discovery instance" );
+                          $this->_log( "Start failed look for authorization in discovery instance" );
                           $this->analyseEX($ex);
                       }
                   } else {
@@ -340,21 +343,21 @@ class HomeConnectDishwasher extends IPSModule {
      */
       public function stop() {
           // log
-          IPS_LogMessage( $this->InstanceID, "Trying to stop..." );
+          $this->_log( "Trying to stop..." );
           // basic refresh for state and control permission
           $this->refresh();
 
           //====================================================================================================================== Send stop
           if ( $this->GetValue("remoteControl") ) {
               // log
-              IPS_LogMessage( $this->InstanceID, "Canceled (remote control not allowed)" );
+              $this->_log( "Canceled (remote control not allowed)" );
               // Check if the device is running a program
               switch ( $this->GetValue("state") ) {
                   // stop running program
                   case 3:
                       try {
                           // log
-                          IPS_LogMessage( $this->InstanceID, "Stopped while deice was running a program" );
+                          $this->_log(  "Stopped while deice was running a program" );
                           // Send custom delete to stop current program
                           Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
                           $this->SetValue("state", 1 );
@@ -365,20 +368,20 @@ class HomeConnectDishwasher extends IPSModule {
                           //============================================================ Check Notifications
                       } catch (Exception $ex) {
                           // log
-                          IPS_LogMessage( $this->InstanceID, "Program didnt stop" );
+                          $this->_log( "Program didnt stop" );
                           $this->analyseEX($ex);
                       }
                       break;
                   // stop delayed start
                   case 2:
                       // log
-                      IPS_LogMessage( $this->InstanceID, "Stopped while device was in mode 'Prepare for start'" );
+                      $this->_log( "Stopped while device was in mode 'Prepare for start'" );
                       // Turn the device off ( this stops the delayed start )
                       $this->SetActive(false);
                       break;
                   default:
                       // log
-                      IPS_LogMessage( $this->InstanceID, "Canceled (no program is running)" );
+                      $this->_log( "Canceled (no program is running)" );
                       // throw logic exception for no reason to stop
                       throw new Exception("No Program running on " . $this->ReadPropertyString("name") );
               }
@@ -403,10 +406,10 @@ class HomeConnectDishwasher extends IPSModule {
           try {
               Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/settings/BSH.Common.Setting.PowerState", $power);
               // log
-              IPS_LogMessage( $this->InstanceID, "Send On/off State to HomeConnect" );
+              $this->_log( $this->InstanceID, "Send On/off State to HomeConnect" );
           } catch (Exception $ex) {
               // log
-              IPS_LogMessage( $this->InstanceID, "Failed to send Device state" );
+              $this->_log( $this->InstanceID, "Failed to send Device state" );
               $this->analyseEX($ex);
           }
       }
@@ -717,6 +720,11 @@ class HomeConnectDishwasher extends IPSModule {
                       ],
                   ],
               ],
+              [
+                  "type" => "CheckBox",
+                  "name" => "log",
+                  "caption" => "LogMessages",
+              ],
           ];
       }
 
@@ -856,8 +864,12 @@ class HomeConnectDishwasher extends IPSModule {
        * @param string $profile Name of the profile
        */
       public function BuildList( string $profile ) {
-          // make api call to get available programs on this device
-          $programs = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/available")['data']['programs'];
+          try {
+              // make api call to get available programs on this device
+              $programs = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/available")['data']['programs'];
+          } catch (Exception $ex) {
+              $this->analyseEX($ex);
+          }
           // count programs
           $programs_count = count( $programs );
 
@@ -1039,5 +1051,14 @@ class HomeConnectDishwasher extends IPSModule {
                 break;
         }
     }
+
+      /** Send logs to IP-Symcon
+       * @param string $msg Message to send
+       */
+      protected function _log(string $msg) {
+          if ( $this->ReadPropertyBoolean('log') ) {
+              IPS_LogMessage("HomeConnectOven", $msg);
+          }
+      }
   }
 ?>
