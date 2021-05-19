@@ -1087,6 +1087,7 @@ class HomeConnectOven extends IPSModule {
           switch ( $ex->getMessage() ) {
               // USER NOT LOGGED IN
               case 'No Authorization code present':
+              case 'invalid_grant':
                   $this->SetStatus( 206 );
                   break;
                   // TOKEN NOT PROVIDED
@@ -1110,6 +1111,9 @@ class HomeConnectOven extends IPSModule {
                   break;
               case '503':
                   $this->SetStatus( 407 );
+                  break;
+              case '500':
+                  $this->SetStatus( 408 );
                   break;
                   // ERROR...
               default:
