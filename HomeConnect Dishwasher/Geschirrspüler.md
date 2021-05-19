@@ -93,22 +93,35 @@ Für den Fall eines Fehlers besitzt die Geräte Instanz eine Variable namens `er
 
 ```Modul```
 
-Integer | Beschreibung | Grund
+Code | Beschreibung | Grund
 :--- | :---: | ---:
-`0` | Kein Fehler | Es ist kein Fehler aufgetreten, die Variable wird versteckt.
-`201` | Unbekannt | Der Fehler ist dem System noch nicht bekannt. Überprüfe den Log um mehr Herauszufinden.
-`206` | Authorize | Der User ist noch nicht angemeldet.
-`207` | Token | Das System hat noch kein Zugriffs token (In der `Discovery Instanz`/`Geräte Instanz` auf Refresh drücken)
+`102` | Kein Fehler | Es ist kein Fehler aufgetreten.
+`201` | Error is unknown | Der Fehler ist dem System noch nicht bekannt. Überprüfe den Log um mehr Herauszufinden.
+**`206`** | User not authorized | Der User ist noch nicht angemeldet.
+`207` | Client has not token | Das System hat noch kein Zugriffs token (In der `Discovery Instanz`/`Geräte Instanz` auf Refresh drücken)
 
 ```HomeConnect Fehler```
 
-Integer | Beschreibung | Grund
+Code | Beschreibung | Grund
 :--- | :---: | ---:
-`401` | Nicht Verbunden | Das HomeConnect Gerät ist nicht mit dem Internet/HomeConnect system verbunden.
-`402` | Unbekanntes Programm | Das Programm auf dem Gerät ist dem Modul unbekannt.
-`403` | Programm start | Das Programm konnte nicht gestartet werden.
-`404` | Programm stop | Das Programm konnte nicht gestoppt werden
-`405` | Request | Anfrage konnte nicht bearbeitet werden.
-`406` | Limit | Anfrage Limit erreicht!
+**`401`** | Device is offline | Das HomeConnect Gerät ist nicht mit dem Internet/HomeConnect system verbunden.
+`402` | Program is unknown | Das Programm auf dem Gerät ist dem Modul unbekannt.
+`403` | Cant start program | Das Programm konnte nicht gestartet werden.
+`404` | Cant stop program | Das Programm konnte nicht gestoppt werden
+`405` | Request failed  | Anfrage an HomeConnect ist fehlgeschlagen.
+**`406`** | Request limit reached | Anfrage Limit erreicht!
 `407` | HomeConnect cloud is offline | HomeConnect ist zur zeit nicht erreichbar
-`408` | HomeConnect error | Fehler auf Seitens von HomeConnect
+**`408`** | HomeConnect error | Fehler auf Seitens von HomeConnect
+`409` | Permission is missing | Dem Modul fehlen Zugriffsrechte auf ihre Geräte. Kontaktieren sie den Entwickler!
+`410` | Operation state is unknown  | Der Geräte Zustand ist dem Modul nicht bekannt.
+**`411`** | Remote Control not allowed  | Die Kontrolle von dem Gerät ist nicht erlaubt. (Das lässt sich auf dem Gerät ändern)
+**`412`** | Remote Start not allowed  | Der Fernstart ist nicht erlaubt. (Das lässt sich auf dem Gerät ändern).
+`413` | Device is locked  | Der Zugriff auf das Gerät wird von dem lokalem Gerät verboten.
+`414` | Front Panel is open  | Das vordere Panel ist offen.
+`415` | Door is open  | Die Tür ist offen (für die Aktion muss sie geschlossen sein)
+`416` | Meatprobe is plugged  | Es wird zurzeit die Fleischprobe genutzt.
+**`417`** | Battery Level Low | Anfragen werden abgelehnt, da die Batterie unter 10/20% ist.
+`418` | Device is lifted | Das Gerät muss zum ausführen auf dem Boden stehen!
+`419` | Dust Box not inserted | Die Dreck/Staub Box muss eingesteckt sein!
+`420` | Already at Home | Das Gerät befindet sich schon Zuhause.
+`421` | Active Program | Es läuft bereits ein Program.
