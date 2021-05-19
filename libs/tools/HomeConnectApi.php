@@ -221,3 +221,66 @@ function OvenTranslateMode( string $ModeName, bool $direction) {
     // rewrite dictionary
     return array_flip($dictionary)[$ModeName];
 }
+
+/** Function the check failed Api call/Token call for errors
+ * @param $ex
+ * @return int
+ */
+function analyseEX( Exception $ex ) {
+    $codes = [
+        'No Authorization code present' => 206,
+        'invalid_grant' => 206,
+
+        'invalid_token' => 207,
+        'missing or invalid request parameters' => 207,
+
+        'SDK.Error.HomeAppliance.Connection.Initialization.Failed' => 401,
+
+        'SDK.Error.UnsupportedProgram' => 402,
+
+        'ActiveProgramNotSet' => 403,
+
+        'invalid_request' => 405,
+        '404' => 405,
+
+        '429' => 406,
+
+        '503' => 407,
+
+        '500' => 408,
+
+        '403' => 409,
+        'insufficient_scope' => 409,
+
+        'SDK.Error.UnsupportedOperation' => 410,
+
+        'BSH.Common.Error.RemoteControlNotActive' => 411,
+
+        'BSH.Common.Error.RemoteStartNotActive' => 412,
+
+        'BSH.Common.Error.LockedByLocalControl' => 413,
+
+        'SDK.Error.Cooking.Oven.Status.FrontPanelOpen' => 414,
+
+        'SDK.Error.WrongDoorState' => 415,
+
+        'SDK.Error.Cooking.Oven.Status.MeatprobePlugged' => 416,
+
+        'SDK.Error.BatteryLevelTooLow' => 417,
+
+        'SDK.Error.ConsumerProducts.CleaningRobot.Status.Lifted' => 418,
+
+        'SDK.Error.ConsumerProducts.CleaningRobot.Status.DustBoxNotInserted' => 419,
+
+        'SDK.Error.ConsumerProducts.CleaningRobot.Status.AlreadyAtHome' => 420,
+
+        'SDK.Error.ActiveProgramSet' => 421
+    ];
+
+    if ( isset( $codes[$ex->getMessage()] ) ) {
+        return $codes[$ex->getMessage()];
+    } else {
+        IPS_LogMessage( 'HomeConnect','Unknown HomeConnect Error: ' . $ex->getMessage() );
+        return 201;
+    }
+}

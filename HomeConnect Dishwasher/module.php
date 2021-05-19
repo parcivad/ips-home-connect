@@ -157,7 +157,7 @@ class HomeConnectDishwasher extends IPSModule {
                   // Make a Api call to get the current status of the device (inactive, ready, delayed start, active)
                   $recall_api = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
               } catch (Exception $ex) {
-                  $this->analyseEX($ex);
+                  $this->SetStatus( analyseEX($ex) );
                   return false;
               }
               // Build a Key => Value array with the getKeys function (look down in the code)
@@ -192,7 +192,7 @@ class HomeConnectDishwasher extends IPSModule {
                       // Api call to get the active program
                       $recallProgram = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active");
                   } catch (Exception $ex) {
-                      $this->analyseEX($ex);
+                      $this->SetStatus( analyseEX($ex) );
                       return false;
                   }
                   // Build a Key => Value array with the getKeys options (see bottom of the code)
@@ -230,7 +230,7 @@ class HomeConnectDishwasher extends IPSModule {
                       // Api call to set selected program on the device
                       $recallSelected = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/selected")['data'];
                   } catch (Exception $ex) {
-                      $this->analyseEX($ex);
+                      $this->SetStatus( analyseEX($ex) );
                       return false;
                   }
                   $this->SetListValue( explode( ".", $recallSelected['key'] )[3] );
@@ -324,7 +324,7 @@ class HomeConnectDishwasher extends IPSModule {
                       } catch (Exception $ex) {
                           // log
                           $this->_log( "Start failed look for authorization in discovery instance" );
-                          $this->analyseEX($ex);
+                          $this->SetStatus( analyseEX($ex) );
                       }
                   } else {
                       throw new Exception("Something went wrong (try again)");
@@ -369,7 +369,7 @@ class HomeConnectDishwasher extends IPSModule {
                       } catch (Exception $ex) {
                           // log
                           $this->_log( "Program didnt stop" );
-                          $this->analyseEX($ex);
+                          $this->SetStatus( analyseEX($ex) );
                       }
                       break;
                   // stop delayed start
@@ -406,11 +406,11 @@ class HomeConnectDishwasher extends IPSModule {
           try {
               Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/settings/BSH.Common.Setting.PowerState", $power);
               // log
-              $this->_log( $this->InstanceID, "Send On/off State to HomeConnect" );
+              $this->_log("Send On/off State to HomeConnect" );
           } catch (Exception $ex) {
               // log
-              $this->_log( $this->InstanceID, "Failed to send Device state" );
-              $this->analyseEX($ex);
+              $this->_log("Failed to send Device state" );
+              $this->SetStatus( analyseEX($ex) );
           }
       }
 
@@ -751,17 +751,17 @@ class HomeConnectDishwasher extends IPSModule {
               [
                   'code'    => 201,
                   'icon'    => 'error',
-                  'caption' => 'Unknown error   [ 201 ]',
+                  'caption' => 'Error is unknown   [ 201 ]',
               ],
               [
                   'code'    => 206,
                   'icon'    => 'error',
-                  'caption' => 'No Authorization/Login   [ 206 ]',
+                  'caption' => 'User not authorized   [ 206 ]',
               ],
               [
                   'code'    => 207,
                   'icon'    => 'error',
-                  'caption' => 'No Token   [ 207 ]',
+                  'caption' => 'Client has not token   [ 207 ]',
               ],
               [
                   'code'    => 401,
@@ -771,38 +771,103 @@ class HomeConnectDishwasher extends IPSModule {
               [
                   'code'    => 402,
                   'icon'    => 'inactive',
-                  'caption' => 'Unknown Program   [ 402 ]',
+                  'caption' => 'Program is unknown   [ 402 ]',
               ],
               [
                   'code'    => 403,
                   'icon'    => 'error',
-                  'caption' => 'Program cant be started   [ 403 ]',
+                  'caption' => 'Cant start program   [ 403 ]',
               ],
               [
                   'code'    => 404,
                   'icon'    => 'error',
-                  'caption' => 'Program cant be stopped   [ 404 ]',
+                  'caption' => 'Cant stop program   [ 404 ]',
               ],
               [
                   'code'    => 405,
                   'icon'    => 'inactive',
-                  'caption' => 'Request   [ 405 ]',
+                  'caption' => 'Request failed   [ 405 ]',
               ],
               [
                   'code'    => 406,
                   'icon'    => 'inactive',
-                  'caption' => 'Request/Send Limit is reached   [ 406 ]',
+                  'caption' => 'Request limit reached   [ 406 ]',
               ],
               [
                   'code'    => 407,
                   'icon'    => 'error',
-                  'caption' => 'HomeConnect Cloud is not available   [ 407 ]',
+                  'caption' => 'HomeConnect cloud is offline   [ 407 ]',
               ],
               [
                   'code'    => 408,
                   'icon'    => 'error',
-                  'caption' => 'Error from HomeConnect    [ 408 ]',
-              ]
+                  'caption' => 'HomeConnect error   [ 408 ]',
+              ],
+              [
+                  'code'    => 409,
+                  'icon'    => 'error',
+                  'caption' => 'Permission is missing   [ 409 ]',
+              ],
+              [
+                  'code'    => 410,
+                  'icon'    => 'error',
+                  'caption' => 'Operation state is unknown   [ 410 ]',
+              ],
+              [
+                  'code'    => 411,
+                  'icon'    => 'error',
+                  'caption' => 'Remote Control not allowed   [ 411 ]',
+              ],
+              [
+                  'code'    => 412,
+                  'icon'    => 'error',
+                  'caption' => 'Remote Start not allowed   [ 412 ]',
+              ],
+              [
+                  'code'    => 413,
+                  'icon'    => 'error',
+                  'caption' => 'Device is locked   [ 413 ]',
+              ],
+              [
+                  'code'    => 414,
+                  'icon'    => 'error',
+                  'caption' => 'Front Panel is open   [ 414 ]',
+              ],
+              [
+                  'code'    => 415,
+                  'icon'    => 'error',
+                  'caption' => 'Door is open  [ 415 ]',
+              ],
+              [
+                  'code'    => 416,
+                  'icon'    => 'error',
+                  'caption' => 'Meatprobe is plugged   [ 416 ]',
+              ],
+              [
+                  'code'    => 417,
+                  'icon'    => 'error',
+                  'caption' => 'Battery Level Low   [ 417 ]',
+              ],
+              [
+                  'code'    => 418,
+                  'icon'    => 'error',
+                  'caption' => 'Device is lifted   [ 418 ]',
+              ],
+              [
+                  'code'    => 419,
+                  'icon'    => 'error',
+                  'caption' => 'Dust Box not inserted   [ 419 ]',
+              ],
+              [
+                  'code'    => 420,
+                  'icon'    => 'error',
+                  'caption' => 'Already at Home   [ 420 ]',
+              ],
+              [
+                  'code'    => 421,
+                  'icon'    => 'error',
+                  'caption' => 'Active Program   [ 421 ]',
+              ],
           ];
       }
 
@@ -878,7 +943,7 @@ class HomeConnectDishwasher extends IPSModule {
               // make api call to get available programs on this device
               $programs = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/available")['data']['programs'];
           } catch (Exception $ex) {
-              $this->analyseEX($ex);
+              $this->SetStatus( analyseEX($ex) );
           }
           // count programs
           $programs_count = count( $programs );
@@ -1023,50 +1088,6 @@ class HomeConnectDishwasher extends IPSModule {
                 return 3;
         }
         return 0;
-    }
-
-      /** Function the check failed Api call/Token call for errors
-       * @param $ex
-       */
-      protected function analyseEX( Exception $ex ) {
-        // check the Exception and set error code
-        switch ( $ex->getMessage() ) {
-            // USER NOT LOGGED IN
-            case 'No Authorization code present':
-            case 'invalid_grant':
-                $this->SetStatus( 206 );
-                break;
-            // TOKEN NOT PROVIDED
-            case 'invalid_token':
-            case 'missing or invalid request parameters':
-                $this->SetStatus( 207 );
-                break;
-            // DEVICE NOT CONNECTED
-            case 'SDK.Error.HomeAppliance.Connection.Initialization.Failed':
-                $this->SetStatus( 401 );
-                break;
-            // WRONG REQUEST
-            case 'SDK.Error.NoProgramActive':
-            case 'SDK.Error.UnsupportedProgram':
-                $this->SetStatus( 402 );
-                break;
-            // FAILED/WRONG REQUEST
-            case 'invalid_request':
-            case '404':
-                $this->SetStatus( 405 );
-                break;
-            case '503':
-                $this->SetStatus( 407 );
-                break;
-            case '500':
-                $this->SetStatus( 408 );
-                break;
-            // ERROR...
-            default:
-                $this->SetStatus( 201 );
-                IPS_LogMessage( $this->InstanceID,'Unknown HomeConnect Error: ' . $ex->getMessage() );
-                break;
-        }
     }
 
       /** Send logs to IP-Symcon

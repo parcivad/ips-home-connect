@@ -40,7 +40,7 @@ class HomeConnectDiscovery extends IPSModule {
                     // authorize through a button
                     authorize($this->ReadPropertyString("auth_url"));
                 } catch (Exception $ex) {
-                    $this->analyseEX($ex);
+                    $this->SetStatus( analyseEX($ex) );
                 }
                 break;
             case "token":
@@ -48,7 +48,7 @@ class HomeConnectDiscovery extends IPSModule {
                     // refresh token with a button
                     return getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
                 } catch (Exception $ex) {
-                    $this->analyseEX($ex);
+                    $this->SetStatus( analyseEX($ex) );
                 }
                 break;
             case "get":
@@ -88,7 +88,7 @@ class HomeConnectDiscovery extends IPSModule {
             // else get device list:
             $data = Api("homeappliances")['data']['homeappliances'];
         } catch(Exception $ex) {
-            $this->analyseEX($ex);
+            $this->SetStatus( analyseEX($ex) );
             // Catch in case of error reset Data (most of the error caused by wrong auth code which can only get fixed by clearing the data.json file)
             resetData();
             // Return the User a information, what to do next
@@ -284,7 +284,7 @@ class HomeConnectDiscovery extends IPSModule {
      * @return array[] Form Status
      */
     protected function FormStatus() {
-        return[
+        return [
             [
                 'code'    => 101,
                 'icon'    => 'inactive',
@@ -293,7 +293,7 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 'code'    => 102,
                 'icon'    => 'active',
-                'caption' => 'HomeConnect Discovery created.',
+                'caption' => 'HomeConnect Ofen created.',
             ],
             [
                 'code'    => 104,
@@ -303,17 +303,17 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 'code'    => 201,
                 'icon'    => 'error',
-                'caption' => 'Unknown error   [ 201 ]',
+                'caption' => 'Error is unknown   [ 201 ]',
             ],
             [
                 'code'    => 206,
                 'icon'    => 'error',
-                'caption' => 'No Authorization/Login   [ 206 ]',
+                'caption' => 'User not authorized   [ 206 ]',
             ],
             [
                 'code'    => 207,
                 'icon'    => 'error',
-                'caption' => 'No Token   [ 207 ]',
+                'caption' => 'Client has not token   [ 207 ]',
             ],
             [
                 'code'    => 401,
@@ -323,83 +323,104 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 'code'    => 402,
                 'icon'    => 'inactive',
-                'caption' => 'Unknown Program   [ 402 ]',
+                'caption' => 'Program is unknown   [ 402 ]',
             ],
             [
                 'code'    => 403,
                 'icon'    => 'error',
-                'caption' => 'Program cant be started   [ 403 ]',
+                'caption' => 'Cant start program   [ 403 ]',
             ],
             [
                 'code'    => 404,
                 'icon'    => 'error',
-                'caption' => 'Program cant be stopped   [ 404 ]',
+                'caption' => 'Cant stop program   [ 404 ]',
             ],
             [
                 'code'    => 405,
                 'icon'    => 'inactive',
-                'caption' => 'Request   [ 405 ]',
+                'caption' => 'Request failed   [ 405 ]',
             ],
             [
                 'code'    => 406,
                 'icon'    => 'inactive',
-                'caption' => 'Request/Send Limit is reached   [ 406 ]',
+                'caption' => 'Request limit reached   [ 406 ]',
             ],
             [
                 'code'    => 407,
                 'icon'    => 'error',
-                'caption' => 'HomeConnect Cloud is not available   [ 407 ]',
+                'caption' => 'HomeConnect cloud is offline   [ 407 ]',
             ],
             [
                 'code'    => 408,
                 'icon'    => 'error',
-                'caption' => 'Error from HomeConnect    [ 408 ]',
-            ]
+                'caption' => 'HomeConnect error   [ 408 ]',
+            ],
+            [
+                'code'    => 409,
+                'icon'    => 'error',
+                'caption' => 'Permission is missing   [ 409 ]',
+            ],
+            [
+                'code'    => 410,
+                'icon'    => 'error',
+                'caption' => 'Operation state is unknown   [ 410 ]',
+            ],
+            [
+                'code'    => 411,
+                'icon'    => 'error',
+                'caption' => 'Remote Control not allowed   [ 411 ]',
+            ],
+            [
+                'code'    => 412,
+                'icon'    => 'error',
+                'caption' => 'Remote Start not allowed   [ 412 ]',
+            ],
+            [
+                'code'    => 413,
+                'icon'    => 'error',
+                'caption' => 'Device is locked   [ 413 ]',
+            ],
+            [
+                'code'    => 414,
+                'icon'    => 'error',
+                'caption' => 'Front Panel is open   [ 414 ]',
+            ],
+            [
+                'code'    => 415,
+                'icon'    => 'error',
+                'caption' => 'Door is open  [ 415 ]',
+            ],
+            [
+                'code'    => 416,
+                'icon'    => 'error',
+                'caption' => 'Meatprobe is plugged   [ 416 ]',
+            ],
+            [
+                'code'    => 417,
+                'icon'    => 'error',
+                'caption' => 'Battery Level Low   [ 417 ]',
+            ],
+            [
+                'code'    => 418,
+                'icon'    => 'error',
+                'caption' => 'Device is lifted   [ 418 ]',
+            ],
+            [
+                'code'    => 419,
+                'icon'    => 'error',
+                'caption' => 'Dust Box not inserted   [ 419 ]',
+            ],
+            [
+                'code'    => 420,
+                'icon'    => 'error',
+                'caption' => 'Already at Home   [ 420 ]',
+            ],
+            [
+                'code'    => 421,
+                'icon'    => 'error',
+                'caption' => 'Active Program   [ 421 ]',
+            ],
         ];
-    }
-
-    /** Function the check failed Api call/Token call for errors
-     * @param $ex
-     */
-    protected function analyseEX( Exception $ex ) {
-        // check the Exception and set error code
-        switch ( $ex->getMessage() ) {
-            // USER NOT LOGGED IN
-            case 'No Authorization code present':
-            case 'invalid_grant':
-                $this->SetStatus( 206 );
-                break;
-            // TOKEN NOT PROVIDED
-            case 'invalid_token':
-            case 'missing or invalid request parameters':
-                $this->SetStatus( 207 );
-                break;
-            // DEVICE NOT CONNECTED
-            case 'SDK.Error.HomeAppliance.Connection.Initialization.Failed':
-                $this->SetStatus( 401 );
-                break;
-            // WRONG REQUEST
-            case 'SDK.Error.NoProgramActive':
-            case 'SDK.Error.UnsupportedProgram':
-                $this->SetStatus( 402 );
-                break;
-            // FAILED/WRONG REQUEST
-            case 'invalid_request':
-            case '404':
-                $this->SetStatus( 405 );
-                break;
-            case '503':
-                $this->SetStatus( 407 );
-                break;
-            case '500':
-                $this->SetStatus( 408 );
-                break;
-            // ERROR...
-            default:
-                $this->SetStatus( 201 );
-                IPS_LogMessage( $this->InstanceID,'Unknown HomeConnect Error: ' . $ex->getMessage() );
-                break;
-        }
     }
 
 }
