@@ -113,3 +113,4 @@ Integer | Beschreibung | Grund
 `404` | Programm stop | Das Programm konnte nicht gestoppt werden
 `405` | Request | Anfrage konnte nicht bearbeitet werden.
 `406` | Limit | Anfrage Limit erreicht!
+`407` | HomeConnect cloud is offline | HomeConnect ist zur zeit nicht erreichbar

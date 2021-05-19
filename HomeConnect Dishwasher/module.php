@@ -792,6 +792,11 @@ class HomeConnectDishwasher extends IPSModule {
                   'code'    => 406,
                   'icon'    => 'inactive',
                   'caption' => 'Request/Send Limit is reached   [ 406 ]',
+              ],
+              [
+                  'code'    => 407,
+                  'icon'    => 'error',
+                  'caption' => 'HomeConnect Cloud is not available   [ 407 ]',
               ]
           ];
       }
@@ -1043,6 +1048,9 @@ class HomeConnectDishwasher extends IPSModule {
             case 'invalid_request':
             case '404':
                 $this->SetStatus( 405 );
+                break;
+            case '503':
+                $this->SetStatus( 407 );
                 break;
             // ERROR...
             default:
