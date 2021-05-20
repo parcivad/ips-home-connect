@@ -741,7 +741,7 @@ class HomeConnectDishwasher extends IPSModule {
               [
                   'code'    => 102,
                   'icon'    => 'active',
-                  'caption' => 'HomeConnect Ofen created.',
+                  'caption' => 'HomeConnect Dishwasher created.',
               ],
               [
                   'code'    => 104,

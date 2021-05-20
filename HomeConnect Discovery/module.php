@@ -295,7 +295,7 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 'code'    => 102,
                 'icon'    => 'active',
-                'caption' => 'HomeConnect Ofen created.',
+                'caption' => 'HomeConnect Discovery created.',
             ],
             [
                 'code'    => 104,
