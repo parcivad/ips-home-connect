@@ -17,7 +17,7 @@ Für das Nutzen dieses Moduls wird ein HomeConnect Account benötigt.
 
 ## Installation 
 Das Modul kann über die Kerninstanz `Modules` installiert werden. Dafür auf den `Hinzufügen/Plus` Knopf drücken und dann die Url von 
-diesem Modul eingeben `https://github.com/LegendDragon11/ips-home-connect`;
+diesem Modul eingeben `https://github.com/parcivad/ips-home-connect`;
 
 Nach der Installation kann das Modul über die ``Discovery Instance`` eingestellt werden.
 
