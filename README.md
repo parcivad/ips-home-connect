@@ -25,7 +25,7 @@ Nach der Installation kann das Modul über die ``Discovery Instance`` eingestell
 Nach dem Hinzufügen der ``Discovery Instance`` können die Geräte gefunden werden, nachdem sie sich eingeloggt haben.
 
 <p align="center">
-  <img width="auto" height="auto" src="https://github.com/LegendDragon11/img/blob/main/Home%20Connect%20Login.png">
+  <img width="auto" height="auto" src="https://github.com/parcivad/img/blob/main/Home%20Connect%20Login.png">
 </p>
 
 Nach dem Kopieren der Url muss der Login Knopf gedrückt werden. Danach die Instanz ``refreshen`` und die Geräte auswählen die

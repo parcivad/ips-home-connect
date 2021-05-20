@@ -15,7 +15,7 @@ Zudem lassen sich Informationen wie die verbleibende Zeit oder die Temperatur ge
 ## Instanz Einstellungen
 
 <p align="center">
-  <img width="auto" height="auto" src="https://github.com/LegendDragon11/img/blob/main/InstanzOfen.png">
+  <img width="auto" height="auto" src="https://github.com/parcivad/img/blob/main/InstanzOfen.png">
 </p>
 
 
@@ -46,7 +46,7 @@ Name | Type | Werte | Funktionen
 ### Variablen Webfront
 
 <p align="center">
-  <img width="auto" height="auto" src="https://github.com/LegendDragon11/img/blob/main/Ofen%20im%20Webfront.png">
+  <img width="auto" height="auto" src="https://github.com/parcivad/img/blob/main/Ofen%20im%20Webfront.png">
 </p>
 
 ## Ofen Set

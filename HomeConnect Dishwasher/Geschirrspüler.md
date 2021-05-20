@@ -15,7 +15,7 @@ Zudem lassen sich Informationen wie die verbleibende Zeit oder die Programme geb
 ## Instanz Einstellungen
 
 <p align="center">
-  <img width="auto" height="auto" src="https://github.com/LegendDragon11/img/blob/main/InstanzGeschirrspüler.png">
+  <img width="auto" height="auto" src="https://github.com/parcivad/img/blob/main/InstanzGeschirrspüler.png">
 </p>
 
 
@@ -43,7 +43,7 @@ Name | Type | Werte | Funktionen
 ## Variablen Webfront
 
 <p align="center">
-  <img width="auto" height="auto" src="https://github.com/LegendDragon11/img/blob/main/Geschirrspüler%20im%20Webfront.png">
+  <img width="auto" height="auto" src="https://github.com/parcivad/img/blob/main/Geschirrspüler%20im%20Webfront.png">
 </p>
 
 ## Geschirrspüler Set
