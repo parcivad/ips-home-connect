@@ -87,6 +87,8 @@ class HomeConnectDiscovery extends IPSModule {
             }
             // else get device list:
             $data = Api("homeappliances")['data']['homeappliances'];
+            // reset Status after error
+            $this->SetStatus( 102 );
         } catch(Exception $ex) {
             $this->SetStatus( analyseEX($ex) );
             // Catch in case of error reset Data (most of the error caused by wrong auth code which can only get fixed by clearing the data.json file)

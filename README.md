@@ -68,18 +68,18 @@ Code | Beschreibung | Grund
 **`401`** | Device is offline | Das HomeConnect Gerät ist nicht mit dem Internet/HomeConnect system verbunden.
 `402` | Program is unknown | Das Programm auf dem Gerät ist dem Modul unbekannt.
 `403` | Cant start program | Das Programm konnte nicht gestartet werden.
-`404` | Cant stop program | Das Programm konnte nicht gestoppt werden.
+`404` | Cant stop program | Das Programm konnte nicht gestoppt werden
 `405` | Request failed  | Anfrage an HomeConnect ist fehlgeschlagen.
 **`406`** | Request limit reached | Anfrage Limit erreicht!
-`407` | HomeConnect cloud is offline | HomeConnect ist zur zeit nicht erreichbar.
-**`408`** | HomeConnect error | Fehler auf seitens von HomeConnect.
+`407` | HomeConnect cloud is offline | HomeConnect ist zur zeit nicht erreichbar
+**`408`** | HomeConnect error | Fehler auf Seitens von HomeConnect
 `409` | Permission is missing | Dem Modul fehlen Zugriffsrechte auf ihre Geräte. Kontaktieren sie den Entwickler!
 `410` | Operation state is unknown  | Der Geräte Zustand ist dem Modul nicht bekannt.
-**`411`** | Remote Control not allowed  | Die Kontrolle von dem Gerät ist nicht erlaubt (Das lässt sich auf dem Gerät ändern).
+**`411`** | Remote Control not allowed  | Die Kontrolle von dem Gerät ist nicht erlaubt. (Das lässt sich auf dem Gerät ändern)
 **`412`** | Remote Start not allowed  | Der Fernstart ist nicht erlaubt. (Das lässt sich auf dem Gerät ändern).
 `413` | Device is locked  | Der Zugriff auf das Gerät wird von dem lokalem Gerät verboten.
 `414` | Front Panel is open  | Das vordere Panel ist offen.
-`415` | Door is open  | Die Tür ist offen (für die Aktion muss sie geschlossen sein).
+`415` | Door is open  | Die Tür ist offen (für die Aktion muss sie geschlossen sein)
 `416` | Meatprobe is plugged  | Es wird zurzeit die Fleischprobe genutzt.
 **`417`** | Battery Level Low | Anfragen werden abgelehnt, da die Batterie unter 10/20% ist.
 `418` | Device is lifted | Das Gerät muss zum ausführen auf dem Boden stehen!
