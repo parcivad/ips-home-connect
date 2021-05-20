@@ -334,12 +334,8 @@ class HomeConnectOven extends IPSModule {
 
           //====================================================================================================================== Send start
           if ($this->GetValue("remoteStart")) {
-              // log
-              $this->_log( "Canceled (remote start not allowed)" );
               // Check Door state
               if (!$this->GetValue("door")) {
-                  // log
-                  $this->_log( "Canceled (door open)" );
                   // Check if the device is on
                   if ($this->GetValue("state") == 1) {
                       try {
@@ -361,13 +357,19 @@ class HomeConnectOven extends IPSModule {
                       }
 
                   } else {
-                      throw new Exception("The Device " . $this->ReadPropertyString("name") . " is not ready/running a program");
+                      // log
+                      $this->_log( "Canceled (program running)" );
+                      throw new Exception("state");
                   }
               } else {
-                  throw new Exception("Door state must be closed");
+                  // log
+                  $this->_log( "Canceled (door open)" );
+                  throw new Exception("door");
               }
           } else {
-              throw new Exception("Remote start must be allowed");
+              // log
+              $this->_log( "Canceled (no permission)" );
+              throw new Exception("permission");
           }
       }
 
@@ -412,11 +414,11 @@ class HomeConnectOven extends IPSModule {
                       // log
                       $this->_log( "Canceled (no program is running)" );
                       // throw logic exception for no reason to stop
-                      throw new Exception("No Program running on " . $this->ReadPropertyString("name") );
+                      throw new Exception("state" );
               }
           } else {
               // throw logic exception for no permission
-              throw new Exception("Remote control must be allowed");
+              throw new Exception("permission");
           }
       }
 
