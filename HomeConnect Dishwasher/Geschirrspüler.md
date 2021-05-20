@@ -64,7 +64,24 @@ Ein Programm kann im Webfront gestartet werden, beim Drücken auf dem start knop
 
 Im Code kann das Programm auch noch verzögert gestartet werden mit.
 ```php
-HCDishwasher_start( InstanceID, "<Modus als string>", "<Verzögerter start in sekunden>");
+try {
+     // try to start the device
+     HCDishwasher_start( instance, 'Program', delay in seconds );
+
+} catch(Exception $ex) {
+     // catch the error and get the reason why it failed
+     switch( $ex->getMessage() ) {
+          case 'state':
+            // Do something and know that a program is running...
+            break;
+          case 'door':
+            // Do something and know that the door is open...
+            break;
+          case 'permission':
+            // Do something and know that the permission (remote start) is not given...
+     }
+
+}
 ```
 ```diff
 -Für diese Aktion wird die Berechtigung RemoteControl und RemoteStart benötigt!
@@ -74,7 +91,22 @@ Ein Programm kann über das Webfront gestoppt werden, das ist auch möglich, wen
 
 Im Code kann das Programm mit ... gestoppt werden.
 ```php
-HCDishwasher_stop( InstanceID );
+try {
+     // try to start the device
+     HCOven_stop( instanceID );
+
+} catch(Exception $ex) {
+
+     // catch the error and get the reason why it failed
+     switch( $ex->getMessage() ) {
+          case 'state':
+            // Do something and know that a program is running...
+            break;
+          case 'permission':
+            // Do something and know that the permission (remote control) is not given...
+     }
+
+}
 ```
 ```diff
 -Für diese Aktion wird die Berechtigung RemoteControl benötigt!

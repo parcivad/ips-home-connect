@@ -65,9 +65,26 @@ HCOven_SetActive( InstaceID, false/true );
 ### Programm starten [4 REQUESTS]
 Ein Programm kann im Webfront gestartet werden, beim Drücken auf dem start knopf wird der aktuelle Modus ausgewählt und gestartet
 
-Im Code kann das Programm auch noch verzögert gestartet werden mit.
+Im Code kann das Programm auch gestartet werden:
 ```php
-HCOven_start( "<Programm als String zb. Auto2>",  Temperatur in °C als integer, Dauer wie lange das Programm laufen soll in Sekunden );
+try {
+     // try to start the device
+     HCOven_start( instance, 'Program', temperature, time in seconds );
+
+} catch(Exception $ex) {
+     // catch the error and get the reason why it failed
+     switch( $ex->getMessage() ) {
+          case 'state':
+            // Do something and know that a program is running...
+            break;
+          case 'door':
+            // Do something and know that the door is open...
+            break;
+          case 'permission':
+            // Do something and know that the permission (remote start) is not given...
+     }
+
+}
 ```
 ```diff
 -Für diese Aktion wird die Berechtigung RemoteControl und RemoteStart benötigt!
@@ -77,7 +94,22 @@ Ein Programm kann über das Webfront gestoppt werden, das ist auch möglich, wen
 
 Im Code kann das Programm mit ... gestoppt werden.
 ```php
-HCOven_stop( InstanceID );
+try {
+     // try to start the device
+     HCOven_stop( instanceID );
+
+} catch(Exception $ex) {
+
+     // catch the error and get the reason why it failed
+     switch( $ex->getMessage() ) {
+          case 'state':
+            // Do something and know that a program is running...
+            break;
+          case 'permission':
+            // Do something and know that the permission (remote control) is not given...
+     }
+
+}
 ```
 ```diff
 -Für diese Aktion wird die Berechtigung RemoteControl benötigt!
