@@ -5,7 +5,7 @@ require_once( dirname(dirname(__FILE__) ) . "/libs/tools/tm/tm.php");
 $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/libs/tools/tm/data.json" ), true );
 
 
-class HomeConnectDishwasher extends IPSModule {
+class HomeConnectDryer extends IPSModule {
 
       /** This function will be called on the creation of this Module
        * @return bool|void
@@ -56,9 +56,9 @@ class HomeConnectDishwasher extends IPSModule {
           $this->RegisterAttributeBoolean("first_start", true );
 
           // Register Timers [refresh Timer, Count down until start, Count down until program ends]
-          $this->RegisterTimer($this->InstanceID . "-refresh", 300000, "HCDishwasher_refresh( $this->InstanceID );");
-          $this->RegisterTimer("DownCountStart", 0, "HCDishwasher_DownCount($this->InstanceID, 'remainStartTime'");
-          $this->RegisterTimer("DownCountProgram", 0, "HCDishwasher_DownCount($this->InstanceID, 'remainTime');");
+          $this->RegisterTimer($this->InstanceID . "-refresh", 300000, "HCDryer_refresh( $this->InstanceID );");
+          $this->RegisterTimer("DownCountStart", 0, "HCDryer_DownCount($this->InstanceID, 'remainStartTime'");
+          $this->RegisterTimer("DownCountProgram", 0, "HCDryer_DownCount($this->InstanceID, 'remainTime');");
 
           // Register Variable and Profiles [look in class]
           $this->registerProfiles();
@@ -67,12 +67,13 @@ class HomeConnectDishwasher extends IPSModule {
           $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -2);
           $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_State", 0);
           $this->RegisterVariableString("remainStartTime", "Start in", "", 1);
-          $this->RegisterVariableInteger("mode", "Programm", "HC_DishwasherMode", 2);
-          $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_RemoteStart", 3);
-          $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_DoorState", 4);
-          $this->RegisterVariableString("remainTime", "Verbleibende Programm Zeit", "", 5);
-          $this->RegisterVariableInteger("progress", "Fortschritt", "HC_Progress", 6);
-          $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_StartStop", 7);
+          $this->RegisterVariableInteger("mode", "Programm", "HC_DryerMode", 2);
+          $this->RegisterVariableInteger("option", "Programm Option", "HC_DryerOption", 3);
+          $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_RemoteStart", 4);
+          $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_DoorState", 5);
+          $this->RegisterVariableString("remainTime", "Verbleibende Programm Zeit", "", 6);
+          $this->RegisterVariableInteger("progress", "Fortschritt", "HC_Progress", 7);
+          $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_StartStop", 8);
 
           // error codes
           $this->RegisterVariableInteger("info", "Info", "", 99 );
@@ -80,6 +81,7 @@ class HomeConnectDishwasher extends IPSModule {
           // Enable Action for variables, for change reaction look up RequestAction();
           $this->EnableAction('start_stop');
           $this->EnableAction('mode');
+          $this->EnableAction('option');
           $this->EnableAction('state');
 
           // Set Hide, the user can link the instance with no unimportant info
@@ -117,10 +119,14 @@ class HomeConnectDishwasher extends IPSModule {
               case 'mode':
                   $this->SetValue('mode', $Value);
                   break;
+              case 'option':
+                  $this->SetValue('option', $Value);
+                  break;
               case 'start_stop':
                   if ($Value) {
-                      $program = $this->GetListValue();
-                      $this->start($program, 0);
+                      $program = $this->GetListValue( true );
+                      $option = $this->GetListValue( false );
+                      $this->start($program, $option);
                       $this->SetValue('start_stop', true);
                   } else {
                       $this->stop();
@@ -268,7 +274,7 @@ class HomeConnectDishwasher extends IPSModule {
 
           //================================================================================================================== Settings for the first start after refresh
           if ( $this->ReadAttributeBoolean("first_start") ) {
-              $this->BuildList("HC_DishwasherMode");
+              $this->BuildList("HC_DryerMode");
               $this->WriteAttributeBoolean("first_start", false );
           }
 
@@ -281,24 +287,24 @@ class HomeConnectDishwasher extends IPSModule {
 
     /** Function to start Modes for the Dishwasher
      * @param string $mode Mode
-     * @param int $delay Delay in seconds until the device starts
+     * @param string $option Delay in seconds until the device starts
      * @throws Exception
-     */
-      public function start( string $mode, int $delay ) {
+     */ //TODO: check right command
+      public function start( string $mode, string $option ) {
           // log
           $this->_log( "Trying to start Device..." );
-          // Set the device ready ( device must be ready for start )
-          $this->SetActive(true);
-          // Wait short until the device in ready state
-          sleep(1);
           // Refresh variables (like door state)
           $this->refresh();
 
-          // Build the program string the user set
-          $run_program = "Dishcare.Dishwasher.Program." . $mode;
+          if ( $mode == "Mix" ) {
+              if ( $option != "CupboardDry" && $option != "IronDry" ) {
+                  // option not allowed for this mode
+                  throw new Error('This Option is not allowed for this Mode!');
+              }
+          }
 
           // Build the json for the api
-          $opt = '{"data":{"key":"' . $run_program . '","options":[{"key":"BSH.Common.Option.StartInRelative","value":' . $delay . ',"unit":"seconds"}]}}';
+          $opt = '{"data":{"key":"LaundryCare.Dryer.Program.' . $mode . '","options":[{"key":"LaundryCare.Dryer.Option.DryingTarget","value":"LaundryCare.Dryer.EnumType.DryingTarget.' . $option . '"}]}}';
 
           //====================================================================================================================== Send start
           if ($this->GetValue("remoteStart")) {
@@ -319,7 +325,7 @@ class HomeConnectDishwasher extends IPSModule {
                           $this->_log( "Send start notify" );
                       } catch (Exception $ex) {
                           // log
-                          $this->_log( "Start failed look for authorization in discovery instance" );
+                          $this->_log( "Start failed look for more information in the Log" );
                           $this->SetStatus( analyseEX($ex) );
                       }
                   } else {
@@ -337,6 +343,8 @@ class HomeConnectDishwasher extends IPSModule {
               $this->_log( "Canceled (no permission)" );
               throw new Exception("permission");
           }
+
+          $this->refresh();
       }
 
     /**
@@ -443,9 +451,13 @@ class HomeConnectDishwasher extends IPSModule {
               IPS_SetVariableProfileAssociation("HC_State", 2, "Verzögerter Start", "", 0xfa8e00 );
               IPS_SetVariableProfileAssociation("HC_State", 3, "Program läuft", "", 0xfa3200 );
           }
-          if (!IPS_VariableProfileExists("HC_DishwasherMode") ) {
-              IPS_CreateVariableProfile("HC_DishwasherMode", 1);
-              IPS_SetVariableProfileIcon("HC_DishwasherMode", 'Drops');
+          if (!IPS_VariableProfileExists("HC_DryerMode") ) {
+              IPS_CreateVariableProfile("HC_DryerMode", 1);
+              IPS_SetVariableProfileIcon("HC_DryerMode", 'Drops');
+          }
+          if (!IPS_VariableProfileExists("HC_DryerOption") ) {
+              IPS_CreateVariableProfile("HC_DryerOption", 1);
+              IPS_SetVariableProfileIcon("HC_DryerOption", 'TurnRight');
           }
           if (!IPS_VariableProfileExists('HC_Progress')) {
               IPS_CreateVariableProfile('HC_Progress', 1);
@@ -498,22 +510,22 @@ class HomeConnectDishwasher extends IPSModule {
               [
                   "type" => "Button",
                   "caption" => "Test Handy notify",
-                  "onClick" => 'HCDishwasher_test( $id, "handy_message" );',
+                  "onClick" => 'HCDryer_test( $id, "handy_message" );',
               ],
               [
                   "type" => "Button",
                   "caption" => "Test Webfront notify",
-                  "onClick" => 'HCDishwasher_test( $id, "web_message" );',
+                  "onClick" => 'HCDryer_test( $id, "web_message" );',
               ],
               [
                   "type" => "Button",
                   "caption" => "Refresh",
-                  "onClick" => 'HCDishwasher_refresh( $id );',
+                  "onClick" => 'HCDryer_refresh( $id );',
               ],
               [
                   "type" => "Button",
                   "caption" => "Profile refresh",
-                  "onClick" => 'HCDishwasher_BuildList( $id, "HC_DishwasherMode");',
+                  "onClick" => 'HCDryer_BuildList( $id, "HC_DryerMode");',
               ]
           ];
       }
@@ -525,12 +537,12 @@ class HomeConnectDishwasher extends IPSModule {
           return[
               [
                   "type" => "Image",
-                  "image" => "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAACWCAYAAAAonXpvAAAF52lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS41LjAiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgeG1sbnM6ZXhpZj0iaHR0cDovL25zLmFkb2JlLmNvbS9leGlmLzEuMC8iCiAgICB4bWxuczpwaG90b3Nob3A9Imh0dHA6Ly9ucy5hZG9iZS5jb20vcGhvdG9zaG9wLzEuMC8iCiAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyIKICAgIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIKICAgIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIgogICAgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIKICAgIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIKICAgZXhpZjpDb2xvclNwYWNlPSIxIgogICBleGlmOlBpeGVsWERpbWVuc2lvbj0iNTAwIgogICBleGlmOlBpeGVsWURpbWVuc2lvbj0iMTUwIgogICBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIgogICBwaG90b3Nob3A6SUNDUHJvZmlsZT0ic1JHQiBJRUM2MTk2Ni0yLjEiCiAgIHRpZmY6SW1hZ2VMZW5ndGg9IjE1MCIKICAgdGlmZjpJbWFnZVdpZHRoPSI1MDAiCiAgIHRpZmY6UmVzb2x1dGlvblVuaXQ9IjIiCiAgIHRpZmY6WFJlc29sdXRpb249IjQwMC4wIgog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"
+                  "image" => "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAACWCAYAAAAonXpvAAAF52lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS41LjAiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgeG1sbnM6ZXhpZj0iaHR0cDovL25zLmFkb2JlLmNvbS9leGlmLzEuMC8iCiAgICB4bWxuczpwaG90b3Nob3A9Imh0dHA6Ly9ucy5hZG9iZS5jb20vcGhvdG9zaG9wLzEuMC8iCiAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyIKICAgIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIKICAgIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIgogICAgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIKICAgIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIKICAgZXhpZjpDb2xvclNwYWNlPSIxIgogICBleGlmOlBpeGVsWERpbWVuc2lvbj0iNTAwIgogICBleGlmOlBpeGVsWURpbWVuc2lvbj0iMTUwIgogICBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIgogICBwaG90b3Nob3A6SUNDUHJvZmlsZT0ic1JHQiBJRUM2MTk2Ni0yLjEiCiAgIHRpZmY6SW1hZ2VMZW5ndGg9IjE1MCIKICAgdGlmZjpJbWFnZVdpZHRoPSI1MDAiCiAgIHRpZmY6UmVzb2x1dGlvblVuaXQ9IjIiCiAgIHRpZmY6WFJlc29sdXRpb249IjQwMC4wIgogICB0aWZmOllSZXNvbHV0aW9uPSI0MDAuMCIKICAgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyMS0wNS0yMVQyMTowMzoyNiswMjowMCIKICAgeG1wOk1vZGlmeURhdGU9IjIwMjEtMDUtMjFUMjE6MDM6MjYrMDI6MDAiPgogICA8eG1wTU06SGlzdG9yeT4KICAgIDxyZGY6U2VxPgogICAgIDxyZGY6bGkKICAgICAgeG1wTU06YWN0aW9uPSJwcm9kdWNlZCIKICAgICAgeG1wTU06c29mdHdhcmVBZ2VudD0iQWZmaW5pdHkgRGVzaWduZXIgMS45LjEiCiAgICAgIHhtcE1NOndoZW49IjIwMjEtMDMtMThUMjA6NDU6MTIrMDE6MDAiLz4KICAgICA8cmRmOmxpCiAgICAgIHN0RXZ0OmFjdGlvbj0icHJvZHVjZWQiCiAgICAgIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFmZmluaXR5IERlc2lnbmVyIDEuOS4zIgogICAgICBzdEV2dDp3aGVuPSIyMDIxLTA1LTIxVDIxOjAzOjI2KzAyOjAwIi8+CiAgICA8L3JkZjpTZXE+CiAgIDwveG1wTU06SGlzdG9yeT4KICAgPGRjOnRpdGxlPgogICAgPHJkZjpBbHQ+CiAgICAgPHJkZjpsaSB4bWw6bGFuZz0ieC1kZWZhdWx0Ij5JUFN5bWNvbkltZzwvcmRmOmxpPgogICAgPC9yZGY6QWx0PgogICA8L2RjOnRpdGxlPgogIDwvcmRmOkRlc2NyaXB0aW9uPgogPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KPD94cGFja2V0IGVuZD0iciI/PpJjboAAAAGDaUNDUHNSR0IgSUVDNjE5NjYtMi4xAAAokXWRuUsDQRSHv0Ql4oHiARYWQdRKxQOCBwgmSBSChBjBq0k2l5CNy25ExFawDSiINl6F/gXaCtaCoCiC2AnWijYq61s3kCDmDW/eN7+Z95h5A85wWlGN8l5QM1k95Pe6Z+fm3a5nKmimgRGGI4qhjQWDAUraxx0OK950W7VKn/vXqmNxQwFHpfCooulZ4QnhwGpWs3hbuElJRWLCp8JdulxQ+NbSoza/WJy0+ctiPRzygbNe2J0s4mgRKyldFZaX066mV5T8fayX1MQzM9MS28RbMQjhx4ubScbx4aGPIZk9dNNPj6wokd/7mz/FsuQqMmusobNEkhRZukRdkepxiQnR4zLSrFn9/9tXIzHQb1ev8ULFk2m+dYBrC75zpvl5aJrfR1D2CBeZQv7yAQy+i54raO37ULcBZ5cFLboD55vQ8qBF9MivVCbuTCTg9QRq56DxGqoW7J7l9zm+h/C6fNUV7O5Bp5yvW/wB16BoGedxK9wAAAAJcEhZcwAAPYQAAD2EAdWsr3QAACAASURBVHic7d13nN1F1cfxTxotJJQgSAhl8tARpChVihRBegkBEnrvRQWEDPAEDk0RAhERQgelS+9SpAgIPkiTGoYOIdJbAinPH2fWvdm9u3vLb3ezu9/367WvwC1zh7C75zfzO3MOiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIh0Q706ewLtKYTQD1gM6NPJU+kJvgPeTSlN6uyJiIj0RH07ewLtbF7gbGDuzp5ID/A2cDzwcmdPRESkJ+ruAX1W4EfA9zp7Ij3AfED/zp6EiEhP1buzJyAiIiL1U0AXERHpBhTQRUREuoHufg+9nC+BMcDjnT2RLmxJ4MzOnoSIiDTqiQF9CvDPlNLtnT2RriqEMLGz5yAiIjPqiQFdRKTdxBjnABbKX0NK/nnj/OfXgC6KpV7XmNmJpQ8ooIuI1CjG2AtYBtgAWB9Yi7aPyU5u73lJz6SALiJShRjjIngAbwjiC+anpgH/BO4F3gHezV9rAofjSciXAHuZ2fQOnrb0AAroIiKtiDHODWxEYxBfvOTpF4DrgPuAv5nZZyXvmwe4GNga+AYP6IcqmEt7UUAvSAihDzAS2LWz55L9EzgtpfRJZ09EpKvJW+lrAvsCw4HZ8lNvABfhAfx+M5vQwvtXB64GFgVuBrYCrjazL9t35tKTKaAXpxcwFL+CnxlMBWbp7EmIdCUxxkHALnggXyY//BhwOXCPmb3exvt7A78ATsVP1OyD31PfCvhTO01bBFBAF5EeLq/G18GD+HZ4D4hPgHOAcWb2fIXjDAIuAzYDXgKGm9lzMcZngY+Be9ph+iL/pYAuIj1SjPF7wG74KnrJ/PBDwDjgBjP7poqxfgJchR9Tuww4yMy+ijEuDywPnG9m3xY5f5GmFNBFpEeJMa4CHAlsC/QDPsIrH44zs5eqHKs3cDRwEn4cbXczu6zkJb/Kf15Z77xF2qKALiI9QozxfwADdswP3Y+vxm80s6rPhscY58fvrW+MZ7sPN7N/lzy/Kp4kezfwaH2zF2mbArqIdGs58EZgf3xFfjtwrJk9W8eY6+Jb7AsCFwKHmdnXJc/3As7Gk1N/oaNq0hEU0IszHS8i8WRnTyR7Bfiusych0llijHPiGedHAnMC/wCOMrO/1TFmH2AUcAJewnWkmf25zEtHAKsDY0tX7SLtSQG9ICmlqfj23bjOnotITxZj7AfsjQfdBYBXgWOAv9SzUo4xfh+/F74B8Ay+xf5Kmdf1B07HM9v/t9bPE6mWArqIdAt5m3s74BRgCWACcABwkZnVtVsVY9wAP0e+APBH4Agzm9TCy4/Gm7AcbGYf1/O5ItVQQBeRLi/f0/4NsCrwJXA8cFa9ldlijH3zWDGPu4OZXdvK6xfFt/hfAM6v57NFqqWALiJdVoxxCPAHYAs8Z+Qc4GQz+7CAsQfjiW/rAP+Hb7GPb+Ntp+NlYg83syn1zkGkGgroItLl5O31PYCzgIHAtXjmelsBt9LxNwGuAOYDxgJHtnW0Lca4NrADcIuZ/bWIeYhUQwFdRLqUGOPCwAXAJsB7eKb5bQWN3RcvEvNr4DNgOzP7SwXvmwPfKfiOxmIyIh1KAV1EuoS8Kt8Tr+o2ELgUP+NdSEfBfKFwFbAWfvx0BzNLFb79XOAHwCgze7WI+YhUSwFdRGZ6+cjYpXhVtveAEWZ2e4Hjb4ZXfZsXv2A4ptLa6zHGPYDdgTuB04qak0i1FNBnErmf+hx4y9O+eIWpb4Gv8hl3kR4pZ7BfDTQE9SPM7NOCxu6Htzr9Jd5hbUszu7WK96+Ab7W/DexiZtOKmJdILRTQO0EIYXZgOWAFYGm8j/r8eNvGPkBvYBo5qIcQJgJv4C0ZnwWeSyl91fEzF+k4JY1PDPgG2MnMri5w/MXwC4XV8J7nO5rZW1W8fyBwPf4zO9zMPipqbiK1UEDvACGEWfDSkz/FG0NsAMxTx5BfhBD+ht/vuw9fWXyXUlK9aOkWYozz4lvgm+FnuodV2wmtjfG3Bi4B5sbPr8dqis/k+/kX4gVsDjezx4uam0itFNDbSd5CXxRYEdgcv/c3uKDhB+QxN8erYd0H3B5CeBJ4XVv00pXFGH8MXIf//FwOHGhmhexIxRhnxc+KHwb8B9jUzO6sYaiDge2BG/Cz7yKdTgG9HYQQFgT2An4OrATM3o4ftwDeCGIb4Hng3hDCpSklZdpKlxNj3B0/kjYN2Acv21rIzlOMcSh+Xn0V4GF8C//dGsZZDfgd8BqwlzqpycxCAb1AIYTZ8ED+v/hWXkf+/c4O/BhYGdg7hHAm8Hvda5euIG9hn5C/3gS2NrN/FTj+MOAifHfLgNG1VHLLtwKuxS84hpnZZ0XNUaReCugFyIF8ZfyX0QZ4kkxrpuFFKz7Nf36CZ8l+CHwBTMb7Ng8ABgEL4xWrBuL33uei5f93ffAEu1OBLUMIo4CnUkp11bQWaS850/wC/OjXP4HNzeyDgsaeDV9NH4j/fA0zs3trHKs3fgtgEWAfM3umiDmKFEUBvU4hhCHAfvj24AJtvPwT4HHgKeDf+JbdW8B/UkotHncJIfTCV/wLA4sDy+Bb+avj9+V7lXlbL2BN4EbgohDC2JTSm5X/l4m0v5JM8Y2A2/FM80IuPmOMS+Cr6RWBB/CKcu/XMySepHc5vtoXmakooNchhBCA84D18CNnLXkXz4i9AfgA+DSlVHFGbc5e/yR/PZsT7uYCFgQ2xBN0Fm/h7XPn538SQtgtpfRypZ8r0p5yY5Xb8eOb5+PtRgtpaBJj3Alf9ffHb4GZmdWcLBpjPAwYjfdBP1D3zWVmpIBegxBCX3yFfCPe97ic7/AM9POAc1NKhd1ry1nsH+evF0IIY/FGFb/AA/ssTd4yK37W9skQwk7A3SkldYKSThNjXA64G//5OQY4vYggGWOcHTgb3zH7AC8U80CdY+4HjMHrQPysqIx7kaIpoFcpnynfGr8v11Iwfwc/Iz6uI7LN83b9RSGEu/D7kDvihWuabsUPAP4InJAz4VXVSjpcDuYP4LtHI83szwWNuzR+3O0HwL145bYJdY65G/4zMx7YoIi2rCLtpXdnT6AL2gY4AxhS5rmpwC14C8XjO/roWErpXTwZble8ROakMi8bkl9zcMfNTMTFGJcB7seD+bACg/mueELdssAoYJMCgvmOwMV41v36ZvZe3RMVaUdaoVchhLA+cBnl75d/hxeYGJ1S+qJDJ1Yir7qfDiHsi9/vO4vmK/X5gTEhhG9SSuM6eo7SM8UYl8KD+bzA9mZ2SwFj9gd+j+9MvYufLX+4gHG3Aa4E3seDecUlYUU6iwJ6BUIIvYF18W30csH8Hbz61B9nlnvTeR5nhxBexrtHLcWMOzK9gONDCBOA27T9Lu0pxrgkvs3+Pbwt6U0FjLkcnsW+LN7pbFcz+08B424KXINXktvAzF6vd0yRjqCAXpklgJPxX0ZNvQgcm1Kq+xdUO7kHP1Z3JvCjJs8NAU4CXs5fIoXLx8cewHeGdjKzG+ocr6Ev+lg8AfQo4HdFdDqLMW4A/AX4HNjQzPRzIV2GAnplTgRWpfnW9UTgCOCvRXxIPo52CP7L6k/A2JTS1/WMmVKaFkJ4FL+vfg/N7/0vD1wZQli33s8SaSp3NHsAb306wsyuq3O8AfjJkZF4MaYdzOyxeueZx14buBXv7LaRmT1fxLgiHUVJca0IIfQJIRwMDKd59bfPgH1SSncX2AzlR/gFwvLA4Xi2bt1SStNSSi/itw3GA6XHg3rlzz0pZ/CLFCLGOBd+znwwnnF+TZ3j/RAvyjQSTz5dscBgvhpwBzAFT6h7uohxRTqSVuitWwNfnTf1CfDrlNLNBX/eXDTeox9A8U1dEn7BcC5eda7UCOC+EMKdasMq9Yox9qXx/vZR9WSz5y32ffHz5b3xegtjCmzasjJ+Jr43sLGZPVHEuCIdTQG9BSGEQcCh+PGaUt/hfZSvbIePLVfCtTAppekhhHvwrOBTmXGHZgHgAODveI15kZrkAHwO8DO8QuIZdYw1EBiH75K9gW+x/6OAaTaMvx5eIGo2YDMze6SosUU6mrbcW7Ym3v60aZB9ATizq95vTilNxoviND3a0wuvU71+h09KuptD8YvD+6mjTGpeOf8fHsz/AqxUcDDfDc8r6YM3hLmvqLFFOoNW6GXk0q6HAHM2eeorPKO96h7KM5OU0tQQwgg8qA8teaoXcFoI4cGU0sedMzvpymKMm+O1D17GC8dU3LOgZIxewEH4hSf4z+K5BW6x98Lrux+PJ9ZtqgQ46Q4U0Mv7OZ5A1tQF+L22NoUQ5gB+CHySUnqpwLm19Hnz4s1aXk0pfdvW61NK74UQzsB/aZbeq18C2Bv4TbtMVLqtnLR2Nd5jYDMz+6SGMebGO5ltiydwDjez/ytwjrPm8UfileW2qLMDm8hMQ1vuTeSjY7+leYOTV4EzKinAkgvRHIxnzT4WQti6wo+fhGfZgvdEr6hITQhhUeBR4BF85VGpW4FyW5i7hhC+X8U40sPlQHwz0A/Y2szG1zDGqsDTeDC/Fli54GA+L77F3pAlv66CuXQnCujNbYxXVSs1BU+Cm1jhGP3wVf7c+WtMCGGzHOhb8xRwE97V6Sq8aE2LQgi9Qwg/BO4Cls6fdWjun96mlNI7eEvXpiv6hYENKx1Hera8hX0+sChwSLWJZTHGXjHGI/AL0gWB/fG+6J8XOMeV8YvXdfBs+W3VNU26G225l8jnsLct89RbwJ1V9DCfgmeLr4EfQ1sUz/SdigffslJKX4UQjsC7uE1IKX3Txucsj2esL5n/fTpwb5XHzq7Hz7yX3ksfgPd4vxHPGxBpzR40Jq5V1Rsgr5ovAbYEXsG32J8pamL5YuMA/L4+eJLeeUWNLzIz0Qp9RosCK5d5/Em80UlFcqGZsfhqu8HSwMUhhM3aeO93KaU32grmIYQheCeoNWn8/3g/cGSl88yf9z7+C7VUL+AnlC91K/JfueHKWLyfwT7VJK7FGNcA/oUH8z8BPyo4mA/Ed7rOxRu3rKlgLt2ZVugzWpoZV6oNrqok0axUSumD3PFsMB50++Dbib8NIYxvmigXQuiHr+b74QF6Gr7S/zYfNSt9bX88OW/ZkoefAQ5JKb1WzTyz3wPHAHOUPLYksAx+9lekmZxgdhV+hnukmVV0MiLG2Bv4FXAKfrtnL+CSorLY82esiN+HXwLfOdjLzFRfQbo1BfQsJ8OtiFdrKzUBqOl8akrp8xDC5vhKegs80W4gXsTlpfy5g/A68WsDqwCL4cflvsZXPc+EEB4C/p5S+iAPPZjGmuzTgSeA/XJ511rm+WkI4Q5gWMnDvfKc76xlTOkRTgZWAk4ys4cqeUOMcT7gcjzH5EV8i72wI2N5i30fvLBNb+AwYGyRFwsiMysF9EZ9gdXKPP6XlNKXtQ6ag/qv8O5NP8dXC88DhBB+DPwaT9SZr8zbF8fvZe8GPBlCGJNSugM/O3spsCPwOH42/oVa55jdCmzHjIV0flbnmNJNxRg3Bn4JPEb58sjl3rM2vqJfCP/+PbjIxLQY4yLAH/GfszcouKqcyMxOAb1RX3yF3lRdDSUAUkpv5O33PsDUlNKUfC/9Knw13lY2+dzARsB6IYRj8QSfX+BtI6dVkazXmueBD/HdgwZDQwiLpJTeKmB86SbyEbVL8YvUEWbW6vHKvMV+DB74JwG7mdnlBc6nN574dhr+83Q5cHgt5+BFujIF9EaD8ZVDqY/xc7F1SylNAaaEEPqGELbDi1sMKHnJe3h1rRfw43FzA8vh9wAXwS8G+gGj8MzzC5reW6/TR8DrzBjQe+GZ+groUuokvB3qnmb2RmsvjDEuAFyBX5A+D2xvZoUVWooxLo3Xi18L/z4dZmYVFX8S6W4U0Bv9uMxjL+LNWIq0FF5ysuFe/bf4NvzFwBMppf+evQ0hzI7fo9wN2Am/AJgbOBavcV1kV6hP8F+IazR5fCUK2KWQ7iHGuBJwIF7I6LI2XvtT4M948B8HHGZmbR3FrHQe/fATHSfgF7rnAKPMrObbYyJdnQJ6o3K9x1/Dz44Xab+Sz5qCl5MdnVL6T9MX5qNrfw8hPIcn50V81TwE+EMIYdUCe7F/CbyPJ9mV3gJYpqDxpYvLW9vn5n89yMzKVk2MMfbBv1ePx5M7R5jZVQXOY0O8ZPEKeHLpXmb296LGF+mqdA690RJlHnuXAgN6CGF+/IhOw9/7U8DJ5YJ5qZTSF8BovJRsg5WBSkvKtimXtP2A5uVmh6pinGS74zs4Y1s6Lx5jXBC4Fy9B/CywSlHBPMa4Uozx7jz+0oABKyqYizit0BsNLvPYRHzFWpTdaTzrPR04teQoWqtyh7T98YYS8+eHh4UQbipwlf4RfouhX8ljc+Ln4ycV9BnSBeWKbqfjO0UntPCajfASyfMDfwB+aWZ1f9/EGBfDg/dI/OfmCuA4M3uz3rFFuhMF9EaDyjz2eYXNWBYDQpmnvgD+WVKKdYuS516jws5tDVJK74QQ7gJ2zQ8tiVdz+yCEMCd+r30Nmu+8fAlcmlJqayXzBc13JPrgQV0BvWcz/GjlLmb2WekTMca++Ir8WPx7aLiZXVfvB+Yz66Pwe/az4D8vRxdZTU6kO1FAbzRHk3+fRvOmJc2EEDbEVwwtdSe7Btgx91hfruTxh2rMUn+CxoA+AM9K/wAvTNNQTKOc9Wis+d6Sb2m+I9GLGVfs0sPEGFfBG6Y8jJdoLX1uCJ74tja+e7RDLZ3Wyox5IN4TfWAe92gzq6nAk0hPoYDeqOl94um0sd2eu6etyoxHvZoaHkI4FE8OKg22rd43b0Vp+cq+NLZ5nQu/CGkpoM9Zwdgt7UboHnrPdib+vXFQacW1GOPP8YvZQfjF5FFmVvNRyhjjanijoGH49/areBLptS0l4IlIIwX0Rk1/EfWmjb+flNK0nIE+kcb72qWmA7cBn+G/EEu3s+etcZ4DS/55Ko27CH/D71uuQPOg/jWVHT2bhfIXNkUf3ZMuIsa4Ll7J8GIzey4/1g/fgj8Kv8DcxsxuanmUVsfvh3c4PBxYPT98HzAGuEOBXKRyCuiNmlaV6gXMGULo1UY70rvw7cZA82D4GfB8w9Z6CCHRGMjXrHGeK5T881d4Ihv4tvvReAJbU9PxoN6W/jS/GJgGFHJ2WLqk4/ELx1Pgv+VVr8K/f5/A+5a/Ue2geZwR+Lb6EPyC+kLgnIYLBxGpjgJ6o3LZ5oPwANdiFnkuu/pK/mrLnXgDFoDlQghrpZQerXSCIYSBQGn71Tfxs+Pki45J1Je8Ng/NvycmoZ7oPVKMcS1gfeByMxsfY9wCLyYzD34O/Fgzq7gLYc5WHwZsj9+qAv/+jcAFZjaxwOmL9DgK6I1eL/PYYNoI6FW6EjgCXwkDHBNC2COl1OYvshDCLHjJzUVKHr6xqCNr+az5AjRPgHu7jR0K6b6Ow3dofhtj/B3eP+BjYAszu62SAWKMQ2kM4j/KD3+BJ9Jdh2+rV9WaWETKU0BvVK716FD82FZR95Bfwcu87pL/fX3g0BDCKbkqXFk5Q/4AYN8mY91Q0LwAZsf7tTfdcq9k50G6mZygtjHehe8ifEX9KLCTmb3dyvsWxI9OroF/f6+cn/ocT6C7HriniPPpIjIjBfRGT5V5bEkK/DtKKU0PIYzBj5AtjAfRY4FBIYSIr1ymNKyIcyDvj99nPAaYLQ81CdgnV5Arylw09lgv9a8CP0O6juPw3Iuf4ickTgOON7P/XtzGGGfBOxQ2BPDVgUVLxvgE36K/Hri3ngx4EWmbAnqjV/GM3blLHlsYWIzcv7wgzwO/wZOMBuAr4gPw1dCNwDMhhC/wc/FLAZvjDVIaEu6+xO9fPlbgnMDzBYaWeVz9pHuYGOMaNOZqfAv8Ci+DfHiMcWH8wm8RvK7CbCVv/Te+mn8c//58UVnqIh1HAb3RZOA5PGO9QW+8XnohAT2EMGtKaXII4VJ89XMKjcfQhgK/xGupT8KPkM3SZIjpwFhgbErpu7yCn1rQPe6hNG8f+yHlb0VINxBjHIivqBfLfy6KB+mflbxsXuCMJm+dhiezPYQH7seAJ8zsU0Sk0yigN5qCb7uv3eTxXfAztzULIQzAE9r2CCGMw8tZnodvZ49jxo5mfSlfBGYCfg/9jpTSlFys5jjg1hDCoSmlettGbkTzhLiHUkpKWOoG8sp6PXwLfWU8iM/Vylsm4c2A3gLeBt4p+fN9M2vaxEdEOpkCepaD5JP4L7LSbcQlc5vSmraeQwj98WM5B+Ar7uHAzSmlh4FHQwjr4qVct8azzOfEA+sU/Oz4RLyG9YUppbfzmIvhFwgDgT2AviGEI1NKE2qc4xzAVk0eng7cXst40vlijIPx4L1e/vN/Sp5+C3gaP/bYcPRxU7zXwGS8lsFqZvZsB05ZROqkgD6jF/FfcEs1eXxkCOGpShq1lAohzIO3Pd2Xxu3zrygp35qPrP0uhHA+/kv3+3iy3GS8POxrKaWmRW++xrfDG7brdwH6hBCOSSm9Vc0cs63wfIFS7+OFQ6SLiDGugF/gbcaM7YDH4/e2HwD+ZmbvlLxnKeBavGDRU/jRsusVzEW6HgX0Gb0CvETzgL4efo/5tUoHykVgDA/mDX/PU/DKW83uS+ct82fyV1sm4lW2bqGxKcz2wNQQwmFlLgBam+eseIW5pp6gfLEdmYnEGOcBdgL2pLFo0ZvAJXgAf7ClY2YxxhHA+XgC5gl4lvp0/CJURLoYBfQSKaWvQwi30nz7eQngpyGE8ZUkoOWmLfsBe9P4d/wpsGdK6cZW3tcXP7u7PV5V7rZy97DzHJ4MIeyEHwtaGN+m3wUv/HF4W3Ms8XOad2GbDDzIjI1gZCYRY+yNb6PviddBnw0//XAhcDHweGkTlTLvnwNvprIXvhOzBX6raTRwjZkVeapDRDqIAnpzt+K/5BYseWx2YCReyOXjCsbohx9Da9hmfx9PhLuljfctA5wLLI4nqSX8XmdLHsGrd51F45b5nlQY0PMtgRHMmDMAfkTpflWIm7nEGGfDd3yOwJPawDPNL8a3ydss0RtjXBbfYl8OuAfvb/5hjPEufHV+YjtMXUQ6gAJ6EymlD0MIZ+BnvUutga+cz69gmCl4Va218V+So4CrKyjTuiB+Nh1gPmbsrFZurlNCCDfj9+UvxrffW9wBKGNNYAOaN5W5G7/1IDOBXMBlDzy5cgh+4uFU4BIze7WKcXbHLxhnxQsanW5m02KMa+IXoH82s38XPH0R6SAK6OWdBRzIjJnBs+DJa7eklN5v7c0ppakhhBOBq4GJKaVKe59X3Xc8pTQFuCuEsDRee358FW8/luZtXL8DTs7jSieKMfYFdsbzLgKeJPlL4Dwzq7gDXoxxTjyQ74rvvuxoZo+UvGQ0frZcq3ORLkwBvYxcovVsvKJb6XZ0f2BMCGHflNJnbYwxlQ4sypJS+hyvl92mEEI/4Nc0b+E6FTgtpfRuwdOTKuR75MPxQLskXkL1WGCsmVVVbyDGuDy+xb40fgxxdzP7T8nz2wEbAleY2cvF/BeISGdQQG/ZLfgv1Z80efznwM4hhAty69QuJXdV25Lyme3P4IVupJPEGH+AJ7ethtf2Hw2cZWatXkCWGacXnvQ2Fv85PxI4s7QUa4xxXnzl/nF+XkS6MAX0lr2N3y9flRlLsA7AG6X8ndYT1mZWy+H3Yvs3efwr4I/4lqx0sBhjw33tY/AOf2cDJ5nZRzWMNQD/fzkCLyKzg5k9XualZ+LFjHY1s5qKEonIzEMBvQUppWkhhKvwI2zbMeP97YWAq0IIm6SU3ijwYyfhCXXgTTEKvY8dQpgXv0+6YpmnHwCuq7Z4jtQvN0O5EFgW7yewt5nVVJkwxrgivsW+BHAzsKeZNTuZEWPcBNgNuAu4ssapi8hMRAG9FTm57WD8SNhqTZ5eCrg8hHBQSum5gj7yeTxLfX38OFI1CW6tCiEMxnMCti7zdAJGpZR07rwD5WS1U4CD8WTE44DfmFnV9fPzFvv+eEJnb/zo4jnlzqPnFfz5+Nn1/Vo7sy4iXYcCehtSShNCCMfix8IWbfL0msBZOUnu9QI+66MQwvH4fc2JVHbmvU0hhIXw7dXtaZ5J/wmwb0pJpT47UIxxNeAa/HvqUWAfM6spiTLGOBee+7A9fnG2g5k92cpbTsXbnx5kZrWUChaRmZACemUexAPiaXiRmQZ98HPct4QQNgHeq3fLOpdtrbh0a1tCCIPwC4QtaR7MJ+FNXh4o6vOkdXklfQAwBj9VcDB+DK2m75sY44/wC4OheOGjvVtrYxpjXBs4CHgYv88uIt2EAnoF8v308/Fz3ocyY1AHTzR7CDgqhHBHSunrjp5jU7lG+xr4amz1Mi+ZBlwAXFJBwRspQIyxPx5Ed8Zvpwwzs3/VOFYv4BC8V/l0PEif10bJ17nxGu+T8MCvfAmRbkQBvUIppckhhNF4nfNf4Q0tSgX8iNCqIYRTq2mQUrQQwpx4YZwDaCwRWmoq8AfgJN037xgxxiXxFfQP8CORu7W2km5jrHnw7mnb4A2DhptZqycuYox9gKvwYkmHmNkrtXy2iMy8enf2BLqSlNI3wOn4kaJyiUvfx+tsPxVC2Cg3aelQIYRl8dKtRsvBfAxwZBUV7KQOMcZt8daky+LH0rapI5ivhh+X3AavRLhKW8E8OxnYBF+hn1vLZ4vIzE0r9Crljmwn4kfKDqJ56dS++P3MG4GrQwjnAq+3VVmuHiGEOfCGLiPwlfmAFl76JXAeXtp1cnvNR1zeFv8VfrpgIrC1md1fx1i/wPM4puBNWi6sJEM9xrgjXkjoCeAAZbWLdE8K6DVIKU3K2++v4L8ol6N5wll/vFLXlsCdIYS7gQfaqgNfjXyufB28M9vP8O3UlurBjwd+C1yZUmqzK5fUJ5dvPQPfsXke2LSlvuQVqvn1DgAACIRJREFUjDUIuBTYHHgZ32Kv6FRCjHEl/ITG+8C2ZqYLOZFuSgG9RvmM+lXAC/gv7vVbeOn38D7lWwITQggP46v3B2tJngshzIZXr9sSD+QL4bsELQXy6Xib1aOAf6hwTPvL3dEuwXdMHga2MrOacipyJ7Sr8VoIVwAHVlrPPcb4PeAm/DTGtmb2Xi1zEJGuQQG9Djk7/OkQwsZ42c5DgXlonpvQC5g7fy0F7A1MDiE8BjwOPIsnN32I35ufnt/TB2+j+j94MtWP8bPv81QwvWl4LfAr8aIx7bblL41y0ZYb8Iutm4AR1XRGKxmnN15f/WT8e2JP4NJKt8tjjP3winGL4NXiypV+FZFuRAG9ALkvuQH3A/vhDVwGtfG2WYH18leDaTSWf+2Dd3rrU8OUPgPuAcallO6t4f1Sgxjj/MAdwCp4JbaDzKzqI4F5ZX05nsT2b3yL/YUq3t8X+DP+vTXWzC6pdg4i0vUooBckb2U/EkJ4AVgZ2B2vA99Sglo5vWl+HK4aXwN34vdM/6Es9o4TY5wPv6BbDvhf4MRaks9ijOvgx8sG4/8fDzGzim/N5GB+BTAMX6H/oto5iEjXpIBesHz+/L4QwgN4L+ujgR2Zsa960abh27ynAM+pUEzHyufC78WD+ZFmdkYNY/TBj7SNBr7BO6BdUcMYl+LfbzcAO5tZoQ1+RGTmpYDeTvKK/SVgjxBCxJPYNsHPhi+Ab8nX8vc/BS8NOwF4A7gPuDGl9Gb9s5ZqxRgH4uf+VwRijcF8ATzXYUO829pwM3upyjF64x3bRuKFa0aY2XfVzkVEui4F9A6QUnoXOC+EMA4/o744HtiH4klLC+IBfgC+ku+LF4CZhCe2fQx8gPe2fh0P5OOB8TpP3nlyt7Q78GRFM7OTaxhjffx+9wL4ffcjqk2iy8H8fPw2z+34BUHVHdtEpGtTQO9AKaUp+Nn1V0IIvYBZ8OS4WYB+eAJcbzzDfTq+lT4VX5V/i5ednZxSUmGQThZjnB1fCa+FH1s8vsr398nvOQ4v+LOTmV1dwzz64JXf9sZ3CobprLlIz6SA3klyUJ6cv6QLyVXbLgN+CvweOKqaBLgY42DgT3gW+tN4u9NXa5hH/zzOVsBf8ZKyk6odR0S6B9VyF6neKLz3+PXAYVUG858B/8KD+bnAmjUG88F4h7+t8C37zWs57y4i3YdW6CJViDFug/eQfwbYvdIWpPk42Yl4Jvtn+Nb4DTXO4YfAbcAQPCt+tOqzi4gCukiFYozL42e8J+LlXCuqiR9jHIKfLf8J8CSwo5m9XuMcNsNLwc6CH0v7Uy3jiEj3o4AuUoFcOOZmPJBuYmYVHROMMW6KV30bhLetPbqWDPR83/4Q4Cz82OKmZvZwteOISPelgC7ShlwX/TogAPua2SMVvudkvB77p3jr1Jtr/Px5gAvw6m+vAJuZ2Wu1jCUi3ZcCukjbxuBJbL83s3FtvTjGuCi+Lb463nxnx0pX9GXGWgtPelsEr/62T62d20Ske1NAF2lFjHF/4EC8TnubddFjjFvhrVPnwfvPj6qlYls+Xz4KOAE/2rgPcJGS30SkJT0xoPcGBocQluzsiXRhi3T2BDpCjHFdYCxenW94a4E590A/HTgc+Ag/RnZ7jZ+7MF4Kdh08m34nM3uxlrFEpOfoiQF9TiDiv3ilNu3ZaGamkLfNr8fL725pZh+18toAXIOXgH0ED8Dv1PCZffGV+Mn4Cv8cPIlOxWJEpE09MaD3xmuni5SVa6NfAcyHH09rsRd5jHE74CJgLuBU4PhaOpzlmu5jgOWB9/Bua7fVMH0R6aF6YkAXacthwNp4Etwt5V4QY5wNr+F+EH4ufRMzu7vaD4oxDs3jbIPfKzfgdDP7ssa5i0gPpYAuUiLGuAy+0n4N+HULr1kcuBZYCXgQGGlm71X5OQPwqnG/xM+2X4/3Un+j1rmLSM+mgC6S5XvYl+Gd73YrVwkuxrgjfiZ8TryU64lmNrWKz+gN7Aycht/6eQavB/+3+v8LRKQn6+4B/T/AvniLUmlfXwKpsydRp6PxxLbfmNnfS5/I7VLPAvYDJuCFYu6vZvAY4+rA2cCqeCb8/sCF1VwQiIi0pFsH9JTS18BNnT0PmfnlhicnAP/Of5Y+txS+xb4C3qZ0ZzObUMXYC+Er8p3x3vZj8JW9CsSISGG6dUAXqUQ+Q345fgJi19JjYjHGnYE/ArMDxwGnVrqijjEuBhwMHADMAdwNHKEz5SLSHhTQReB4fPU92sz+CRBjnAMvKrMnfoxss0ruc+cmKuvgmfJb4RcJL+I13e9QpTcRaS8K6NKjxRhXxLPNn8YLuhBjXBZvxrIscBe+ap/YxjizATvhgfyH+eE78OIw91baN11EpFa9OnsCIp0lr6b/CvwUWAX4F7A7cC5+lGwU8NvWgnGMcTC+pb4f8D3gK7yW+1gze6U95y8iUkordOnJNgfWBy4GXsWPrO0CvIN3SHu0pTfGGFfFV+PD8Z+jhJ9fv9jMPmvneYuINKMVuvRIuV/588BC+L3u3wNLA7cBu5er3R5jXALYDtgeWDk//AB+FO02HT8Tkc6kFbr0VPsDSwK34EG8L1617azSxLUY49LAsPzVcG/8U+BCfFv92Y6ctIhIS7RClx4nxjgPMB7vGjc78Cawg5k9ke+rL0djEF8uv+1j4Ea8ROv9ZvZth09cRKQVCujS48QYrwRG5n+9CW+IsjzwE2BdYPH83EQag/iDrfVDFxHpbAro0mPk1fdovEDMdOBZ4PvAAiUvexO4HQ/iD9fSClVEpDO0GNBjjMcDO3TgXETa2/eBeUv+fRreHOWR/PWomb3bGRMTEamXkuKkJ5kKfAG8gFeHe8LMPu/cKYmIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIzHT+Hz28H+jMpOH/AAAAAElFTkSuQmCC"
               ],
               [
                   "type" => "List",
                   "name" => "Gerät Information",
-                  "caption" => "Informationen zu diesem Gerät [ Geschirrspüler ]",
+                  "caption" => "Informationen zu diesem Gerät [ Trockner ]",
                   "rowCount" => 1,
                   "add" => false,
                   "delete" => false,
@@ -743,7 +755,7 @@ class HomeConnectDishwasher extends IPSModule {
               [
                   'code'    => 102,
                   'icon'    => 'active',
-                  'caption' => 'HomeConnect Dishwasher created.',
+                  'caption' => 'HomeConnect Dryer created.',
               ],
               [
                   'code'    => 104,
@@ -953,10 +965,20 @@ class HomeConnectDishwasher extends IPSModule {
           // build list with associations
           for ($i = 0; $i < $programs_count ; $i++) {
               if ( $this->ReadPropertyBoolean("mode_translate") ) {
-                  IPS_SetVariableProfileAssociation($profile, $i, DishwasherTranslateMode( explode( ".",$programs[$i]["key"])[3], true ), "", 0x828282 );
+                  IPS_SetVariableProfileAssociation($profile, $i, DryerTranslateMode( explode( ".",$programs[$i]["key"])[3], true ), "", 0x828282 );
               } else {
                   IPS_SetVariableProfileAssociation($profile, $i, explode( ".", $programs[$i]["key"])[3], "", 0x828282 );
               }
+          }
+
+          if ( $this->ReadPropertyBoolean("mode_translate") ) {
+              IPS_SetVariableProfileAssociation("HC_DryerOption", 0, 'Eisen trocken', "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DryerOption", 1, 'Schranktrocken', "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DryerOption", 2, 'Schranktrocken plus', "", 0x828282 );
+          } else {
+              IPS_SetVariableProfileAssociation("HC_DryerOption", 0, 'IronDry', "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DryerOption", 1, 'CupboardDry', "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DryerOption", 2, 'CupboardDryPlus', "", 0x828282 );
           }
       }
 
@@ -965,7 +987,7 @@ class HomeConnectDishwasher extends IPSModule {
        */
       protected function SetListValue( string $name ) {
           // Get ID with Associations
-          $profile = IPS_GetVariableProfile( "HC_DishwasherMode" )['Associations'];
+          $profile = IPS_GetVariableProfile( "HC_DryerMode" )['Associations'];
           // count Associations
           $profile_count = count( $profile );
           // Make a list ( "Associations Name (mode)" => "Value of Associations")
@@ -976,30 +998,54 @@ class HomeConnectDishwasher extends IPSModule {
           }
           // Set Value to Associations name
           if ( $this->ReadPropertyBoolean("mode_translate")) {
-              $name = DishwasherTranslateMode( $name, true );
+              $name = DryerTranslateMode( $name, true );
           }
           $this->SetValue('mode', $profile_list[$name] );
       }
 
       /**Function to get name to association
+       * @param bool type TRUE == DryerMode   FALSE == DryerOption
        * @return mixed return name
        */
-      protected function GetListValue() {
-          // Get ID with Associations
-          $profile = IPS_GetVariableProfile( 'HC_DishwasherMode' )['Associations'];
-          // count Associations
-          $profile_count = count( $profile );
-          // Make a list ( "Value of Association" => "Associations Name (mode)")
-          $profile_list = array();
-          // Build list
-          for ( $i = 0; $i < $profile_count; $i++ ) {
-              $profile_list[$profile[$i]["Value"]] = $profile[$i]["Name"];
+      protected function GetListValue( bool $type ) {
+          if ( $type ) {
+              // Get ID with Associations
+              $profile = IPS_GetVariableProfile( 'HC_DryerMode' )['Associations'];
+              // count Associations
+              $profile_count = count( $profile );
+              // Make a list ( "Value of Association" => "Associations Name (mode)")
+              $profile_list = array();
+              // Build list
+              for ( $i = 0; $i < $profile_count; $i++ ) {
+                  $profile_list[$profile[$i]["Value"]] = $profile[$i]["Name"];
+              }
+              // Return mode name (string) to integer
+              if ( $this->ReadPropertyBoolean("mode_translate") ) {
+                  return DryerTranslateMode( $profile_list[$this->GetValue('mode')], false);
+              }
+              return $profile_list[$this->GetValue('mode')];
+          } else {
+              // Get ID with Associations
+              $profile = IPS_GetVariableProfile( 'HC_DryerOption' )['Associations'];
+              // count Associations
+              $profile_count = count( $profile );
+              // Make a list ( "Value of Association" => "Associations Name (mode)")
+              $profile_list = array();
+              // Build list
+              for ( $i = 0; $i < $profile_count; $i++ ) {
+                  $profile_list[$profile[$i]["Value"]] = $profile[$i]["Name"];
+              }
+              // Return mode name (string) to integer
+              if ( $this->ReadPropertyBoolean("mode_translate") ) {
+                  $dict = [
+                      "Eisen trocken" => "IronDry",
+                      "Schranktrocken" => "CupboardDry",
+                      "Schranktrocken plus" => "CupboardDryPlus"
+                  ];
+                  return $dict[$profile_list[$this->GetValue('option')]];
+              }
+              return $profile_list[$this->GetValue('option')];
           }
-          // Return mode name (string) to integer
-          if ( $this->ReadPropertyBoolean("mode_translate") ) {
-              return DishwasherTranslateMode( $profile_list[$this->GetValue('mode')], false);
-          }
-          return $profile_list[$this->GetValue('mode')];
       }
 
       /** Counting Seconds down
@@ -1097,7 +1143,7 @@ class HomeConnectDishwasher extends IPSModule {
        */
       protected function _log(string $msg) {
           if ( $this->ReadPropertyBoolean('log') ) {
-              IPS_LogMessage("HomeConnectDishwasher", $msg);
+              IPS_LogMessage("HomeConnectDryer", $msg);
           }
       }
   }

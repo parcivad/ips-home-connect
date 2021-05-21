@@ -65,19 +65,19 @@ class HomeConnectOven extends IPSModule {
           $this->registerProfiles();
 
           // Register Variables
-          $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_OvenRemoteStart", -2);
+          $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_RemoteStart", -2);
           $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -2);
-          $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_OvenState", 0);
+          $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_State", 0);
           $this->RegisterVariableString("remainStartTime", "Start in", "", 1);
           $this->RegisterVariableInteger("mode", "Programm", "HC_OvenMode", 2);
           $this->RegisterVariableInteger("setTemperature", "Gesetzte Temperatur", "HC_OvenSetTemperature", 3);
           $this->RegisterVariableInteger("setTime", "Gesetzte Laufzeit", "HC_OvenSetTime", 4);
-          $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_OvenRemoteStart", 5);
-          $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_OvenDoorState", 6);
+          $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_RemoteStart", 5);
+          $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_DoorState", 6);
           $this->RegisterVariableFloat("temperature", "Temperature", "Temperature", 7);
           $this->RegisterVariableString("remainTime", "Verbleibende Programm Zeit", "", 8);
-          $this->RegisterVariableInteger("progress", "Fortschritt", "HC_OvenProgress", 9);
-          $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_OvenStartStop", 10);
+          $this->RegisterVariableInteger("progress", "Fortschritt", "HC_Progress", 9);
+          $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_StartStop", 10);
 
           // error codes
           $this->RegisterVariableString("info", "Info", "", 99 );
@@ -464,41 +464,41 @@ class HomeConnectOven extends IPSModule {
        */
       protected function registerProfiles() {
           // Generate Variable Profiles
-          if (!IPS_VariableProfileExists('HC_OvenState')) {
-              IPS_CreateVariableProfile('HC_OvenState', 1);
-              IPS_SetVariableProfileIcon('HC_OvenState', 'Power');
-              IPS_SetVariableProfileValues("HC_OvenState", 0, 2, 0 );
-              IPS_SetVariableProfileAssociation("HC_OvenState", 0, "Aus", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_OvenState", 1, "An", "", 0x22ff00 );
-              IPS_SetVariableProfileAssociation("HC_OvenState", 2, "Verzögerter Start", "", 0xfa8e00 );
-              IPS_SetVariableProfileAssociation("HC_OvenState", 3, "Program läuft", "", 0xfa3200 );
+          if (!IPS_VariableProfileExists('HC_State')) {
+              IPS_CreateVariableProfile('HC_State', 1);
+              IPS_SetVariableProfileIcon('HC_State', 'Power');
+              IPS_SetVariableProfileValues("HC_State", 0, 2, 0 );
+              IPS_SetVariableProfileAssociation("HC_State", 0, "Aus", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_State", 1, "An", "", 0x22ff00 );
+              IPS_SetVariableProfileAssociation("HC_State", 2, "Verzögerter Start", "", 0xfa8e00 );
+              IPS_SetVariableProfileAssociation("HC_State", 3, "Program läuft", "", 0xfa3200 );
           }
           if (!IPS_VariableProfileExists("HC_OvenMode") ) {
               IPS_CreateVariableProfile("HC_OvenMode", 1);
               IPS_SetVariableProfileIcon("HC_OvenMode", 'Drops');
           }
-          if (!IPS_VariableProfileExists('HC_OvenProgress')) {
-              IPS_CreateVariableProfile('HC_OvenProgress', 1);
-              IPS_SetVariableProfileIcon('HC_OvenProgress', 'Hourglass');
-              IPS_SetVariableProfileText("HC_OvenProgress", "", "%");
+          if (!IPS_VariableProfileExists('HC_Progress')) {
+              IPS_CreateVariableProfile('HC_Progress', 1);
+              IPS_SetVariableProfileIcon('HC_Progress', 'Hourglass');
+              IPS_SetVariableProfileText("HC_Progress", "", "%");
           }
-          if (!IPS_VariableProfileExists('HC_OvenDoorState')) {
-              IPS_CreateVariableProfile('HC_OvenDoorState', 0);
-              IPS_SetVariableProfileIcon('HC_OvenDoorState', 'Lock');
-              IPS_SetVariableProfileAssociation("HC_OvenDoorState", false, "Geschlossen", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_OvenDoorState", true, "Offen", "", 0xcf0000 );
+          if (!IPS_VariableProfileExists('HC_DoorState')) {
+              IPS_CreateVariableProfile('HC_DoorState', 0);
+              IPS_SetVariableProfileIcon('HC_DoorState', 'Lock');
+              IPS_SetVariableProfileAssociation("HC_DoorState", false, "Geschlossen", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_DoorState", true, "Offen", "", 0xcf0000 );
           }
-          if (!IPS_VariableProfileExists('HC_OvenStartStop')) {
-              IPS_CreateVariableProfile('HC_OvenStartStop', 0);
-              IPS_SetVariableProfileIcon('HC_OvenStartStop', 'Power');
-              IPS_SetVariableProfileAssociation("HC_OvenStartStop", false, "Stop", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_OvenStartStop", true, "Start", "", 0x11ff00 );
+          if (!IPS_VariableProfileExists('HC_StartStop')) {
+              IPS_CreateVariableProfile('HC_StartStop', 0);
+              IPS_SetVariableProfileIcon('HC_StartStop', 'Power');
+              IPS_SetVariableProfileAssociation("HC_StartStop", false, "Stop", "", 0x828282 );
+              IPS_SetVariableProfileAssociation("HC_StartStop", true, "Start", "", 0x11ff00 );
           }
-          if (!IPS_VariableProfileExists('HC_OvenRemoteStart')) {
-              IPS_CreateVariableProfile('HC_OvenRemoteStart', 0);
-              IPS_SetVariableProfileIcon('HC_OvenRemoteStart', 'Lock');
-              IPS_SetVariableProfileAssociation("HC_OvenRemoteStart", false, "Nicht erlaubt", "", 0xfa3200 );
-              IPS_SetVariableProfileAssociation("HC_OvenRemoteStart", true, "Erlaubt", "", 0x11ff00 );
+          if (!IPS_VariableProfileExists('HC_RemoteStart')) {
+              IPS_CreateVariableProfile('HC_RemoteStart', 0);
+              IPS_SetVariableProfileIcon('HC_RemoteStart', 'Lock');
+              IPS_SetVariableProfileAssociation("HC_RemoteStart", false, "Nicht erlaubt", "", 0xfa3200 );
+              IPS_SetVariableProfileAssociation("HC_RemoteStart", true, "Erlaubt", "", 0x11ff00 );
           }
           if (!IPS_VariableProfileExists('HC_OvenSetTemperature')) {
               IPS_CreateVariableProfile('HC_OvenSetTemperature', 1);
