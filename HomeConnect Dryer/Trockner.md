@@ -5,7 +5,7 @@ Zudem lassen sich Informationen wie die verbleibende Zeit oder die Programme geb
 - [Instanz Einstellungen](#instanz-einstellungen)
   - [Variablen](#variablen)
   - [Variablen Webfront](#variablen-webfront)
-  - [Geschirrspüler set()](#geschirrspler-set)
+  - [Trockner set()](#trockner-set)
     - [Zustand steuern](#zustand-steuern)
     - [Programm starten](#programm-starten-4-requests)
     - [Programm stoppen](#programm-stoppen-3-requests)
@@ -47,8 +47,8 @@ Name | Type | Werte | Funktionen
   <img width="auto" height="auto" src="https://github.com/parcivad/img/blob/main/Geschirrspüler%20im%20Webfront.png">
 </p>
 
-*Der Status Aus und Verzögerter Start sind vielleicht unnötig (noch nicht an einem richtigem Gerät getestet).
-## Geschirrspüler Set
+*Der Status Aus und Verzögerter Start sind vielleicht unnötig (noch nicht an einem richtigem Gerät getestet).*
+## Trockner Set
 Alle Eigenschaften die gesetzt werden können. 
 
 ### Programm starten [4 REQUESTS]
