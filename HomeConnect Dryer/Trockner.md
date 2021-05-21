@@ -5,7 +5,7 @@ Zudem lassen sich Informationen wie die verbleibende Zeit oder die Programme geb
 - [Instanz Einstellungen](#instanz-einstellungen)
   - [Variablen](#variablen)
   - [Variablen Webfront](#variablen-webfront)
-  - [Geschirrspüler set()](#geschirrspler-set)
+  - [Trockner set()](#trockner-set)
     - [Zustand steuern](#zustand-steuern)
     - [Programm starten](#programm-starten-4-requests)
     - [Programm stoppen](#programm-stoppen-3-requests)
@@ -15,7 +15,7 @@ Zudem lassen sich Informationen wie die verbleibende Zeit oder die Programme geb
 ## Instanz Einstellungen
 
 <p align="center">
-  <img width="auto" height="auto" src="https://github.com/parcivad/img/blob/main/InstanzGeschirrspüler.png">
+  <img width="auto" height="auto" src="https://github.com/parcivad/img/blob/main/Trockner.png">
 </p>
 
 
@@ -44,15 +44,15 @@ Name | Type | Werte | Funktionen
 ## Variablen Webfront
 
 <p align="center">
-  <img width="auto" height="auto" src="https://github.com/parcivad/img/blob/main/Geschirrspüler%20im%20Webfront.png">
+  <img width="auto" height="auto" src="https://github.com/parcivad/img/blob/main/TrocknerImWebfront.png">
 </p>
 
-*Der Status Aus und Verzögerter Start sind vielleicht unnötig (noch nicht an einem richtigem Gerät getestet).
-## Geschirrspüler Set
+*Der Status Aus und Verzögerter Start sind vielleicht unnötig (noch nicht an einem richtigem Gerät getestet).*
+## Trockner Set
 Alle Eigenschaften die gesetzt werden können. 
 
 ### Programm starten [4 REQUESTS]
-Ein Programm kann im Webfront gestartet werden, beim Drücken auf dem start knopf wird der aktuelle Modus ausgewählt und gestartet
+Ein Programm mit Optionen kann im Webfront gestartet werden, beim Drücken auf dem start knopf wird der aktuelle Modus ausgewählt und gestartet
 
 Im Code kann das Programm auch noch verzögert gestartet werden mit.
 ```php
