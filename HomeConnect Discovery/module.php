@@ -33,7 +33,7 @@ class HomeConnectDiscovery extends IPSModule {
      * @param $opt
      * @return bool|mixed
      */
-    public function tm($opt, $in) {
+    public function tm($opt) {
         switch ($opt) {
             case "auth":
                 try {
@@ -55,25 +55,6 @@ class HomeConnectDiscovery extends IPSModule {
                 // shows codes
                 global $data;
                 return "AuthCode: " . getAuthorizeCode() . "  /  Token: " . getAccessToken();
-            case "send":
-                // shows codes
-                global $data;
-                $json = $data;
-
-                $query = json_decode($in, true);
-
-                $json["token"]["access_token"] = $query["access_token"];
-                $json["token"]["refresh_token"] = str_replace( "=", "", urldecode( $query["refresh_token"] ));
-                $json["token"]["id_token"] = $query["id_token"];
-                $json["token"]["expires_in"] = $query["expires_in"];
-
-                $json["token"]["token_type"] = $query["token_type"];
-                $json["token"]["scope"] = $query["scope"];
-                $json["token"]["last_token_call"] = time();
-                $json["authorize"]["code"] = "xy";
-
-                write( $json );
-                break;
             case "reset":
                 // reset the data.json
                 resetData();
