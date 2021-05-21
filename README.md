@@ -10,6 +10,7 @@ Für das Nutzen dieses Moduls wird ein HomeConnect Account benötigt.
 - [Geräte](#inhaltsverzeichnis)
 	- [Geschirrspüler](https://github.com/LegendDragon11/ips-home-connect/blob/main/HomeConnect%20Dishwasher/Geschirrspüler.md)
 	- [Ofen](https://github.com/LegendDragon11/ips-home-connect/blob/main/HomeConnect%20Oven/Ofen.md)
+	- [Trockner](https://github.com/parcivad/ips-home-connect/blob/main/HomeConnect%20Dryer/Trockner.md)
 - [Im Webfront](#im-webfront)
 - [Refreshen](#refreshen)
 - [Limits](#rate-limits)
