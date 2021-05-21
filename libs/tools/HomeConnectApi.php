@@ -222,6 +222,38 @@ function OvenTranslateMode( string $ModeName, bool $direction) {
     return array_flip($dictionary)[$ModeName];
 }
 
+/** Function to translate the mode into a readable string
+ * @param string $ModeName The abstract or readable string
+ * @param bool $direction TRUE =  HC name => Readable string  //   FALSE = Readable string => HC name
+ * @return string
+ */
+function DryerTranslateMode( string $ModeName, bool $direction) {
+    $dictionary = array(
+        "Cotton" => "Baumwolle",
+        "Synthetic" => "Synthetik",
+        "Mix" => "Mischgewebe",
+        "Blankets" => "Decken",
+        "BusinessShirts" => "Business-Shirts",
+        "DownFeathers" => "Daunenfedern",
+        "Hygiene" => "Hygiene",
+        "Jeans" => "Jeans",
+        "Outdoor" => "Outdoor Kleidung",
+        "SyntheticRefresh" => "Synthetische Auffrischung",
+        "Towels" => "Handtücher",
+        "Delicates" => "Feinfühlig",
+        "Super40" => "Super light",
+        "Shirts15" => "Shirts ohne geringe Temperatur",
+        "AntiShrink" => "Anti Schrumpfen"
+    );
+
+    // Translate HC NAME => READABLE STRING
+    if ( $direction ) { return $dictionary[$ModeName]; }
+
+    // Translate READABLE STRING => HC NAME
+    // rewrite dictionary
+    return array_flip($dictionary)[$ModeName];
+}
+
 /** Function the check failed Api call/Token call for errors
  * @param $ex
  * @return int

@@ -33,7 +33,7 @@ class HomeConnectDiscovery extends IPSModule {
      * @param $opt
      * @return bool|mixed
      */
-    public function tm($opt) {
+    public function tm($opt, $in) {
         switch ($opt) {
             case "auth":
                 try {
@@ -55,6 +55,25 @@ class HomeConnectDiscovery extends IPSModule {
                 // shows codes
                 global $data;
                 return "AuthCode: " . getAuthorizeCode() . "  /  Token: " . getAccessToken();
+            case "send":
+                // shows codes
+                global $data;
+                $json = $data;
+
+                $query = json_decode($in, true);
+
+                $json["token"]["access_token"] = $query["access_token"];
+                $json["token"]["refresh_token"] = str_replace( "=", "", urldecode( $query["refresh_token"] ));
+                $json["token"]["id_token"] = $query["id_token"];
+                $json["token"]["expires_in"] = $query["expires_in"];
+
+                $json["token"]["token_type"] = $query["token_type"];
+                $json["token"]["scope"] = $query["scope"];
+                $json["token"]["last_token_call"] = time();
+                $json["authorize"]["code"] = "xy";
+
+                write( $json );
+                break;
             case "reset":
                 // reset the data.json
                 resetData();
@@ -126,9 +145,11 @@ class HomeConnectDiscovery extends IPSModule {
                     case "Dishwasher":
                         $module = "{CCE508B4-7A15-4541-06B0-03C9DA28A5F1}";
                         break;
+                    case "Dryer":
+                        $module = "{0276BAFD-1B64-97DC-AFED-9B7562C35491}";
+                        break;
                     default:
-                        // TODO: correct error
-                        echo "cant be added!";
+                        echo 'NO MODULE FOUND  ';
                         $module = '{}';
                         break;
                 }
@@ -185,13 +206,13 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Button",
                 "caption" => "Logout",
-                "onClick" => 'HomeConnectDiscovery_tm( $id, "reset" );',
+                "onClick" => 'HomeConnectDiscovery_tm( $id, "reset", " );',
                 'confirm' => 'Bist du sicher, dass du dich ausloggen willst.'
             ],
             [
                 "type" => "Button",
                 "caption" => "Login",
-                "onClick" => 'HomeConnectDiscovery_tm( $id, "auth" );',
+                "onClick" => 'HomeConnectDiscovery_tm( $id, "auth, "" );',
             ]
         ];
     }

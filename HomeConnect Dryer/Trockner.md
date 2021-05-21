@@ -1,5 +1,5 @@
-# Geschirrspüler
-Der Geschirrspüler kann gestartet, gestoppt, an und aus geschaltet werden. 
+# Trockner
+Der Trockner kann gestartet, gestoppt werden. 
 Zudem lassen sich Informationen wie die verbleibende Zeit oder die Programme geben lassen.
 
 - [Instanz Einstellungen](#instanz-einstellungen)
@@ -34,6 +34,7 @@ Name | Type | Werte | Funktionen
 `Geräte Zustand`| Integer | 0 Aus; 1 An; 2 Verzögerter Start; 3 Programm läuft | Zeigt dem Nutzer den Zustand vom Gerät
 `Start in`| Date string | Date("H:i:s") | Zeigt verbleibende Zeit bis das ausgewählte Programm startet
 `Programm` | Integer | 0,1,2... | Zeigt den Aktuellen Modus, auch zum auswählen
+`Programm Option` | Integer | 0,1,2... | Option mit der das Programm betrieben wird.
 `Remote start`| Boolean | true, false | Zeigt ob Remote Start an ist
 `Tür Zustand` | Boolean | true Offen; false Geschlossen | Zeigt ob die Tür offen/geschlossen ist (wenn das Gerät an ist)
 `Verbleibende Zeit`| Date string | Date("H:i:s") | Zeigt verbleibende Zeit vom Programm
@@ -46,19 +47,10 @@ Name | Type | Werte | Funktionen
   <img width="auto" height="auto" src="https://github.com/parcivad/img/blob/main/Geschirrspüler%20im%20Webfront.png">
 </p>
 
+*Der Status Aus und Verzögerter Start sind vielleicht unnötig (noch nicht an einem richtigem Gerät getestet).
 ## Geschirrspüler Set
-Alle Eigenschaften die gesetzt werden können.
-### Zustand steuern
-Im Webfront lässt sich das Gerät an und aus schalten. Die Zustände "Startet in" und "Programm läuft" können nicht gesetzt werden, da sie über die Funktion Start/Stop gesteuert werden.
+Alle Eigenschaften die gesetzt werden können. 
 
-
-Im Code kann das Gerät an oder aus geschaltet werden mit (bei dem start von dem Gerät muss es NICHT extra angeschaltet werden).
-```php
-HCDishwasher_SetActive( InstaceID, false/true );
-```
-```diff
--Für diese Aktion wird die Berechtigung RemoteControl benötigt!
-```
 ### Programm starten [4 REQUESTS]
 Ein Programm kann im Webfront gestartet werden, beim Drücken auf dem start knopf wird der aktuelle Modus ausgewählt und gestartet
 
@@ -66,7 +58,7 @@ Im Code kann das Programm auch noch verzögert gestartet werden mit.
 ```php
 try {
      // try to start the device
-     HCDishwasher_start( instance, 'Program', delay in seconds );
+     HCDryer_start( instance, 'Program', 'Option' );
 
 } catch(Exception $ex) {
      // catch the error and get the reason why it failed
@@ -93,7 +85,7 @@ Im Code kann das Programm mit ... gestoppt werden.
 ```php
 try {
      // try to start the device
-     HCOven_stop( instanceID );
+     HCDryer_stop( instanceID );
 
 } catch(Exception $ex) {
 
