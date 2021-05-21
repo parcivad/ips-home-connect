@@ -111,7 +111,7 @@ class HomeConnectDiscovery extends IPSModule {
         // list of oven modules
         $instances_device = array_merge( IPS_GetInstanceListByModuleID ('{4D8D592A-63C7-B2BD-243F-C6BF1DCAD66C}'), IPS_GetInstanceListByModuleID ('{CCE508B4-7A15-4541-06B0-03C9DA28A5F1}'));
         for( $i = 0; $i < count($instances_device); $i++ ) {
-            $instances[ IPS_GetName($instances_device[$i]) ] = IPS_GetInstance($instances_device[$i])['InstanceID'];
+            $instances[ IPS_GetProperty($instances_device[$i], $haId) ] = IPS_GetInstance($instances_device[$i])['InstanceID'];
         }
 
         $config_list = [];
@@ -123,7 +123,7 @@ class HomeConnectDiscovery extends IPSModule {
                 $connected = $device['connected'];
                 $type = $device['type'];
                 $haId = $device['haId'];
-                $instanceID = 0;
+                $device_instanceID = 0;
                 $id = substr( $haId, -2 );
 
                 // Search for matching module
@@ -141,8 +141,12 @@ class HomeConnectDiscovery extends IPSModule {
                         break;
                 }
 
-                // get instance if exist
-                if ( isset( $instances[$name] ) ) $instanceID = $instances[$name];
+                $instanceIDs = IPS_GetInstanceListByModuleID($module);
+                foreach ($instanceIDs as $instanceID) {
+                    if (IPS_GetProperty($instanceID, 'haId') == $haId) {
+                        $device_instanceID = $instanceID;
+                    }
+                }
 
                 $config_list[] = [
                     'name' => $name,
@@ -150,8 +154,7 @@ class HomeConnectDiscovery extends IPSModule {
                     'company' => $brand,
                     'haId' => $haId,
                     'connected' => $connected,
-                    'id' => $id,
-                    'instanceID' => $instanceID,
+                    'instanceID' => $device_instanceID,
                     'create'     => [
                         'moduleID'      => $module,
                         'configuration' => [
