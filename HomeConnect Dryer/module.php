@@ -412,8 +412,7 @@ class HomeConnectDryer extends IPSModule {
               IPS_CreateVariableProfile('HC_State', 1);
               IPS_SetVariableProfileIcon('HC_State', 'Power');
               IPS_SetVariableProfileValues("HC_State", 0, 2, 0 );
-              IPS_SetVariableProfileAssociation("HC_State", 0, "Aus", "", 0x828282 );
-              IPS_SetVariableProfileAssociation("HC_State", 1, "An", "", 0x22ff00 );
+              IPS_SetVariableProfileAssociation("HC_State", 1, "Standby", "", 0x22ff00 );
               IPS_SetVariableProfileAssociation("HC_State", 2, "Verzögerter Start", "", 0xfa8e00 );
               IPS_SetVariableProfileAssociation("HC_State", 3, "Program läuft", "", 0xfa3200 );
           }
