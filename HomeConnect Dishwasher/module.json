@@ -9,11 +9,11 @@
   ],
   "url": "https://github.com/parcivad/ips-home-connect/blob/main/HomeConnect%20Dishwasher/Geschirrspüler.md",
   "parentRequirements": [
-    "{C8792760-65CF-4C53-B5C7-A30FCC84FEFE}"
+    "{41DDAA3B-65F0-B833-36EE-CEB57A80D022}"
   ],
   "childRequirements": [],
   "implemented": [
-    "{7A1272A4-CBDB-46EF-BFC6-DCF4A53D2FC7}"
+    "{173D59E5-F949-1C1B-9B34-671217C07B0E}"
   ],
   "prefix": "HCDishwasher"
 }
