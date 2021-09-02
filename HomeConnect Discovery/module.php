@@ -188,13 +188,13 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Button",
                 "caption" => "Logout",
-                "onClick" => 'HomeConnectDiscovery_tm( $id, "reset" );',
+                "onClick" => 'HomeConnectDiscovery_tm( $this->InstaceID, "reset" );',
                 'confirm' => 'Bist du sicher, dass du dich ausloggen willst.'
             ],
             [
                 "type" => "Button",
                 "caption" => "Login",
-                "onClick" => 'HomeConnectDiscovery_tm( $id, "auth" );',
+                "onClick" => 'HomeConnectDiscovery_tm( $this->InstaceID, "auth" );',
             ]
         ];
     }
