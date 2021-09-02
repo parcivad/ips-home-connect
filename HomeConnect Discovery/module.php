@@ -203,13 +203,22 @@ class HomeConnectDiscovery extends IPSModule {
      */
     protected function FormElements() {
         $visible = $this->visible();
+        $token = getAccessToken();
 
         return[
             [
-                "type" => "Label",
+                "type" => "List",
                 "name" => "loggedIn",
                 "caption" => "Erfolgreich eingeloggt 👍 !",
-                "visible" => !$visible,
+                "rowCount" => 1,
+                "columns" => [
+                    [
+                        "type" => "Label",
+                        "name" => "token",
+                        "caption" => "Token: " . $token,
+                        "visible" => !$visible,
+                    ],
+                ]
             ],
             [
                 "type" => "Label",
