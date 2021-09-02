@@ -499,25 +499,35 @@ class HomeConnectDishwasher extends IPSModule {
       protected function FormActions() {
           return[
               [
-                  "type" => "Button",
-                  "caption" => "Test Handy notify",
-                  "onClick" => 'HCDishwasher_test( $id, "handy_message" );',
+                  "type" => "RowLayout",
+                  "items" => [
+                      [
+                          "type" => "Button",
+                          "caption" => "Test Handy notify",
+                          "onClick" => 'HCDishwasher_test( $id, "handy_message" );',
+                      ],
+                      [
+                          "type" => "Button",
+                          "caption" => "Test Webfront notify",
+                          "onClick" => 'HCDishwasher_test( $id, "web_message" );',
+                      ],
+                  ]
               ],
               [
-                  "type" => "Button",
-                  "caption" => "Test Webfront notify",
-                  "onClick" => 'HCDishwasher_test( $id, "web_message" );',
+                  "type" => "RowLayout",
+                  "items" => [
+                      [
+                          "type" => "Button",
+                          "caption" => "Refresh",
+                          "onClick" => 'HCDishwasher_refresh( $id );',
+                      ],
+                      [
+                          "type" => "Button",
+                          "caption" => "Profile refresh",
+                          "onClick" => 'HCDishwasher_BuildList( $id, "HC_DishwasherMode");',
+                      ]
+                  ]
               ],
-              [
-                  "type" => "Button",
-                  "caption" => "Refresh",
-                  "onClick" => 'HCDishwasher_refresh( $id );',
-              ],
-              [
-                  "type" => "Button",
-                  "caption" => "Profile refresh",
-                  "onClick" => 'HCDishwasher_BuildList( $id, "HC_DishwasherMode");',
-              ]
           ];
       }
 

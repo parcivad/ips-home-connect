@@ -217,7 +217,7 @@ class HomeConnectDiscovery extends IPSModule {
                 "visible" => !$visible,
                 "items" => [
                     [
-                        "type" => "Lable",
+                        "type" => "Label",
                         "name" => "showToken",
                         "caption" => "Token: " . $token,
                         "visible" => !$visible,
@@ -252,7 +252,7 @@ class HomeConnectDiscovery extends IPSModule {
                 "type" => "Configurator",
                 "name" => "Home-Connect Discovery",
                 "caption" => "HomeConnect Discovery",
-                "rowCount" => 14,
+                "rowCount" => 8,
                 "add" => false,
                 "delete" => true,
                 "columns" => [
