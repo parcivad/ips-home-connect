@@ -209,6 +209,7 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "ExpansionPanel",
                 "caption" => "Erfolgreich eingeloggt 👍 !",
+                "visible" => !$visible,
                 "items" => [
                     [
                         "type" => "Label",
