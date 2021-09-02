@@ -8,7 +8,7 @@
     "HomeConnect Washer"
   ],
   "url": "https://github.com/parcivad",
-  "parentRequirements": [],
+  "parentRequirements": ["{2FADB4B7-FDAB-3C64-3E2C-068A4809849A}"],
   "childRequirements": [],
   "implemented": [],
   "prefix": "HCDishwasher"
