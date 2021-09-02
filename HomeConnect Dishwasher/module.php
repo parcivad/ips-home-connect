@@ -103,6 +103,13 @@ class HomeConnectDishwasher extends IPSModule {
           parent::ApplyChanges();
       }
 
+    public function ReceiveData($JSONString) {
+        $data = json_decode($JSONString);
+
+        //Im Meldungsfenster zu Debug zwecken ausgeben
+        IPS_LogMessage("DATA", print_r($data, true));
+    }
+
 
       //--------------------------------------------------< Reaction >----------------------------------------
       public function RequestAction($Ident, $Value)
