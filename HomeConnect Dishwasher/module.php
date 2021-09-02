@@ -100,8 +100,6 @@ class HomeConnectDishwasher extends IPSModule {
       {
           // Overwrite ips function
           parent::ApplyChanges();
-
-          $this->ForceParent("{2FADB4B7-FDAB-3C64-3E2C-068A4809849A}");
       }
 
     public function ReceiveData($JSONString) {
