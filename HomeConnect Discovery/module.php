@@ -41,8 +41,8 @@ class HomeConnectDiscovery extends IPSModule {
             case "auth":
                 try {
                     // authorize through a button
-                    echo "trying";
                     authorize($this->ReadPropertyString("auth_url"));
+                    $this->ReloadForm();
                 } catch (Exception $ex) {
                     $this->SetStatus( analyseEX($ex) );
                 }
@@ -232,7 +232,7 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Label",
                 "name" => "loginInfo2",
-                "caption" => "Wenn du fertig bist, dann klicke auf login und aktualisiere das Modul",
+                "caption" => "Danach auf Login klicken um dein Konto zu autorisieren!",
                 "visible" => $visible,
             ],
             [
