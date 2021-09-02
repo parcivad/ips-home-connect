@@ -90,6 +90,8 @@ class HomeConnectDishwasher extends IPSModule {
           IPS_SetHidden($this->GetIDForIdent('LastRefresh'), true);
           IPS_SetHidden($this->GetIDForIdent('info'), true);
           $this->Hide();
+
+          $this->RequireParent("{2FADB4B7-FDAB-3C64-3E2C-068A4809849A}");
       }
 
       /** This function will be called by IP Symcon when the User change vars in the Module Interface
@@ -186,8 +188,8 @@ class HomeConnectDishwasher extends IPSModule {
 
               //================================================================================================================== Refreshing Device Program
               // Get door state and operation state from the Key => Value array (see above)
-              $DoorState =  $this->HC( $options_recall['BSH.Common.Status.DoorState'] );
-              $OperationState = $this->HC( $options_recall['BSH.Common.Status.OperationState'] );
+              $DoorState = HC( $options_recall['BSH.Common.Status.DoorState'] );
+              $OperationState = HC( $options_recall['BSH.Common.Status.OperationState'] );
 
               // Check if the device is active or in delayed start
               if ( $OperationState == 3 || $OperationState == 2 ) {
