@@ -38,6 +38,7 @@ class HomeConnectDiscovery extends IPSModule {
             case "auth":
                 try {
                     // authorize through a button
+                    echo "trying";
                     authorize($this->ReadPropertyString("auth_url"));
                 } catch (Exception $ex) {
                     $this->SetStatus( analyseEX($ex) );
