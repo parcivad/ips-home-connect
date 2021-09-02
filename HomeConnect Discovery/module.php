@@ -185,15 +185,20 @@ class HomeConnectDiscovery extends IPSModule {
     protected function FormActions() {
         return[
             [
-                "type" => "Button",
-                "caption" => "Logout",
-                "onClick" => 'HomeConnectDiscovery_tm( ' . $this->InstanceID . ', "reset" );',
-                'confirm' => 'Bist du sicher, dass du dich ausloggen willst.'
-            ],
-            [
-                "type" => "Button",
-                "caption" => "Login",
-                "onClick" => 'HomeConnectDiscovery_tm( ' . $this->InstanceID . ', "auth" );',
+                "type" => "RowLayout",
+                "items" => [
+                    [
+                        "type" => "Button",
+                        "caption" => "Logout",
+                        "onClick" => 'HomeConnectDiscovery_tm( ' . $this->InstanceID . ', "reset" );',
+                        'confirm' => 'Bist du sicher, dass du dich ausloggen willst.'
+                    ],
+                    [
+                        "type" => "Button",
+                        "caption" => "Login",
+                        "onClick" => 'HomeConnectDiscovery_tm( ' . $this->InstanceID . ', "auth" );',
+                    ]
+                ]
             ]
         ];
     }
@@ -212,9 +217,9 @@ class HomeConnectDiscovery extends IPSModule {
                 "visible" => !$visible,
                 "items" => [
                     [
-                        "type" => "ValidationTextBox",
-                        "name" => $token,
-                        "caption" => "Token",
+                        "type" => "Lable",
+                        "name" => "showToken",
+                        "caption" => "Token: " . $token,
                         "visible" => !$visible,
                     ]
                 ]

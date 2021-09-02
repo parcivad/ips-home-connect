@@ -623,91 +623,96 @@ class HomeConnectDishwasher extends IPSModule {
                   ],
               ],
               [
-                  "type" => "ExpansionPanel",
-                  "caption" => "Handy Notification Settings",
+                  "type" => "RowLayout",
                   "items" => [
                       [
-                          "type" => "SelectInstance",
-                          "name" => "notify_instance",
-                          "caption" => "Benachrichtigungs Instanz [Mobile / Handy]",
-                      ],
-                      [
-                          "type" => "Select",
-                          "name" => "notify_sound",
-                          "caption" => "Benachrichtigungs Sound [nichts für den normalen]",
-                          "options" => [
-                              [ "caption" => "Normal", "value" => "" ],
-                              [ "caption" => "alarm", "value" => "alarm" ],
-                              [ "caption" => "bell", "value" => "bell" ],
-                              [ "caption" => "boom", "value" => "boom" ],
-                              [ "caption" => "buzzer", "value" => "buzzer" ],
-                              [ "caption" => "connected", "value" => "connected" ],
-                              [ "caption" => "dark", "value" => "dark" ],
-                              [ "caption" => "digital", "value" => "digital" ],
-                              [ "caption" => "drums", "value" => "drums" ],
-                              [ "caption" => "duck", "value" => "duck" ],
-                              [ "caption" => "full", "value" => "full" ],
-                              [ "caption" => "happy", "value" => "happy" ],
-                              [ "caption" => "horn", "value" => "horn" ],
-                              [ "caption" => "inception", "value" => "inception" ],
-                              [ "caption" => "kazoo", "value" => "kazoo" ],
-                              [ "caption" => "roll", "value" => "roll" ],
-                              [ "caption" => "siren", "value" => "siren" ],
-                              [ "caption" => "space", "value" => "space" ],
-                              [ "caption" => "trickling", "value" => "trickling" ],
-                              [ "caption" => "turn", "value" => "turn" ],
+                          "type" => "ExpansionPanel",
+                          "caption" => "Handy Notification Settings",
+                          "items" => [
+                              [
+                                  "type" => "SelectInstance",
+                                  "name" => "notify_instance",
+                                  "caption" => "Benachrichtigungs Instanz [Mobile / Handy]",
+                              ],
+                              [
+                                  "type" => "Select",
+                                  "name" => "notify_sound",
+                                  "caption" => "Benachrichtigungs Sound [nichts für den normalen]",
+                                  "options" => [
+                                      [ "caption" => "Normal", "value" => "" ],
+                                      [ "caption" => "alarm", "value" => "alarm" ],
+                                      [ "caption" => "bell", "value" => "bell" ],
+                                      [ "caption" => "boom", "value" => "boom" ],
+                                      [ "caption" => "buzzer", "value" => "buzzer" ],
+                                      [ "caption" => "connected", "value" => "connected" ],
+                                      [ "caption" => "dark", "value" => "dark" ],
+                                      [ "caption" => "digital", "value" => "digital" ],
+                                      [ "caption" => "drums", "value" => "drums" ],
+                                      [ "caption" => "duck", "value" => "duck" ],
+                                      [ "caption" => "full", "value" => "full" ],
+                                      [ "caption" => "happy", "value" => "happy" ],
+                                      [ "caption" => "horn", "value" => "horn" ],
+                                      [ "caption" => "inception", "value" => "inception" ],
+                                      [ "caption" => "kazoo", "value" => "kazoo" ],
+                                      [ "caption" => "roll", "value" => "roll" ],
+                                      [ "caption" => "siren", "value" => "siren" ],
+                                      [ "caption" => "space", "value" => "space" ],
+                                      [ "caption" => "trickling", "value" => "trickling" ],
+                                      [ "caption" => "turn", "value" => "turn" ],
+                                  ],
+                              ],
+                              [
+                                  "type" => "CheckBox",
+                                  "name" => "notify_start",
+                                  "caption" => "Startbenachrichtigung",
+                              ],
+                              [
+                                  "type" => "CheckBox",
+                                  "name" => "notify_stop",
+                                  "caption" => "Stopbenachrichtigung",
+                              ],
+                              [
+                                  "type" => "CheckBox",
+                                  "name" => "notify_finish",
+                                  "caption" => "Benachrichtigung wenn fertig",
+                              ],
                           ],
                       ],
                       [
-                          "type" => "CheckBox",
-                          "name" => "notify_start",
-                          "caption" => "Startbenachrichtigung",
+                          "type" => "ExpansionPanel",
+                          "caption" => "Webfront Notification Settings",
+                          "items" => [
+                              [
+                                  "type" => "SelectInstance",
+                                  "name" => "web_notify_instance",
+                                  "caption" => "Benachrichtigungs Instanz [Mobile / Handy]",
+                              ],
+                              [
+                                  "type" => "NumberSpinner",
+                                  "name" => "web_notify_Timeout",
+                                  "caption" => "Nachrichten Timeout",
+                                  "suffix" => "sec",
+                                  "minimum" => "0",
+                                  "maximum" => "300",
+                              ],
+                              [
+                                  "type" => "CheckBox",
+                                  "name" => "web_notify_start",
+                                  "caption" => "Startbenachrichtigung",
+                              ],
+                              [
+                                  "type" => "CheckBox",
+                                  "name" => "web_notify_stop",
+                                  "caption" => "Stopbenachrichtigung",
+                              ],
+                              [
+                                  "type" => "CheckBox",
+                                  "name" => "web_notify_finish",
+                                  "caption" => "Benachrichtigung wenn fertig",
+                              ],
+                          ],
                       ],
-                      [
-                          "type" => "CheckBox",
-                          "name" => "notify_stop",
-                          "caption" => "Stopbenachrichtigung",
-                      ],
-                      [
-                          "type" => "CheckBox",
-                          "name" => "notify_finish",
-                          "caption" => "Benachrichtigung wenn fertig",
-                      ],
-                  ],
-              ],
-              [
-                  "type" => "ExpansionPanel",
-                  "caption" => "Webfront Notification Settings",
-                  "items" => [
-                      [
-                          "type" => "SelectInstance",
-                          "name" => "web_notify_instance",
-                          "caption" => "Benachrichtigungs Instanz [Mobile / Handy]",
-                      ],
-                      [
-                          "type" => "NumberSpinner",
-                          "name" => "web_notify_Timeout",
-                          "caption" => "Nachrichten Timeout",
-                          "suffix" => "sec",
-                          "minimum" => "0",
-                          "maximum" => "300",
-                      ],
-                      [
-                          "type" => "CheckBox",
-                          "name" => "web_notify_start",
-                          "caption" => "Startbenachrichtigung",
-                      ],
-                      [
-                          "type" => "CheckBox",
-                          "name" => "web_notify_stop",
-                          "caption" => "Stopbenachrichtigung",
-                      ],
-                      [
-                          "type" => "CheckBox",
-                          "name" => "web_notify_finish",
-                          "caption" => "Benachrichtigung wenn fertig",
-                      ],
-                  ],
+                  ]
               ],
               [
                   "type" => "ExpansionPanel",
@@ -929,7 +934,7 @@ class HomeConnectDishwasher extends IPSModule {
       /** Send Text
        * @param string $text Text in the Notification
        */
-      protected function SendNotify( string $text ) {
+      protected function SendNotify( $text ) {
           // Send notification for mobile devices (if on)
           if ( $this->ReadPropertyInteger("notify_instance") != 0 ) {
               WFC_PushNotification( $this->ReadPropertyInteger("notify_instance"), "HomeConnect", $text, $this->ReadPropertyString("notify_sound"), $this->InstanceID );
@@ -943,7 +948,7 @@ class HomeConnectDishwasher extends IPSModule {
       /** Function to set Profile of a Integer Var
        * @param string $profile Name of the profile
        */
-      public function BuildList( string $profile ) {
+      public function BuildList( $profile ) {
           try {
               // make api call to get available programs on this device
               $programs = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/available")['data']['programs'];
@@ -966,7 +971,7 @@ class HomeConnectDishwasher extends IPSModule {
       /** Function to set integer by name association
        * @param string $name
        */
-      protected function SetListValue( string $name ) {
+      protected function SetListValue( $name ) {
           // Get ID with Associations
           $profile = IPS_GetVariableProfile( "HC_DishwasherMode" )['Associations'];
           // count Associations
@@ -1008,7 +1013,7 @@ class HomeConnectDishwasher extends IPSModule {
       /** Counting Seconds down
        * @param string $var_name
        */
-      public function DownCount( string $var_name ) {
+      public function DownCount( $var_name ) {
           // Counting down if device is in active or delayed start state
           if ( $this->GetValue('state') == 3 || $this->GetValue('state') == 2 ) {
               // get current timestamp
@@ -1044,7 +1049,7 @@ class HomeConnectDishwasher extends IPSModule {
        * @param string $row The next array options after data
        * @return mixed return array with KEY => VALUE
        */
-      protected function getKeys( array $input, string $row ) {
+      protected function getKeys( array $input, $row ) {
           if ( isset( $input['data'] ) ) {
               // Get Options out of data
               $opt = $input['data'][$row];
@@ -1070,35 +1075,10 @@ class HomeConnectDishwasher extends IPSModule {
           return false;
       }
 
-      /**
-       * @param string $var that should be analyse
-       * @return bool returns true or false for HomeConnect Api result
-       */
-      private function HC($var ) {
-        // Return Variable to BSH Common type
-        switch ( $var ) {
-            //------------------------ DOOR
-            case "BSH.Common.EnumType.DoorState.Open":
-                return true;
-            case "BSH.Common.EnumType.DoorState.Closed":
-                return false;
-            //------------------------ OPERATION STATE
-            case "BSH.Common.EnumType.OperationState.Inactive":
-                return 0;
-            case "BSH.Common.EnumType.OperationState.Ready":
-                return 1;
-            case "BSH.Common.EnumType.OperationState.DelayedStart":
-                return 2;
-            case "BSH.Common.EnumType.OperationState.Run":
-                return 3;
-        }
-        return 0;
-    }
-
       /** Send logs to IP-Symcon
        * @param string $msg Message to send
        */
-      protected function _log(string $msg) {
+      protected function _log( $msg) {
           if ( $this->ReadPropertyBoolean('log') ) {
               IPS_LogMessage("HomeConnectDishwasher", $msg);
           }
