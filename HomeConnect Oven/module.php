@@ -1,6 +1,6 @@
 <?php
 
-require_once( dirname(dirname(__FILE__) ) . "/libs/tools/HomeConnectApi.php");
+require_once(dirname(dirname(__FILE__)) . "/libs/tools/api.php");
 require_once( dirname(dirname(__FILE__) ) . "/libs/tools/tm/tm.php");
 $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/libs/tools/tm/data.json" ), true );
 

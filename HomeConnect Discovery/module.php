@@ -1,7 +1,10 @@
 <?php
-
-require_once( dirname(dirname(__FILE__) ) . "/libs/tools/HomeConnectApi.php");
+// require
+require_once(dirname(dirname(__FILE__)) . "/libs/tools/api.php");
 require_once( dirname(dirname(__FILE__) ) . "/libs/tools/tm/tm.php");
+require_once( dirname(dirname(__FILE__) ) . "/libs/tools/mode-translate.php");
+
+// import
 $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/libs/tools/tm/data.json" ), true );
 
 
@@ -52,10 +55,6 @@ class HomeConnectDiscovery extends IPSModule {
                     $this->SetStatus( analyseEX($ex) );
                 }
                 break;
-            case "get":
-                // shows codes
-                global $data;
-                return "AuthCode: " . getAuthorizeCode() . "  /  Token: " . getAccessToken();
             case "reset":
                 // reset the data.json
                 resetData();
@@ -209,7 +208,7 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Label",
                 "name" => "loggedIn",
-                "caption" => "Erfolgreich eingeloggt!",
+                "caption" => "Erfolgreich eingeloggt 👍 !",
                 "visible" => !$visible,
             ],
             [

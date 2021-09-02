@@ -1,7 +1,10 @@
 <?php
-
-require_once( dirname(dirname(__FILE__) ) . "/libs/tools/HomeConnectApi.php");
+// require
+require_once(dirname(dirname(__FILE__)) . "/libs/tools/api.php");
 require_once( dirname(dirname(__FILE__) ) . "/libs/tools/tm/tm.php");
+require_once( dirname(dirname(__FILE__) ) . "/libs/tools/mode-translate.php");
+
+// import
 $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/libs/tools/tm/data.json" ), true );
 
 
@@ -284,7 +287,7 @@ class HomeConnectDishwasher extends IPSModule {
      * @param int $delay Delay in seconds until the device starts
      * @throws Exception
      */
-      public function start( string $mode, int $delay ) {
+      public function start( $mode, $delay ) {
           // log
           $this->_log( "Trying to start Device..." );
           // Set the device ready ( device must be ready for start )
@@ -397,7 +400,7 @@ class HomeConnectDishwasher extends IPSModule {
      * Function to turn the dishwasher on
      * @param bool $state switch
      */
-      public function SetActive( bool $state ) {
+      public function SetActive( $state ) {
           if ( $state ) {
               // power on string for HomeConnect
               $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.On","type": "BSH.Common.EnumType.PowerState"}}';
