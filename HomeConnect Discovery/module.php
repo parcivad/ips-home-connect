@@ -207,17 +207,15 @@ class HomeConnectDiscovery extends IPSModule {
 
         return[
             [
-                "type" => "List",
-                "name" => "loggedIn",
+                "type" => "ExpansionPanel",
                 "caption" => "Erfolgreich eingeloggt 👍 !",
-                "rowCount" => 1,
-                "columns" => [
+                "items" => [
                     [
                         "type" => "Label",
                         "name" => "token",
                         "caption" => "Token: " . $token,
                         "visible" => !$visible,
-                    ],
+                    ]
                 ]
             ],
             [
