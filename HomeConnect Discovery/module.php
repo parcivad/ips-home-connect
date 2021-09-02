@@ -212,9 +212,9 @@ class HomeConnectDiscovery extends IPSModule {
                 "visible" => !$visible,
                 "items" => [
                     [
-                        "type" => "Label",
-                        "name" => "token",
-                        "caption" => "Token: " . $token,
+                        "type" => "ValidationTextBox",
+                        "name" => $token,
+                        "caption" => "Token",
                         "visible" => !$visible,
                     ]
                 ]
