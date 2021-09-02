@@ -91,7 +91,6 @@ class HomeConnectDishwasher extends IPSModule {
           IPS_SetHidden($this->GetIDForIdent('info'), true);
           $this->Hide();
 
-          $this->RequireParent("{2FADB4B7-FDAB-3C64-3E2C-068A4809849A}");
       }
 
       /** This function will be called by IP Symcon when the User change vars in the Module Interface
@@ -101,6 +100,8 @@ class HomeConnectDishwasher extends IPSModule {
       {
           // Overwrite ips function
           parent::ApplyChanges();
+
+          $this->ForceParent("{2FADB4B7-FDAB-3C64-3E2C-068A4809849A}");
       }
 
     public function ReceiveData($JSONString) {
