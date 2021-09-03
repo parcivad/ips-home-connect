@@ -92,9 +92,6 @@ class HomeConnectDishwasher extends IPSModule {
         IPS_SetHidden($this->GetIDForIdent('LastRefresh'), true);
         IPS_SetHidden($this->GetIDForIdent('info'), true);
         $this->Hide();
-
-        // setup parent Instance SSE client
-        $this->setupSSE();
     }
 
     /** This function will be called by IP Symcon when the User change vars in the Module Interface
@@ -103,6 +100,9 @@ class HomeConnectDishwasher extends IPSModule {
     public function ApplyChanges() {
         // Overwrite ips function
         parent::ApplyChanges();
+
+        // setup parent Instance SSE client
+        $this->setupSSE();
     }
 
     /** This function will set all important information for a working sse client ( I/O parent ) */
