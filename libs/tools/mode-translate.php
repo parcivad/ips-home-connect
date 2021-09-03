@@ -106,10 +106,10 @@ function DryerTranslateMode( $ModeName, $direction) {
 }
 
 /**
- * @param string $var that should be analyse
+ * @param string|int $var that should be analyse
  * @return bool returns true or false for HomeConnect Api result
  */
-function HC($var ) {
+function HC( $var ) {
     // Return Variable to BSH Common type
     switch ( $var ) {
         //------------------------ DOOR
@@ -118,14 +118,14 @@ function HC($var ) {
         case "BSH.Common.EnumType.DoorState.Closed":
             return false;
         //------------------------ OPERATION STATE
-        case "BSH.Common.EnumType.OperationState.Inactive":
+        case "BSH.Common.EnumType.OperationState.Inactive" || "BSH.Common.EnumType.PowerState.Standby":
             return 0;
-        case "BSH.Common.EnumType.OperationState.Ready":
+        case "BSH.Common.EnumType.OperationState.Ready" || "BSH.Common.EnumType.PowerState.On":
             return 1;
         case "BSH.Common.EnumType.OperationState.DelayedStart":
             return 2;
         case "BSH.Common.EnumType.OperationState.Run":
             return 3;
     }
-    return 0;
+    return $var;
 }

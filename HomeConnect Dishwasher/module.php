@@ -60,11 +60,6 @@ class HomeConnectDishwasher extends IPSModule {
         $this->RegisterAttributeString("remoteStartAllowed", "Dein Gerät erlaub keinen Fernstart");
         $this->RegisterAttributeBoolean("first_start", true );
 
-        // Register Timers [refresh Timer, Count down until start, Count down until program ends]
-        $this->RegisterTimer($this->InstanceID . "-refresh", 300000, "HCDishwasher_refresh( $this->InstanceID );");
-        $this->RegisterTimer("DownCountStart", 0, "HCDishwasher_DownCount($this->InstanceID, 'remainStartTime'");
-        $this->RegisterTimer("DownCountProgram", 0, "HCDishwasher_DownCount($this->InstanceID, 'remainTime');");
-
         // Register Variable and Profiles [look in class]
         $this->registerProfiles();
 
@@ -92,9 +87,6 @@ class HomeConnectDishwasher extends IPSModule {
         IPS_SetHidden($this->GetIDForIdent('LastRefresh'), true);
         IPS_SetHidden($this->GetIDForIdent('info'), true);
         $this->Hide();
-
-        // setup SSE client after all other configurations
-        $this->setupSSE();
     }
 
     /** This function will be called by IP Symcon when the User change vars in the Module Interface
@@ -103,7 +95,13 @@ class HomeConnectDishwasher extends IPSModule {
     public function ApplyChanges() {
         // Overwrite ips function
         parent::ApplyChanges();
+
+        // setup SSE client after all other configurations
+        $this->setupSSE();
     }
+
+
+    //--------------------------------------------------< SSE Handling >--------------------------------------
 
     /** This function will set all important information for a working sse client ( I/O parent ) */
     private function setupSSE() {
@@ -122,6 +120,24 @@ class HomeConnectDishwasher extends IPSModule {
 
     public function ReceiveData($JSONString) {
         $data = json_decode($JSONString);
+
+        if ( $data['DataID'] !== "{5A709184-B602-D394-227F-207611A33BDF}" ) { return; }
+        if ( $data['Event'] === "KEEP-ALIVE" ) { $this->_log("Module is still connected with the HomeConnect Servers"); }
+
+        $items = json_decode( $data['Data'], true)['items'];
+
+        $Manual = [
+            'BSH.Common.Status.RemoteControlActive' => 'remoteControl',
+            'BSH.Common.Status.RemoteControlStartAllowed' => 'remoteStart',
+            'BSH.Common.Status.OperationState' => 'state',
+            'BSH.Common.Setting.PowerState' => 'state',
+            'BSH.Common.Status.DoorState' => 'door'
+        ];
+
+        // translation between BSH and module variable ident
+        foreach ($items as $item) {
+            $this->SetValue( $Manual[ $item['key'] ], HC( $item['value'] ) );
+        }
 
         //Im Meldungsfenster zu Debug zwecken ausgeben
         IPS_LogMessage("DATA", print_r($data, true));
