@@ -100,9 +100,6 @@ class HomeConnectDishwasher extends IPSModule {
     public function ApplyChanges() {
         // Overwrite ips function
         parent::ApplyChanges();
-
-        // setup parent Instance SSE client
-        $this->setupSSE();
     }
 
     /** This function will set all important information for a working sse client ( I/O parent ) */
@@ -164,6 +161,7 @@ class HomeConnectDishwasher extends IPSModule {
        * @return string could return error
        */
       public function refresh() {
+          $this->setupSSE();
           // log
           $this->_log( "Refreshing startet..." );
           //====================================================================================================================== Check Timer
