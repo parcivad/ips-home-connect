@@ -70,6 +70,9 @@ class HomeConnectDishwasher extends IPSModule {
         $this->RegisterVariableString("remainTime", "Verbleibende Programm Zeit", "", 5);
         $this->RegisterVariableInteger("progress", "Fortschritt", "HC_Progress", 6);
         $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_StartStop", 7);
+        $this->RegisterVariableBoolean("ambient", "Ambiente", "", 10);
+        $this->RegisterVariableBoolean("ambient_intensity", "Ambiente Intensity", "Intensity.100", 10);
+        $this->RegisterVariableBoolean("ambient_color", "Ambiente Color", "HexColor", 10);
 
         // Enable Action for variables, for change reaction look up RequestAction();
         $this->EnableAction('start_stop');
@@ -138,7 +141,10 @@ class HomeConnectDishwasher extends IPSModule {
             'BSH.Common.Root.SelectedProgram' => 'PROGRAM',
             'BSH.Common.Option.StartInRelative' => 'remainStartTime',
             'BSH.Common.Option.RemainingProgramTime' => 'remainTime',
-            'BSH.Common.Setting.ChildLock' => 'childLock'
+            'BSH.Common.Setting.ChildLock' => 'childLock',
+            'BSH.Common.Setting.AmbientLightEnabled' => 'ambient',
+            'BSH.Common.Setting.AmbientLightBrightness' => 'ambient_intensity',
+            'BSH.Common.Setting.AmbientLightCustomColor' => 'ambient_color'
         ];
 
         // translation between BSH and module variable ident
