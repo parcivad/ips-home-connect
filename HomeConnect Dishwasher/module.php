@@ -55,20 +55,16 @@ class HomeConnectDishwasher extends IPSModule {
         // Turn on/off of Log messages
         $this->RegisterPropertyBoolean("log", false);
 
-        // Remote start and Build list [Set by refresh function]
-        $this->RegisterAttributeString("remoteControlAllowed", "Dein Gerät erlaubt keine Fernbedienung");
-        $this->RegisterAttributeString("remoteStartAllowed", "Dein Gerät erlaub keinen Fernstart");
-        $this->RegisterAttributeBoolean("first_start", true );
-
         // Register Variable and Profiles [look in class]
         $this->registerProfiles();
 
-        $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_RemoteStart", -2);
-        $this->RegisterVariableInteger('LastReceive', "Last Receive", "UnixTimestamp", -2);
+        $this->RegisterVariableInteger('LastReceive', "Last Receive", "UnixTimestamp", -3);
+        $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_Control", -2);
+        $this->RegisterVariableBoolean("childLock", "Child Lock", "HC_Control", -1);
         $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_State", 0);
         $this->RegisterVariableString("remainStartTime", "Start in", "", 1);
         $this->RegisterVariableInteger("mode", "Programm", "HC_DishwasherMode", 2);
-        $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_RemoteStart", 3);
+        $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_Control", 3);
         $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_DoorState", 4);
         $this->RegisterVariableString("remainTime", "Verbleibende Programm Zeit", "", 5);
         $this->RegisterVariableInteger("progress", "Fortschritt", "HC_Progress", 6);
@@ -98,6 +94,9 @@ class HomeConnectDishwasher extends IPSModule {
 
         // setup SSE client after all other configurations
         $this->setupSSE();
+
+        // Build Program List
+        $this->BuildList("HC_DishwasherMode");
     }
 
 
@@ -135,7 +134,10 @@ class HomeConnectDishwasher extends IPSModule {
             'BSH.Common.Status.DoorState' => 'door',
             'BSH.Common.Option.ProgramProgress' => 'progress',
             'BSH.Common.Root.ActiveProgram' => 'PROGRAM',
-            'BSH.Common.Root.SelectedProgram' => 'PROGRAM'
+            'BSH.Common.Root.SelectedProgram' => 'PROGRAM',
+            'BSH.Common.Option.StartInRelative' => 'remainStartTime',
+            'BSH.Common.Option.RemainingProgramTime' => 'remainTime',
+            'BSH.Common.Setting.ChildLock' => 'childLock'
         ];
 
         // translation between BSH and module variable ident
@@ -143,18 +145,19 @@ class HomeConnectDishwasher extends IPSModule {
             // check is key is present
             if ( isset($Manual[ $item['key'] ])) {
                 $key = $Manual[ $item['key'] ];
+                $i = $item['value'];
                 // Check if its a Program specification
-                if ( $key != "PROGRAM") {
-                    $this->SetValue( $Manual[ $item['key'] ], HC( $item['value'] ) );
+                if ( $key === "PROGRAM") {
+                    // Set Program through function
+                    $this->SetListValue( $i );
+                } else if ( str_ends_with($key, 'Time') ) {
+                    // into date String
+                    if ( $i === 0 ) { $i = "--:--:--"; }
+                    $this->SetValue( $key, gmdate("H:i:s", $i ) );
                 } else {
-                    $this->SetListValue( $item['value'] );
+                    $this->SetValue( $key, HC( $i ) );
                 }
             }
-        }
-
-        if ( $this->ReadAttributeBoolean("first_start") ) {
-            $this->BuildList("HC_DishwasherMode");
-            $this->WriteAttributeBoolean("first_start", false );
         }
 
         // Set last receive
@@ -236,24 +239,6 @@ class HomeConnectDishwasher extends IPSModule {
               }
               // Build a Key => Value array with the getKeys function (look down in the code)
               $options_recall = $this->getKeys($recall_api, 'status');
-
-              //================================================================================================================== Refreshing Permissions
-              // Check if the RemoteControl active is [Set by Device]
-              if ( $options_recall['BSH.Common.Status.RemoteControlActive'] ) {
-                  $this->WriteAttributeString("remoteControlAllowed", "Dein Gerät erlaubt eine Fernbedienung");
-                  $this->SetValue("remoteControl", true );
-              } else {
-                  $this->WriteAttributeString("remoteControlAllowed", "Dein Gerät erlaubt keine Fernbedienung");
-                  $this->SetValue("remoteControl", false );
-              }
-              // Check if the RemoteControl is active [Set by User on device]
-              if ( $options_recall['BSH.Common.Status.RemoteControlStartAllowed'] ) {
-                  $this->WriteAttributeString("remoteStartAllowed", "Dein Gerät erlaub ein Fernstart" );
-                  $this->SetValue("remoteStart", true );
-              } else {
-                  $this->WriteAttributeString("remoteStartAllowed", "Dein Gerät erlaub keinen Fernstart" );
-                  $this->SetValue("remoteStart", false );
-              }
 
               //================================================================================================================== Refreshing Device Program
               // Get door state and operation state from the Key => Value array (see above)
@@ -538,11 +523,11 @@ class HomeConnectDishwasher extends IPSModule {
               IPS_SetVariableProfileAssociation("HC_StartStop", false, "Stop", "", 0x828282 );
               IPS_SetVariableProfileAssociation("HC_StartStop", true, "Start", "", 0x11ff00 );
           }
-          if (!IPS_VariableProfileExists('HC_RemoteStart')) {
-              IPS_CreateVariableProfile('HC_RemoteStart', 0);
-              IPS_SetVariableProfileIcon('HC_RemoteStart', 'Lock');
-              IPS_SetVariableProfileAssociation("HC_RemoteStart", false, "Nicht erlaubt", "", 0xfa3200 );
-              IPS_SetVariableProfileAssociation("HC_RemoteStart", true, "Erlaubt", "", 0x11ff00 );
+          if (!IPS_VariableProfileExists('HC_Control')) {
+              IPS_CreateVariableProfile('HC_Control', 0);
+              IPS_SetVariableProfileIcon('HC_Control', 'Lock');
+              IPS_SetVariableProfileAssociation("HC_Control", false, "Nicht erlaubt", "", 0xfa3200 );
+              IPS_SetVariableProfileAssociation("HC_Control", true, "Erlaubt", "", 0x11ff00 );
           }
       }
 
@@ -650,22 +635,6 @@ class HomeConnectDishwasher extends IPSModule {
                           "device" => $this->ReadPropertyString( "device"),
                           "company" => $this->ReadPropertyString( "company"),
                           "haId" => $this->ReadPropertyString( "haId"),
-                      ],
-                  ],
-              ],
-              [
-                  "type" => "ExpansionPanel",
-                  "caption" => "Berechtigungen die von deinem Gerät gesetzt werden",
-                  "items" => [
-                      [
-                          "type" => "Label",
-                          "name" => "remoteControlAllowed",
-                          "caption" => $this->ReadAttributeString('remoteControlAllowed'),
-                      ],
-                      [
-                          "type" => "Label",
-                          "name" => "remoteStartAllowed",
-                          "caption" => $this->ReadAttributeString('remoteStartAllowed'),
                       ],
                   ],
               ],
