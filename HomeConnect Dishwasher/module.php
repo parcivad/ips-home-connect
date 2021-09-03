@@ -471,7 +471,7 @@ class HomeConnectDishwasher extends IPSModule {
               [
                   "type" => "List",
                   "name" => "Gerät Information",
-                  "caption" => "Informationen zu diesem Gerät [ Geschirrspüler ]",
+                  "caption" => "Information about this device",
                   "rowCount" => 1,
                   "add" => false,
                   "delete" => false,
@@ -515,17 +515,17 @@ class HomeConnectDishwasher extends IPSModule {
                   "items" => [
                       [
                           "type" => "ExpansionPanel",
-                          "caption" => "Handy Notification Settings",
+                          "caption" => "Mobil Notification",
                           "items" => [
                               [
                                   "type" => "SelectInstance",
                                   "name" => "notify_instance",
-                                  "caption" => "Benachrichtigungs Instanz [Mobile / Handy]",
+                                  "caption" => "Notification Instance Mobil",
                               ],
                               [
                                   "type" => "Select",
                                   "name" => "notify_sound",
-                                  "caption" => "Benachrichtigungs Sound [nichts für den normalen]",
+                                  "caption" => "Notification sounds",
                                   "options" => [
                                       [ "caption" => "Normal", "value" => "" ],
                                       [ "caption" => "alarm", "value" => "alarm" ],
@@ -550,71 +550,106 @@ class HomeConnectDishwasher extends IPSModule {
                                   ],
                               ],
                               [
-                                  "type" => "CheckBox",
-                                  "name" => "notify_start",
-                                  "caption" => "Startbenachrichtigung",
+                                  "type" => "Label",
+                                  "name" => "notify",
+                                  "caption" => "Select Notifications"
                               ],
                               [
-                                  "type" => "CheckBox",
-                                  "name" => "notify_stop",
-                                  "caption" => "Stopbenachrichtigung",
+                                  "type" => "RowLayout",
+                                  "items" => [
+                                      [
+                                          "type" => "CheckBox",
+                                          "name" => "notify_start",
+                                          "caption" => "Start"
+                                      ],
+                                      [
+                                          "type" => "CheckBox",
+                                          "name" => "notify_stop",
+                                          "caption" => "Stop"
+                                      ]
+                                  ]
                               ],
                               [
-                                  "type" => "CheckBox",
-                                  "name" => "notify_finish",
-                                  "caption" => "Benachrichtigung wenn fertig",
-                              ],
+                                  "type" => "RowLayout",
+                                  "items" => [
+                                      [
+                                          "type" => "CheckBox",
+                                          "name" => "notify_finish",
+                                          "caption" => "When finished"
+                                      ],
+                                      [
+                                          "type" => "CheckBox",
+                                          "name" => "notify_abort",
+                                          "caption" => "When aborted"
+                                      ]
+                                  ]
+                              ]
                           ],
                       ],
                       [
                           "type" => "ExpansionPanel",
-                          "caption" => "Webfront Notification Settings",
+                          "caption" => "Webfront Notification",
                           "items" => [
                               [
                                   "type" => "SelectInstance",
                                   "name" => "web_notify_instance",
-                                  "caption" => "Benachrichtigungs Instanz [Mobile / Handy]",
+                                  "caption" => "Notification Instance Webfront",
                               ],
                               [
                                   "type" => "NumberSpinner",
                                   "name" => "web_notify_Timeout",
-                                  "caption" => "Nachrichten Timeout",
+                                  "caption" => "Message timeout",
                                   "suffix" => "sec",
                                   "minimum" => "0",
                                   "maximum" => "300",
                               ],
                               [
-                                  "type" => "CheckBox",
-                                  "name" => "web_notify_start",
-                                  "caption" => "Startbenachrichtigung",
+                                  "type" => "RowLayout",
+                                  "items" => [
+                                      [
+                                          "type" => "CheckBox",
+                                          "name" => "web_notify_start",
+                                          "caption" => "Start"
+                                      ],
+                                      [
+                                          "type" => "CheckBox",
+                                          "name" => "web_notify_stop",
+                                          "caption" => "Stop"
+                                      ]
+                                  ]
                               ],
                               [
-                                  "type" => "CheckBox",
-                                  "name" => "web_notify_stop",
-                                  "caption" => "Stopbenachrichtigung",
-                              ],
-                              [
-                                  "type" => "CheckBox",
-                                  "name" => "web_notify_finish",
-                                  "caption" => "Benachrichtigung wenn fertig",
-                              ],
+                                  "type" => "RowLayout",
+                                  "items" => [
+                                      [
+                                          "type" => "CheckBox",
+                                          "name" => "web_notify_finish",
+                                          "caption" => "When finished"
+                                      ],
+                                      [
+                                          "type" => "CheckBox",
+                                          "name" => "web_notify_abort",
+                                          "caption" => "When aborted"
+                                      ]
+                                  ]
+                              ]
                           ],
                       ],
                   ]
               ],
               [
                   "type" => "ExpansionPanel",
-                  "caption" => "Variable Settings",
+                  "caption" => "Variable",
                   "items" => [
                       [
                           "type" => "CheckBox",
                           "name" => "hide_show",
-                          "caption" => "Dynamisches ein-/ausblenden",
+                          "caption" => "Dynamic show/hide",
                       ],
                       [
                           "type" => "CheckBox",
                           "name" => "mode_translate",
-                          "caption" => "Modus Profil übersetzen (Option aus um die Modi zu sehen die Gesetzt werden können)",
+                          "caption" => "Translate the program names into german",
                       ],
                   ],
               ],
