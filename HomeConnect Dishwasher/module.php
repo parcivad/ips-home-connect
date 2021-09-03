@@ -105,14 +105,16 @@ class HomeConnectDishwasher extends IPSModule {
 
     /** This function will set all important information for a working sse client ( I/O parent ) */
     private function setupSSE() {
-        // get parent instace
+        // get parent instance
         $parent = IPS_GetInstance( $this->InstanceID )['ConnectionID'];
         // build url
         $url = "https://api.home-connect.com/api/homeappliances/" . $this->ReadPropertyString("haId"). "/events";
         // setup
         IPS_SetProperty( $parent, "URL", $url);
         IPS_SetProperty( $parent, 'Headers', json_encode([['Name' => 'Authorization', 'Value' => 'Bearer ' . getAccessToken()]]));
-        if ( !IPS_GetProperty( $parent, "Active") ) { IPS_SetProperty( $parent, "Active", true); }
+        IPS_SetProperty( $parent, "Active", false);
+        IPS_ApplyChanges( $parent );
+        IPS_SetProperty( $parent, 'Active', true );
         IPS_ApplyChanges( $parent );
         // log msg
         $this->_log("Configured SSE Client");
@@ -125,6 +127,7 @@ class HomeConnectDishwasher extends IPSModule {
         if ( $data['Event'] === "KEEP-ALIVE" ) { $this->_log("Module is still connected with the HomeConnect Servers"); }
 
         $items = json_decode( $data['Data'], true)['items'];
+        IPS_LogMessage("DATA", print_r($items, true));
 
         $Manual = [
             'BSH.Common.Status.RemoteControlActive' => 'remoteControl',
