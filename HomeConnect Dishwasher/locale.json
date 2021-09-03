@@ -1,0 +1,16 @@
+{
+  "translations": {
+    "de": {
+      "Information about this device": "Informationen über das Gerät",
+      "Device": "Gerät",
+      "Company": "Firma",
+
+      "Mobil Notification": "Mobil Benachrichtigungen",
+      "Notification Instance Mobil": "Benachrichtigungs Instanze Mobil",
+      "Notification sounds": "Benachrichtigungs Geräusche",
+      "Select Notifications": "Wähle die Benachrichtigung aus",
+      "When finished": "Wenn fertig",
+      "When aborted": "Wenn abgebrochen"
+    }
+  }
+}

@@ -470,7 +470,7 @@ class HomeConnectDishwasher extends IPSModule {
               ],
               [
                   "type" => "List",
-                  "name" => "Gerät Information",
+                  "name" => "Device info",
                   "caption" => "Information about this device",
                   "rowCount" => 1,
                   "add" => false,
@@ -602,6 +602,11 @@ class HomeConnectDishwasher extends IPSModule {
                                   "suffix" => "sec",
                                   "minimum" => "0",
                                   "maximum" => "300",
+                              ],
+                              [
+                                  "type" => "Label",
+                                  "name" => "notify",
+                                  "caption" => "Select Notifications"
                               ],
                               [
                                   "type" => "RowLayout",
