@@ -64,7 +64,7 @@ class HomeConnectDishwasher extends IPSModule {
         $this->registerProfiles();
 
         $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_RemoteStart", -2);
-        $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -2);
+        $this->RegisterVariableInteger('LastReceive', "Last Receive", "UnixTimestamp", -2);
         $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_State", 0);
         $this->RegisterVariableString("remainStartTime", "Start in", "", 1);
         $this->RegisterVariableInteger("mode", "Programm", "HC_DishwasherMode", 2);
@@ -84,7 +84,7 @@ class HomeConnectDishwasher extends IPSModule {
 
         // Set Hide, the user can link the instance with no unimportant info
         IPS_SetHidden($this->GetIDForIdent("remoteControl"), true);
-        IPS_SetHidden($this->GetIDForIdent('LastRefresh'), true);
+        IPS_SetHidden($this->GetIDForIdent('LastReceive'), true);
         IPS_SetHidden($this->GetIDForIdent('info'), true);
         $this->Hide();
     }
@@ -126,15 +126,14 @@ class HomeConnectDishwasher extends IPSModule {
         if ( $data['DataID'] !== "{5A709184-B602-D394-227F-207611A33BDF}" ) { return; }
         if ( $data['Event'] === "KEEP-ALIVE" ) { $this->_log("Module is still connected with the HomeConnect Servers"); return; }
 
-        IPS_LogMessage("DATA", print_r($data['Data'], true));
         $items = json_decode( $data['Data'], true)['items'];
-        IPS_LogMessage("DATA", print_r($items, true));
 
         $Manual = [
             'BSH.Common.Status.RemoteControlActive' => 'remoteControl',
             'BSH.Common.Status.RemoteControlStartAllowed' => 'remoteStart',
             'BSH.Common.Status.OperationState' => 'state',
-            'BSH.Common.Status.DoorState' => 'door'
+            'BSH.Common.Status.DoorState' => 'door',
+            'BSH.Common.Option.ProgramProgress' => 'progress',
         ];
 
         // translation between BSH and module variable ident
@@ -145,8 +144,19 @@ class HomeConnectDishwasher extends IPSModule {
             }
         }
 
-        //Im Meldungsfenster zu Debug zwecken ausgeben
-        IPS_LogMessage("DATA", print_r($data, true));
+        // Set last receive
+        $this->SetValue( "LastReceive", time() );
+        // check is there items that have to hide or show
+        $this->Hide();
+        // feedback that a item/variable has updated
+        $this->_log( "Single item stack update finished");
+    }
+
+    /**
+     *  This function will check variables and states in the background to optimise or sync stuff.
+     */
+    private function backgroundCheck() {
+
     }
 
 
