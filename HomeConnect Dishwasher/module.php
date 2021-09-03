@@ -139,7 +139,10 @@ class HomeConnectDishwasher extends IPSModule {
 
         // translation between BSH and module variable ident
         foreach ($items as $item) {
-            $this->SetValue( $Manual[ $item['key'] ], HC( $item['value'] ) );
+            // check is key is present
+            if ( isset($Manual[ $item['key'] ])) {
+                $this->SetValue( $Manual[ $item['key'] ], HC( $item['value'] ) );
+            }
         }
 
         //Im Meldungsfenster zu Debug zwecken ausgeben
