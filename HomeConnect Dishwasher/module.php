@@ -92,6 +92,9 @@ class HomeConnectDishwasher extends IPSModule {
         IPS_SetHidden($this->GetIDForIdent('LastRefresh'), true);
         IPS_SetHidden($this->GetIDForIdent('info'), true);
         $this->Hide();
+
+        // setup SSE client after all other configurations
+        $this->setupSSE();
     }
 
     /** This function will be called by IP Symcon when the User change vars in the Module Interface
@@ -105,7 +108,7 @@ class HomeConnectDishwasher extends IPSModule {
     /** This function will set all important information for a working sse client ( I/O parent ) */
     private function setupSSE() {
         // get parent instace
-        $parent = IPS_GetParent( $this->InstanceID )['ConnectionID'];
+        $parent = IPS_GetInstance( $this->InstanceID )['ConnectionID'];
         // build url
         $url = "https://api.home-connect.com/api/homeappliances/" . $this->ReadPropertyString("haId"). "/events";
         // setup
@@ -161,7 +164,6 @@ class HomeConnectDishwasher extends IPSModule {
        * @return string could return error
        */
       public function refresh() {
-          $this->setupSSE();
           // log
           $this->_log( "Refreshing startet..." );
           //====================================================================================================================== Check Timer
