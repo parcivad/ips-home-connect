@@ -236,7 +236,7 @@ class HomeConnectDiscovery extends IPSModule {
                     [
                         "type" => "Label",
                         "name" => "link",
-                        "width" => 30,
+                        "width" => "30px",
                         "caption" => "https://api.home-connect.com/security/oauth/authorize?response_type=code&client_id=35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5&scope=&redirect_uri=http%3A%2F%2Flocalhost%3A8080",
                         "visible" => $visible,
                     ],
