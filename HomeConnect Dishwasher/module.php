@@ -53,6 +53,9 @@ class HomeConnectDishwasher extends IPSModule {
         // Turn on/off of Log messages
         $this->RegisterPropertyBoolean("log", false);
 
+        // first start setup
+        $this->RegisterAttributeBoolean("firstStart", true);
+
         // Register Variable and Profiles [look in class]
         $this->registerProfiles();
 
@@ -89,9 +92,6 @@ class HomeConnectDishwasher extends IPSModule {
 
         // setup SSE client after all other configurations
         $this->setupSSE();
-
-        // Build Program List
-        $this->BuildList("HC_DishwasherMode");
     }
 
 
@@ -164,13 +164,19 @@ class HomeConnectDishwasher extends IPSModule {
         $this->Hide();
         // feedback that a item/variable has updated
         $this->_log( "Single item stack update finished");
+        // checking background options
+        $this->backgroundCheck();
     }
 
     /**
      *  This function will check variables and states in the background to optimise or sync stuff.
      */
     private function backgroundCheck() {
-
+        if ( $this->ReadAttributeBoolean('firstStart') ) {
+            // Build Program List
+            $this->BuildList("HC_DishwasherMode");
+            $this->WriteAttributeBoolean('firstStart', false);
+        }
     }
 
 
