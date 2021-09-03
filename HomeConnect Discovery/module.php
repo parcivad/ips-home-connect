@@ -230,7 +230,7 @@ class HomeConnectDiscovery extends IPSModule {
                     [
                         "type" => "Label",
                         "name" => "loginInfo",
-                        "caption" => "Open the link in a browser; Log in and copy the url out of your browser after it shows no page (address should look like this: http://localhost:8080...)",
+                        "caption" => "Open the link in a browser; Log in and copy the url out of your browser after it shows no page.",
                         "visible" => $visible,
                     ],
                     [
