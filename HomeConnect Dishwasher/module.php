@@ -347,19 +347,6 @@ class HomeConnectDishwasher extends IPSModule {
           }
       }
 
-      public function test( $type ) {
-          switch ($type) {
-              // sending handy test message with ips function
-              case "handy_message":
-                  WFC_PushNotification( $this->ReadPropertyInteger("notify_instance"), "HomeConnect", "Test Message", $this->ReadPropertyString("notify_sound"), $this->InstanceID );
-                  break;
-              // sending web message with ips function
-              case "web_message":
-                  WFC_SendNotification( $this->ReadPropertyInteger("web_notify_instance"), "HomeConnect", "Test Message", "Power", $this->ReadPropertyInteger("web_notify_Timeout") );
-                  break;
-          }
-      }
-
     //-----------------------------------------------------< Profiles >------------------------------
       /** This Function will register all Profiles for the Module
        */
@@ -425,38 +412,7 @@ class HomeConnectDishwasher extends IPSModule {
        * @return array[] Form Actions
        */
       protected function FormActions() {
-          return[
-              [
-                  "type" => "RowLayout",
-                  "items" => [
-                      [
-                          "type" => "Button",
-                          "caption" => "Test Handy notify",
-                          "onClick" => 'HCDishwasher_test( $id, "handy_message" );',
-                      ],
-                      [
-                          "type" => "Button",
-                          "caption" => "Test Webfront notify",
-                          "onClick" => 'HCDishwasher_test( $id, "web_message" );',
-                      ],
-                  ]
-              ],
-              [
-                  "type" => "RowLayout",
-                  "items" => [
-                      [
-                          "type" => "Button",
-                          "caption" => "Refresh",
-                          "onClick" => 'HCDishwasher_refresh( $id );',
-                      ],
-                      [
-                          "type" => "Button",
-                          "caption" => "Profile refresh",
-                          "onClick" => 'HCDishwasher_BuildList( $id, "HC_DishwasherMode");',
-                      ]
-                  ]
-              ],
-          ];
+          return[];
       }
 
       /**
