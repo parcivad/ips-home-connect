@@ -80,6 +80,9 @@ class HomeConnectDishwasher extends IPSModule {
         IPS_SetHidden($this->GetIDForIdent("remoteControl"), true);
         IPS_SetHidden($this->GetIDForIdent('LastReceive'), true);
         IPS_SetHidden($this->GetIDForIdent('childLock'), true);
+        // the standard is on
+        $this->SetValue('childLock', true);
+        $this->SetValue('remoteControl', true);
         $this->Hide();
     }
 
@@ -178,7 +181,6 @@ class HomeConnectDishwasher extends IPSModule {
         }
     }
 
-
       //--------------------------------------------------< Reaction >----------------------------------------
       public function RequestAction($Ident, $Value)
       {
@@ -225,7 +227,6 @@ class HomeConnectDishwasher extends IPSModule {
           // Wait short until the device in ready state
           sleep(1);
           // Refresh variables (like door state)
-          $this->refresh();
 
           // Build the program string the user set
           $run_program = "Dishcare.Dishwasher.Program." . $mode;
@@ -280,7 +281,6 @@ class HomeConnectDishwasher extends IPSModule {
           // log
           $this->_log( "Trying to stop..." );
           // basic refresh for state and control permission
-          $this->refresh();
 
           //====================================================================================================================== Send stop
           if ( $this->GetValue("remoteControl") ) {
