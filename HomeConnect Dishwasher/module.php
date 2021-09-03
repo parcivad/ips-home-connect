@@ -143,17 +143,16 @@ class HomeConnectDishwasher extends IPSModule {
             // check is key is present
             if ( isset($Manual[ $item['key'] ])) {
                 $key = $Manual[ $item['key'] ];
-                $i = $item['value'];
                 // Check if its a Program specification
                 if ( $key === "PROGRAM") {
                     // Set Program through function
-                    $this->SetListValue( $i );
-                } else if ( str_ends_with($key, 'Time') ) {
+                    $this->SetListValue( $item['value'] );
+                } else if ( $key === "remainStartTime" || $key === "remainTime" ) {
                     // into date String
                     if ( $i === 0 ) { $i = "--:--:--"; }
-                    $this->SetValue( $key, gmdate("H:i:s", $i ) );
+                    $this->SetValue( $key, gmdate("H:i:s", $item['value'] ) );
                 } else {
-                    $this->SetValue( $key, HC( $i ) );
+                    $this->SetValue( $key, HC( $item['value'] ) );
                 }
             }
         }
