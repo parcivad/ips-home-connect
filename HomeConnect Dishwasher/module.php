@@ -124,9 +124,11 @@ class HomeConnectDishwasher extends IPSModule {
         $data = json_decode($JSONString, true);
 
         if ( $data['DataID'] !== "{5A709184-B602-D394-227F-207611A33BDF}" ) { return; }
+        if ( json_decode( $data['Data'], true)['items'] ) { return; }
         if ( $data['Event'] === "KEEP-ALIVE" ) { $this->_log("Module is still connected with the HomeConnect Servers"); }
 
-        $items = json_decode( $data['Data'], true);
+
+        $items = json_decode( $data['Data'], true)['items'];
         IPS_LogMessage("DATA", print_r($items, true));
 
         $Manual = [
