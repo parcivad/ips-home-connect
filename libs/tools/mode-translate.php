@@ -118,9 +118,9 @@ function HC( $var ) {
         case "BSH.Common.EnumType.DoorState.Closed":
             return false;
         //------------------------ OPERATION STATE
-        case "BSH.Common.EnumType.OperationState.Inactive" || "BSH.Common.EnumType.PowerState.Standby":
+        case "BSH.Common.EnumType.OperationState.Inactive":
             return 0;
-        case "BSH.Common.EnumType.OperationState.Ready" || "BSH.Common.EnumType.PowerState.On":
+        case "BSH.Common.EnumType.OperationState.Ready":
             return 1;
         case "BSH.Common.EnumType.OperationState.DelayedStart":
             return 2;
