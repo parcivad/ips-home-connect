@@ -1,0 +1,13 @@
+{
+  "translations": {
+    "de": {
+      "Logged in successfully  \uD83D\uDC4D": "Erfolgreich eingeloggt  \uD83D\uDC4D",
+      "Open the link in a browser; Log in and copy the url out of your browser after it shows no page (address should look like this: http://localhost:8080...)": "Öffne den Link in einem Browser; Melde dich an und kopiere die Url in deinem Browser wenn keine Page mehr angezeigt wird (Addresse sollte so aussehen: http://localhost:8080...)",
+      "After that click on Login to authorise your account!":"Danach auf Login klicken um dein Konto zu autorisieren!",
+
+      "Device": "Gerät",
+      "Company": "Firma",
+      "connected": "verbunden"
+    }
+  }
+}
