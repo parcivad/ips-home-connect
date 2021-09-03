@@ -10,98 +10,111 @@ $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/libs/too
 
 class HomeConnectDishwasher extends IPSModule {
 
-      /** This function will be called on the creation of this Module
-       * @return bool|void
-       */
-      public function Create()
-      {
-          // Overwrite ips function
-          parent::Create();
+    /** This function will be called on the creation of this Module
+     * @return bool|void
+     */
+    public function Create() {
+        // Overwrite ips function
+        parent::Create();
 
-          $this->RequireParent('{2FADB4B7-FDAB-3C64-3E2C-068A4809849A}');
+        // SSE Client is required for device connection
+        $this->RequireParent('{2FADB4B7-FDAB-3C64-3E2C-068A4809849A}');
+        $this->setupSSE();
 
-          // Device Information, set by Configurator
-          $this->RegisterPropertyString('name', '');
-          $this->RegisterPropertyString('device', '');
-          $this->RegisterPropertyString('company', '');
-          $this->RegisterPropertyString('haId', '');
+        // Device Information, set by Configurator
+        $this->RegisterPropertyString('name', '');
+        $this->RegisterPropertyString('device', '');
+        $this->RegisterPropertyString('company', '');
+        $this->RegisterPropertyString('haId', '');
 
-          // Refresh Settings [Set by User]
-          $this->RegisterPropertyInteger("first_refresh", 1);
-          $this->RegisterPropertyInteger("second_refresh", 1);
-          $this->RegisterPropertyBoolean("refresh_on_off", true);
-          // Notify Settings [Set by User]
-          $this->RegisterPropertyInteger("notify_instance", 0);
-          $this->RegisterPropertyString("notify_sound", "");
-          $this->RegisterPropertyBoolean("notify_start", false);
-          $this->RegisterPropertyBoolean("notify_stop", false);
-          $this->RegisterPropertyBoolean("notify_finish", false);
-          // Notify Settings [Set by User]
-          $this->RegisterPropertyInteger("web_notify_instance", 0);
-          $this->RegisterPropertyInteger("web_notify_Timeout", 10);
-          $this->RegisterPropertyBoolean("web_notify_start", false);
-          $this->RegisterPropertyBoolean("web_notify_stop", false);
-          $this->RegisterPropertyBoolean("web_notify_finish", false);
+        // Refresh Settings [Set by User]
+        $this->RegisterPropertyInteger("first_refresh", 1);
+        $this->RegisterPropertyInteger("second_refresh", 1);
+        $this->RegisterPropertyBoolean("refresh_on_off", true);
+        // Notify Settings [Set by User]
+        $this->RegisterPropertyInteger("notify_instance", 0);
+        $this->RegisterPropertyString("notify_sound", "");
+        $this->RegisterPropertyBoolean("notify_start", false);
+        $this->RegisterPropertyBoolean("notify_stop", false);
+        $this->RegisterPropertyBoolean("notify_finish", false);
+        // Notify Settings [Set by User]
+        $this->RegisterPropertyInteger("web_notify_instance", 0);
+        $this->RegisterPropertyInteger("web_notify_Timeout", 10);
+        $this->RegisterPropertyBoolean("web_notify_start", false);
+        $this->RegisterPropertyBoolean("web_notify_stop", false);
+        $this->RegisterPropertyBoolean("web_notify_finish", false);
 
-          // Attribute for just one finish message
-          $this->RegisterAttributeBoolean('finish_message_sent', false);
+        // Attribute for just one finish message
+        $this->RegisterAttributeBoolean('finish_message_sent', false);
 
-          // Check if the user wants to hide or show varaibles
-          $this->RegisterPropertyBoolean("hide_show", true);
+        // Check if the user wants to hide or show varaibles
+        $this->RegisterPropertyBoolean("hide_show", true);
 
-          // Check if the user wants to translate the mode varialbe
-          $this->RegisterPropertyBoolean("mode_translate", true);
+        // Check if the user wants to translate the mode varialbe
+        $this->RegisterPropertyBoolean("mode_translate", true);
 
-          // Turn on/off of Log messages
-          $this->RegisterPropertyBoolean("log", false);
+        // Turn on/off of Log messages
+        $this->RegisterPropertyBoolean("log", false);
 
-          // Remote start and Build list [Set by refresh function]
-          $this->RegisterAttributeString("remoteControlAllowed", "Dein Gerät erlaubt keine Fernbedienung");
-          $this->RegisterAttributeString("remoteStartAllowed", "Dein Gerät erlaub keinen Fernstart");
-          $this->RegisterAttributeBoolean("first_start", true );
+        // Remote start and Build list [Set by refresh function]
+        $this->RegisterAttributeString("remoteControlAllowed", "Dein Gerät erlaubt keine Fernbedienung");
+        $this->RegisterAttributeString("remoteStartAllowed", "Dein Gerät erlaub keinen Fernstart");
+        $this->RegisterAttributeBoolean("first_start", true );
 
-          // Register Timers [refresh Timer, Count down until start, Count down until program ends]
-          $this->RegisterTimer($this->InstanceID . "-refresh", 300000, "HCDishwasher_refresh( $this->InstanceID );");
-          $this->RegisterTimer("DownCountStart", 0, "HCDishwasher_DownCount($this->InstanceID, 'remainStartTime'");
-          $this->RegisterTimer("DownCountProgram", 0, "HCDishwasher_DownCount($this->InstanceID, 'remainTime');");
+        // Register Timers [refresh Timer, Count down until start, Count down until program ends]
+        $this->RegisterTimer($this->InstanceID . "-refresh", 300000, "HCDishwasher_refresh( $this->InstanceID );");
+        $this->RegisterTimer("DownCountStart", 0, "HCDishwasher_DownCount($this->InstanceID, 'remainStartTime'");
+        $this->RegisterTimer("DownCountProgram", 0, "HCDishwasher_DownCount($this->InstanceID, 'remainTime');");
 
-          // Register Variable and Profiles [look in class]
-          $this->registerProfiles();
+        // Register Variable and Profiles [look in class]
+        $this->registerProfiles();
 
-          $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_RemoteStart", -2);
-          $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -2);
-          $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_State", 0);
-          $this->RegisterVariableString("remainStartTime", "Start in", "", 1);
-          $this->RegisterVariableInteger("mode", "Programm", "HC_DishwasherMode", 2);
-          $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_RemoteStart", 3);
-          $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_DoorState", 4);
-          $this->RegisterVariableString("remainTime", "Verbleibende Programm Zeit", "", 5);
-          $this->RegisterVariableInteger("progress", "Fortschritt", "HC_Progress", 6);
-          $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_StartStop", 7);
+        $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_RemoteStart", -2);
+        $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -2);
+        $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_State", 0);
+        $this->RegisterVariableString("remainStartTime", "Start in", "", 1);
+        $this->RegisterVariableInteger("mode", "Programm", "HC_DishwasherMode", 2);
+        $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_RemoteStart", 3);
+        $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_DoorState", 4);
+        $this->RegisterVariableString("remainTime", "Verbleibende Programm Zeit", "", 5);
+        $this->RegisterVariableInteger("progress", "Fortschritt", "HC_Progress", 6);
+        $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_StartStop", 7);
 
-          // error codes
-          $this->RegisterVariableInteger("info", "Info", "", 99 );
+        // error codes
+        $this->RegisterVariableInteger("info", "Info", "", 99 );
 
-          // Enable Action for variables, for change reaction look up RequestAction();
-          $this->EnableAction('start_stop');
-          $this->EnableAction('mode');
-          $this->EnableAction('state');
+        // Enable Action for variables, for change reaction look up RequestAction();
+        $this->EnableAction('start_stop');
+        $this->EnableAction('mode');
+        $this->EnableAction('state');
 
-          // Set Hide, the user can link the instance with no unimportant info
-          IPS_SetHidden($this->GetIDForIdent("remoteControl"), true);
-          IPS_SetHidden($this->GetIDForIdent('LastRefresh'), true);
-          IPS_SetHidden($this->GetIDForIdent('info'), true);
-          $this->Hide();
-      }
+        // Set Hide, the user can link the instance with no unimportant info
+        IPS_SetHidden($this->GetIDForIdent("remoteControl"), true);
+        IPS_SetHidden($this->GetIDForIdent('LastRefresh'), true);
+        IPS_SetHidden($this->GetIDForIdent('info'), true);
+        $this->Hide();
+    }
 
-      /** This function will be called by IP Symcon when the User change vars in the Module Interface
-       * @return bool|void
-       */
-      public function ApplyChanges()
-      {
-          // Overwrite ips function
-          parent::ApplyChanges();
-      }
+    /** This function will be called by IP Symcon when the User change vars in the Module Interface
+     * @return bool|void
+     */
+    public function ApplyChanges() {
+        // Overwrite ips function
+        parent::ApplyChanges();
+    }
+
+    /** This function will set all important information for a working sse client ( I/O parent ) */
+    private function setupSSE() {
+        // get parent instace
+        $parent = IPS_GetParent( $this->InstanceID );
+        // build url
+        $url = "https://api.home-connect.com/api/homeappliances/" . $this->ReadPropertyString("haId"). "/events";
+        // setup
+        IPS_SetProperty( $parent, "URL", $url);
+        IPS_SetProperty($parent, 'Headers', json_encode([['Name' => 'Authorization', 'Value' => 'Bearer ' . getAccessToken()]]));
+        if ( !IPS_GetProperty( $parent, "Active") ) { IPS_SetProperty( $parent, "Active", true); }
+        IPS_ApplyChanges( $parent );
+    }
 
     public function ReceiveData($JSONString) {
         $data = json_decode($JSONString);
