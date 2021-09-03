@@ -13,6 +13,7 @@
   ],
   "childRequirements": [],
   "implemented": [
+    "{77D873C0-8859-31C2-ED48-C185E1B68C08}",
     "{5A709184-B602-D394-227F-207611A33BDF}"
   ],
   "prefix": "HCDishwasher"
