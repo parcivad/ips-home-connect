@@ -123,6 +123,8 @@ class HomeConnectDishwasher extends IPSModule {
     public function ReceiveData($JSONString) {
         $data = json_decode($JSONString);
 
+        IPS_LogMessage("DATA", print_r($data, true));
+
         if ( $data['Event'] === "KEEP-ALIVE" ) { $this->_log("Module is still connected with the HomeConnect Servers"); }
 
         $items = json_decode( $data['Data'], true)['items'];
