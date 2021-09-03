@@ -108,14 +108,16 @@ class HomeConnectDishwasher extends IPSModule {
     /** This function will set all important information for a working sse client ( I/O parent ) */
     private function setupSSE() {
         // get parent instace
-        $parent = IPS_GetParent( $this->InstanceID );
+        $parent = IPS_GetParent( $this->InstanceID )['ConnectionID'];
         // build url
         $url = "https://api.home-connect.com/api/homeappliances/" . $this->ReadPropertyString("haId"). "/events";
         // setup
         IPS_SetProperty( $parent, "URL", $url);
-        IPS_SetProperty($parent, 'Headers', json_encode([['Name' => 'Authorization', 'Value' => 'Bearer ' . getAccessToken()]]));
+        IPS_SetProperty( $parent, 'Headers', json_encode([['Name' => 'Authorization', 'Value' => 'Bearer ' . getAccessToken()]]));
         if ( !IPS_GetProperty( $parent, "Active") ) { IPS_SetProperty( $parent, "Active", true); }
         IPS_ApplyChanges( $parent );
+        // log msg
+        $this->_log("Configured SSE Client");
     }
 
     public function ReceiveData($JSONString) {
