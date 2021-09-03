@@ -58,7 +58,7 @@ class HomeConnectDishwasher extends IPSModule {
 
         $this->RegisterVariableInteger('LastReceive', "Last Receive", "UnixTimestamp", -3);
         $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_Control", -2);
-        $this->RegisterVariableBoolean("childLock", "Child Lock", "HC_Control", -1);
+        $this->RegisterVariableBoolean("childLock", "Child Lock", "", -1);
         $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_State", 0);
         $this->RegisterVariableString("remainStartTime", "Start in", "", 1);
         $this->RegisterVariableInteger("mode", "Programm", "HC_DishwasherMode", 2);
@@ -68,9 +68,6 @@ class HomeConnectDishwasher extends IPSModule {
         $this->RegisterVariableInteger("progress", "Fortschritt", "HC_Progress", 6);
         $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_StartStop", 7);
 
-        // error codes
-        $this->RegisterVariableInteger("info", "Info", "", 99 );
-
         // Enable Action for variables, for change reaction look up RequestAction();
         $this->EnableAction('start_stop');
         $this->EnableAction('mode');
@@ -79,7 +76,7 @@ class HomeConnectDishwasher extends IPSModule {
         // Set Hide, the user can link the instance with no unimportant info
         IPS_SetHidden($this->GetIDForIdent("remoteControl"), true);
         IPS_SetHidden($this->GetIDForIdent('LastReceive'), true);
-        IPS_SetHidden($this->GetIDForIdent('info'), true);
+        IPS_SetHidden($this->GetIDForIdent('childLock'), true);
         $this->Hide();
     }
 
@@ -94,7 +91,7 @@ class HomeConnectDishwasher extends IPSModule {
         $this->setupSSE();
 
         // Build Program List
-        //$this->BuildList("HC_DishwasherMode");
+        $this->BuildList("HC_DishwasherMode");
     }
 
 

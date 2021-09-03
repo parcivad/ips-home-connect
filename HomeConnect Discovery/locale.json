@@ -2,7 +2,7 @@
   "translations": {
     "de": {
       "Logged in successfully  \uD83D\uDC4D": "Erfolgreich eingeloggt  \uD83D\uDC4D",
-      "Open the link in a browser; Log in and copy the url out of your browser after it shows no page.": "Öffne den Link in einem Browser; Melde dich an und kopiere die Url in deinem Browser wenn keine Page mehr angezeigt wird.",
+      "Open the link in a browser; Log in and copy the url out of your browser in the url field after it shows no page.": "Öffne den Link in einem Browser; Melde dich an und kopiere die Url von deinem Browser in das Eingabe Feld, wenn keine Page mehr angezeigt wird!",
       "After that click on Login to authorise your account!":"Danach auf Login klicken um dein Konto zu autorisieren!",
 
       "Device": "Gerät",
