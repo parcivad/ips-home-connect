@@ -149,7 +149,7 @@ class HomeConnectDishwasher extends IPSModule {
                     $this->SetListValue( $item['value'] );
                 } else if ( $key === "remainStartTime" || $key === "remainTime" ) {
                     // into date String
-                    if ( $i === 0 ) { $i = "--:--:--"; }
+                    if ( $item['value'] === 0 ) { $item['value'] = "--:--:--"; }
                     $this->SetValue( $key, gmdate("H:i:s", $item['value'] ) );
                 } else {
                     $this->SetValue( $key, HC( $item['value'] ) );
