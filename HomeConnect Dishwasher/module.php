@@ -134,14 +134,27 @@ class HomeConnectDishwasher extends IPSModule {
             'BSH.Common.Status.OperationState' => 'state',
             'BSH.Common.Status.DoorState' => 'door',
             'BSH.Common.Option.ProgramProgress' => 'progress',
+            'BSH.Common.Root.ActiveProgram' => 'PROGRAM',
+            'BSH.Common.Root.SelectedProgram' => 'PROGRAM'
         ];
 
         // translation between BSH and module variable ident
         foreach ($items as $item) {
             // check is key is present
             if ( isset($Manual[ $item['key'] ])) {
-                $this->SetValue( $Manual[ $item['key'] ], HC( $item['value'] ) );
+                $key = $Manual[ $item['key'] ];
+                // Check if its a Program specification
+                if ( $key != "PROGRAM") {
+                    $this->SetValue( $Manual[ $item['key'] ], HC( $item['value'] ) );
+                } else {
+                    $this->SetListValue( $item['value'] );
+                }
             }
+        }
+
+        if ( $this->ReadAttributeBoolean("first_start") ) {
+            $this->BuildList("HC_DishwasherMode");
+            $this->WriteAttributeBoolean("first_start", false );
         }
 
         // Set last receive
@@ -1041,6 +1054,7 @@ class HomeConnectDishwasher extends IPSModule {
        */
       protected function SetListValue( $name ) {
           // Get ID with Associations
+          $name = explode( ".", $name )[3];
           $profile = IPS_GetVariableProfile( "HC_DishwasherMode" )['Associations'];
           // count Associations
           $profile_count = count( $profile );
