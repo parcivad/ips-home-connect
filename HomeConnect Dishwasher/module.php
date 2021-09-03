@@ -18,7 +18,7 @@ class HomeConnectDishwasher extends IPSModule {
           // Overwrite ips function
           parent::Create();
 
-          $this->RequireParent('{2FADB4B7-FDAB-3C64-3E2C-068A4809849A}');
+          //$this->RequireParent('{2FADB4B7-FDAB-3C64-3E2C-068A4809849A}');
 
           // Device Information, set by Configurator
           $this->RegisterPropertyString('name', '');
