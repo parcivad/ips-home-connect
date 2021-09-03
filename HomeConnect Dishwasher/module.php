@@ -26,22 +26,20 @@ class HomeConnectDishwasher extends IPSModule {
         $this->RegisterPropertyString('company', '');
         $this->RegisterPropertyString('haId', '');
 
-        // Refresh Settings [Set by User]
-        $this->RegisterPropertyInteger("first_refresh", 1);
-        $this->RegisterPropertyInteger("second_refresh", 1);
-        $this->RegisterPropertyBoolean("refresh_on_off", true);
         // Notify Settings [Set by User]
         $this->RegisterPropertyInteger("notify_instance", 0);
         $this->RegisterPropertyString("notify_sound", "");
         $this->RegisterPropertyBoolean("notify_start", false);
         $this->RegisterPropertyBoolean("notify_stop", false);
         $this->RegisterPropertyBoolean("notify_finish", false);
+        $this->RegisterPropertyBoolean("notify_abort", false);
         // Notify Settings [Set by User]
         $this->RegisterPropertyInteger("web_notify_instance", 0);
         $this->RegisterPropertyInteger("web_notify_Timeout", 10);
         $this->RegisterPropertyBoolean("web_notify_start", false);
         $this->RegisterPropertyBoolean("web_notify_stop", false);
         $this->RegisterPropertyBoolean("web_notify_finish", false);
+        $this->RegisterPropertyBoolean("web_notify_abort", false);
 
         // Attribute for just one finish message
         $this->RegisterAttributeBoolean('finish_message_sent', false);
@@ -96,7 +94,7 @@ class HomeConnectDishwasher extends IPSModule {
         $this->setupSSE();
 
         // Build Program List
-        $this->BuildList("HC_DishwasherMode");
+        //$this->BuildList("HC_DishwasherMode");
     }
 
 
@@ -120,13 +118,16 @@ class HomeConnectDishwasher extends IPSModule {
     }
 
     public function ReceiveData($JSONString) {
+        // SSE client json response
         $data = json_decode($JSONString, true);
 
+        // catch simple error / null pointer
         if ( $data['DataID'] !== "{5A709184-B602-D394-227F-207611A33BDF}" ) { return; }
         if ( $data['Event'] === "KEEP-ALIVE" ) { $this->_log("Module is still connected with the HomeConnect Servers"); return; }
-
+        // item stack
         $items = json_decode( $data['Data'], true)['items'];
 
+        // BSH keys for value input from the SSE client
         $Manual = [
             'BSH.Common.Status.RemoteControlActive' => 'remoteControl',
             'BSH.Common.Status.RemoteControlStartAllowed' => 'remoteStart',
@@ -208,135 +209,6 @@ class HomeConnectDishwasher extends IPSModule {
           $this->Hide();
       }
       //--------------------------------------------------< User functions >----------------------------------
-      /** Function to refresh the device values
-       * @return string could return error
-       */
-      public function refresh() {
-          // log
-          $this->_log( "Refreshing startet..." );
-          //====================================================================================================================== Check Timer
-          // Get current Hour
-          $hour = date('G');
-
-          // Check Refresh time set by the user. After that set the interval of the timer (fast or slow)
-          if ( $hour >= $this->ReadPropertyInteger("first_refresh") && $hour <= $this->ReadPropertyInteger("second_refresh") ) {
-              // Setting timer
-              $this->SetTimerInterval($this->InstanceID . "-refresh", 300000 );
-          } else {
-              // Setting timer slow
-              $this->SetTimerInterval($this->InstanceID . "-refresh", 900000 );
-          }
-
-          //====================================================================================================================== Refreshing
-          // Check if the user activated the refresh function
-          if ( $this->ReadPropertyBoolean("refresh_on_off") ) {
-              try {
-                  // Make a Api call to get the current status of the device (inactive, ready, delayed start, active)
-                  $recall_api = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status");
-              } catch (Exception $ex) {
-                  $this->SetStatus( analyseEX($ex) );
-                  return false;
-              }
-              // Build a Key => Value array with the getKeys function (look down in the code)
-              $options_recall = $this->getKeys($recall_api, 'status');
-
-              //================================================================================================================== Refreshing Device Program
-              // Get door state and operation state from the Key => Value array (see above)
-              $DoorState = HC( $options_recall['BSH.Common.Status.DoorState'] );
-              $OperationState = HC( $options_recall['BSH.Common.Status.OperationState'] );
-
-              // Check if the device is active or in delayed start
-              if ( $OperationState == 3 || $OperationState == 2 ) {
-                  try {
-                      // Api call to get the active program
-                      $recallProgram = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active");
-                  } catch (Exception $ex) {
-                      $this->SetStatus( analyseEX($ex) );
-                      return false;
-                  }
-                  // Build a Key => Value array with the getKeys options (see bottom of the code)
-                  $options = $this->getKeys($recallProgram, 'options');
-
-                  // Set current program mode
-                  $this->SetListValue( explode( ".", $recallProgram['data']['key'] )[3] );
-
-                  // get remaining time (you can get this in state 2 or 3)
-                  $this->SetValue("remainTime", gmdate("H:i:s", $options['BSH.Common.Option.RemainingProgramTime']) );
-                  // Set Program progress
-                  $this->SetValue("progress", $options['BSH.Common.Option.ProgramProgress'] );
-                  $this->SetValue('start_stop', true );
-
-                  switch ( $OperationState ) {
-                      case 2:
-                          // Set the remaining time until the device will start (out of the $options array)
-                          $this->SetValue("remainStartTime", gmdate("H:i:s", $options['BSH.Common.Option.StartInRelative']) );
-                          // Set counter timer, to count down
-                          $this->SetTimerInterval('DownCountStart', 1001);
-                          $this->SetTimerInterval('DownCountProgram', 0);
-                          break;
-                      case 3:
-                          // Set counters for the left program time (because the device is active)
-                          $this->SetTimerInterval('DownCountProgram', 1001);
-                          $this->SetTimerInterval('DownCountStart', 0);
-                          break;
-                      default:
-                          // Set counters off, no device information (safety feature)
-                          $this->SetTimerInterval('DownCountStart', 0);
-                          $this->SetTimerInterval('DownCountProgram', 0);
-                  }
-              } else {
-                  try {
-                      // Api call to set selected program on the device
-                      $recallSelected = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/selected")['data'];
-                  } catch (Exception $ex) {
-                      $this->SetStatus( analyseEX($ex) );
-                      return false;
-                  }
-                  $this->SetListValue( explode( ".", $recallSelected['key'] )[3] );
-
-                  // Set default mode
-                  $this->SetTimerInterval('DownCountStart', 0);
-                  $this->SetTimerInterval('DownCountProgram', 0);
-                  $this->SetValue("remainTime", "--:--:--");
-                  $this->SetValue("remainStartTime", "--:--:--" );
-                  $this->SetValue("progress", 0 );
-                  $this->SetValue('start_stop', false );
-
-                  $this->WriteAttributeBoolean( 'finish_message_sent', false);
-              }
-
-              //================================================================================================================== Check if device is done
-              if ( $this->GetValue('state') == 3 && $OperationState != 3 && !$this->ReadAttributeBoolean('finish_message_sent' )) {
-                  if ( $this->GetValue('state') == 3 && $this->ReadPropertyBoolean('notify_finish') || $this->ReadPropertyBoolean('web_notify_finish')  ) {
-                      $this->SendNotify("Der " . $this->ReadPropertyString('name') . " ist mit dem Programm fertig!");
-                  }
-                  $this->WriteAttributeBoolean('finish_message_sent', true );
-              }
-              //================================================================================================================== Refreshing Basic Variables
-              $this->SetValue("door", $DoorState );
-              $this->SetValue("state", $OperationState );
-              // Set last refresh ( user information)
-              $this->SetValue( "LastRefresh", time() );
-          } else {
-              // For safety turn the counter timers off
-              $this->SetTimerInterval('DownCountStart', 0);
-              $this->SetTimerInterval('DownCountProgram', 0);
-              // Set message sent to false (device is not active)
-              $this->WriteAttributeBoolean( 'finish_message_sent', false);
-          }
-
-          //================================================================================================================== Settings for the first start after refresh
-          if ( $this->ReadAttributeBoolean("first_start") ) {
-              $this->BuildList("HC_DishwasherMode");
-              $this->WriteAttributeBoolean("first_start", false );
-          }
-
-          // Let the function Hide() check if there variables to check or uncheck
-          $this->Hide();
-          // log
-          $this->_log( "Refreshing end");
-          return true;
-      }
 
     /** Function to start Modes for the Dishwasher
      * @param string $mode Mode
@@ -635,40 +507,6 @@ class HomeConnectDishwasher extends IPSModule {
                           "device" => $this->ReadPropertyString( "device"),
                           "company" => $this->ReadPropertyString( "company"),
                           "haId" => $this->ReadPropertyString( "haId"),
-                      ],
-                  ],
-              ],
-              [
-                  "type" => "ExpansionPanel",
-                  "caption" => "Refreshing Data",
-                  "items" => [
-                      [
-                          "type" => "Label",
-                          "name" => "refresh Info",
-                          "caption" => "Das System updated in dem Zeitraum alle 5min. Sonst nur 15min."
-                      ],
-                      [
-                          "type" => "NumberSpinner",
-                          "name" => "first_refresh",
-                          "caption" => "Refreshen von " . $this->ReadPropertyInteger("first_refresh") . " Uhr",
-                          "suffix" => "h",
-                          "minimum" => "0",
-                          "maximum" => "24",
-                          "enabled" => true
-                      ],
-                      [
-                          "type" => "NumberSpinner",
-                          "name" => "second_refresh",
-                          "caption" => "Bis " . $this->ReadPropertyInteger("second_refresh") . " Uhr",
-                          "suffix" => "h",
-                          "minimum" => "0",
-                          "maximum" => "24",
-                          "enabled" => true
-                      ],
-                      [
-                          "type" => "CheckBox",
-                          "name" => "refresh_on_off",
-                          "caption" => "Refresh An/Aus",
                       ],
                   ],
               ],
@@ -987,11 +825,11 @@ class HomeConnectDishwasher extends IPSModule {
       protected function SendNotify( $text ) {
           // Send notification for mobile devices (if on)
           if ( $this->ReadPropertyInteger("notify_instance") != 0 ) {
-              WFC_PushNotification( $this->ReadPropertyInteger("notify_instance"), "HomeConnect", $text, $this->ReadPropertyString("notify_sound"), $this->InstanceID );
+              WFC_PushNotification( $this->ReadPropertyInteger("notify_instance"), "HomeConnect", "\n" . $text, $this->ReadPropertyString("notify_sound"), $this->InstanceID );
           }
           // Send notification for webfront (if on)
           if ( $this->ReadPropertyInteger("web_notify_instance") != 0 ) {
-              WFC_SendNotification( $this->ReadPropertyInteger("web_notify_instance"), "HomeConnect", $text, "Power", $this->ReadPropertyInteger("web_notify_Timeout") );
+              WFC_SendNotification( $this->ReadPropertyInteger("web_notify_instance"), "HomeConnect", "\n" . $text, "Power", $this->ReadPropertyInteger("web_notify_Timeout") );
           }
       }
 
