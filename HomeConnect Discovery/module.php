@@ -1,7 +1,10 @@
 <?php
-
-require_once( dirname(dirname(__FILE__) ) . "/libs/tools/HomeConnectApi.php");
+// require
+require_once(dirname(dirname(__FILE__)) . "/libs/tools/api.php");
 require_once( dirname(dirname(__FILE__) ) . "/libs/tools/tm/tm.php");
+require_once( dirname(dirname(__FILE__) ) . "/libs/tools/mode-translate.php");
+
+// import
 $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/libs/tools/tm/data.json" ), true );
 
 
@@ -39,6 +42,7 @@ class HomeConnectDiscovery extends IPSModule {
                 try {
                     // authorize through a button
                     authorize($this->ReadPropertyString("auth_url"));
+                    $this->ReloadForm();
                 } catch (Exception $ex) {
                     $this->SetStatus( analyseEX($ex) );
                 }
@@ -51,10 +55,6 @@ class HomeConnectDiscovery extends IPSModule {
                     $this->SetStatus( analyseEX($ex) );
                 }
                 break;
-            case "get":
-                // shows codes
-                global $data;
-                return "AuthCode: " . getAuthorizeCode() . "  /  Token: " . getAccessToken();
             case "reset":
                 // reset the data.json
                 resetData();
@@ -83,7 +83,7 @@ class HomeConnectDiscovery extends IPSModule {
             // Send information that the token is now ready and after a new refresh the devices will show up
             if ( is_string( $auth_code ) && !is_string( $token ) ) {
                 getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
-                return [['name' => 'Retry [Refresh]', 'device' => ' ', 'company' => ' ', 'haId' => 'Überprüfe ob du eingeloggt bist/Check if youre logged in', 'connected' => ' ', 'rowColor' => '#ff0000']];
+                return [['name' => 'Klicke erneut auf Aktualisieren [Refresh]', 'device' => ' ', 'company' => ' ', 'haId' => 'Überprüfe ob du eingeloggt bist/Check if youre logged in', 'connected' => ' ', 'rowColor' => '#ff0000']];
             }
             // else get device list:
             $data = Api("homeappliances")['data']['homeappliances'];
@@ -185,15 +185,20 @@ class HomeConnectDiscovery extends IPSModule {
     protected function FormActions() {
         return[
             [
-                "type" => "Button",
-                "caption" => "Logout",
-                "onClick" => 'HomeConnectDiscovery_tm( $id, "reset" );',
-                'confirm' => 'Bist du sicher, dass du dich ausloggen willst.'
-            ],
-            [
-                "type" => "Button",
-                "caption" => "Login",
-                "onClick" => 'HomeConnectDiscovery_tm( $id, "auth" );',
+                "type" => "RowLayout",
+                "items" => [
+                    [
+                        "type" => "Button",
+                        "caption" => "Logout",
+                        "onClick" => 'HomeConnectDiscovery_tm( ' . $this->InstanceID . ', "reset" );',
+                        'confirm' => 'Bist du sicher, dass du dich ausloggen willst.'
+                    ],
+                    [
+                        "type" => "Button",
+                        "caption" => "Login",
+                        "onClick" => 'HomeConnectDiscovery_tm( ' . $this->InstanceID . ', "auth" );',
+                    ]
+                ]
             ]
         ];
     }
@@ -203,13 +208,21 @@ class HomeConnectDiscovery extends IPSModule {
      */
     protected function FormElements() {
         $visible = $this->visible();
+        $token = getAccessToken();
 
         return[
             [
-                "type" => "Label",
-                "name" => "loggedIn",
-                "caption" => "Erfolgreich eingeloggt!",
+                "type" => "ExpansionPanel",
+                "caption" => "Erfolgreich eingeloggt 👍 !",
                 "visible" => !$visible,
+                "items" => [
+                    [
+                        "type" => "Label",
+                        "name" => "showToken",
+                        "caption" => "Token: " . $token,
+                        "visible" => !$visible,
+                    ]
+                ]
             ],
             [
                 "type" => "Label",
@@ -232,14 +245,14 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Label",
                 "name" => "loginInfo2",
-                "caption" => "Wenn du fertig bist, dann klicke auf login und aktualisiere das Modul",
+                "caption" => "Danach auf Login klicken um dein Konto zu autorisieren!",
                 "visible" => $visible,
             ],
             [
                 "type" => "Configurator",
                 "name" => "Home-Connect Discovery",
                 "caption" => "HomeConnect Discovery",
-                "rowCount" => 14,
+                "rowCount" => 8,
                 "add" => false,
                 "delete" => true,
                 "columns" => [

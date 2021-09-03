@@ -3,14 +3,15 @@
   "name": "HomeConnect Dishwasher",
   "type": 3,
   "vendor": "HomeConnect GmbH",
-  "aliases":
-  [
-    "HomeConnect Washer"
+  "aliases": [],
+  "url": "https://github.com/parcivad/ips-home-connect/blob/main/HomeConnect%20Dishwasher/Geschirrspüler.md",
+  "parentRequirements": [
+    "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"
   ],
-  "url": "https://github.com/parcivad",
-  "parentRequirements": [],
   "childRequirements": [],
-  "implemented": [],
+  "implemented": [
+    "{5A709184-B602-D394-227F-207611A33BDF}"
+  ],
   "prefix": "HCDishwasher"
 }
 
