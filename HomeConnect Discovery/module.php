@@ -213,7 +213,7 @@ class HomeConnectDiscovery extends IPSModule {
         return[
             [
                 "type" => "ExpansionPanel",
-                "caption" => "Erfolgreich eingeloggt 👍 !",
+                "caption" => "Logged in successfully  👍",
                 "visible" => !$visible,
                 "items" => [
                     [
@@ -227,12 +227,13 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Label",
                 "name" => "loginInfo",
-                "caption" => "Logge dich bitte ein, indem du den Link in einem Browser öffnest. Wenn du fertig bist (der Browser keine Page mehr anzeigt) kopiere die ganze url und füge sie dann in das Eingabefeld ein.",
+                "caption" => "Open the link in a browser; Log in and copy the url out of your browser after it shows no page.",
                 "visible" => $visible,
             ],
             [
                 "type" => "Label",
                 "name" => "link",
+                "width" => "30px",
                 "caption" => "https://api.home-connect.com/security/oauth/authorize?response_type=code&client_id=35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5&scope=&redirect_uri=http%3A%2F%2Flocalhost%3A8080",
                 "visible" => $visible,
             ],
@@ -245,7 +246,7 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Label",
                 "name" => "loginInfo2",
-                "caption" => "Danach auf Login klicken um dein Konto zu autorisieren!",
+                "caption" => "After that click on Login to authorise your account!",
                 "visible" => $visible,
             ],
             [

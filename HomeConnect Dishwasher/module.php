@@ -41,9 +41,6 @@ class HomeConnectDishwasher extends IPSModule {
         $this->RegisterPropertyBoolean("web_notify_finish", false);
         $this->RegisterPropertyBoolean("web_notify_abort", false);
 
-        // Attribute for just one finish message
-        $this->RegisterAttributeBoolean('finish_message_sent', false);
-
         // Check if the user wants to hide or show varaibles
         $this->RegisterPropertyBoolean("hide_show", true);
 
@@ -53,12 +50,15 @@ class HomeConnectDishwasher extends IPSModule {
         // Turn on/off of Log messages
         $this->RegisterPropertyBoolean("log", false);
 
+        // first start setup
+        $this->RegisterAttributeBoolean("firstStart", true);
+
         // Register Variable and Profiles [look in class]
         $this->registerProfiles();
 
         $this->RegisterVariableInteger('LastReceive', "Last Receive", "UnixTimestamp", -3);
         $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_Control", -2);
-        $this->RegisterVariableBoolean("childLock", "Child Lock", "HC_Control", -1);
+        $this->RegisterVariableBoolean("childLock", "Child Lock", "", -1);
         $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_State", 0);
         $this->RegisterVariableString("remainStartTime", "Start in", "", 1);
         $this->RegisterVariableInteger("mode", "Programm", "HC_DishwasherMode", 2);
@@ -68,9 +68,6 @@ class HomeConnectDishwasher extends IPSModule {
         $this->RegisterVariableInteger("progress", "Fortschritt", "HC_Progress", 6);
         $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_StartStop", 7);
 
-        // error codes
-        $this->RegisterVariableInteger("info", "Info", "", 99 );
-
         // Enable Action for variables, for change reaction look up RequestAction();
         $this->EnableAction('start_stop');
         $this->EnableAction('mode');
@@ -79,7 +76,10 @@ class HomeConnectDishwasher extends IPSModule {
         // Set Hide, the user can link the instance with no unimportant info
         IPS_SetHidden($this->GetIDForIdent("remoteControl"), true);
         IPS_SetHidden($this->GetIDForIdent('LastReceive'), true);
-        IPS_SetHidden($this->GetIDForIdent('info'), true);
+        IPS_SetHidden($this->GetIDForIdent('childLock'), true);
+        // the standard is on
+        $this->SetValue('childLock', true);
+        $this->SetValue('remoteControl', true);
         $this->Hide();
     }
 
@@ -92,9 +92,6 @@ class HomeConnectDishwasher extends IPSModule {
 
         // setup SSE client after all other configurations
         $this->setupSSE();
-
-        // Build Program List
-        //$this->BuildList("HC_DishwasherMode");
     }
 
 
@@ -138,7 +135,9 @@ class HomeConnectDishwasher extends IPSModule {
             'BSH.Common.Root.SelectedProgram' => 'PROGRAM',
             'BSH.Common.Option.StartInRelative' => 'remainStartTime',
             'BSH.Common.Option.RemainingProgramTime' => 'remainTime',
-            'BSH.Common.Setting.ChildLock' => 'childLock'
+            'BSH.Common.Setting.ChildLock' => 'childLock',
+            'BSH.Common.Event.ProgramFinished' => 'FINISHED',
+            'BSH.Common.Event.ProgramAborted' => 'ABORTED'
         ];
 
         // translation between BSH and module variable ident
@@ -146,17 +145,43 @@ class HomeConnectDishwasher extends IPSModule {
             // check is key is present
             if ( isset($Manual[ $item['key'] ])) {
                 $key = $Manual[ $item['key'] ];
-                $i = $item['value'];
-                // Check if its a Program specification
-                if ( $key === "PROGRAM") {
-                    // Set Program through function
-                    $this->SetListValue( $i );
-                } else if ( str_ends_with($key, 'Time') ) {
-                    // into date String
-                    if ( $i === 0 ) { $i = "--:--:--"; }
-                    $this->SetValue( $key, gmdate("H:i:s", $i ) );
-                } else {
-                    $this->SetValue( $key, HC( $i ) );
+
+                // decide what action
+                switch ( $key ) {
+                    case "FINISHED":
+                        // Send Finished Notification
+                        $this->SendNotify("Der " . $this->ReadPropertyString('name') . " ist fertig mit dem Programm.", "finish" );
+                        break;
+
+                    case "ABORTED":
+                        // Send Aborted Notification
+                        $this->SendNotify("Der " . $this->ReadPropertyString('name') . " hat das Programm abgebrochen.", "abort" );
+                        break;
+
+                    case "PROGRAM":
+                        // Set Program through function
+                        $this->SetListValue( $item['value'] );
+                        break;
+
+                    case "state":
+                        // React with a notification on state change
+                        $OpSt = HC( $item['value'] );
+                        if ( $OpSt == 3 ) {
+                            $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm gestarted!", "start");
+                        }
+                        $this->SetValue( $key, $OpSt );
+                        break;
+
+                    case "remainStartTime":
+                    case "remainTime":
+                        // into date String
+                        if ( $item['value'] === 0 ) { $item['value'] = "--:--:--"; }
+                        $this->SetValue( $key, gmdate("H:i:s", $item['value'] ) );
+                        break;
+
+                    default:
+                        // default; set value from the key
+                        $this->SetValue( $key, HC( $item['value'] ) );
                 }
             }
         }
@@ -167,15 +192,29 @@ class HomeConnectDishwasher extends IPSModule {
         $this->Hide();
         // feedback that a item/variable has updated
         $this->_log( "Single item stack update finished");
+        // checking background options
+        $this->backgroundCheck();
     }
 
     /**
      *  This function will check variables and states in the background to optimise or sync stuff.
      */
     private function backgroundCheck() {
-
+        // Check Program list
+        if ( $this->ReadAttributeBoolean('firstStart') ) {
+            // Build Program List
+            $this->BuildList("HC_DishwasherMode");
+            $this->WriteAttributeBoolean('firstStart', false);
+        }
+        // Check Start/Stop Button
+        if ( $this->GetValue('state') > 1 ) {
+            // Give the user the option to stop a running program
+            $this->SetValue('start_stop', true );
+        } else {
+            // Give the user the option to start a "custom" program
+            $this->SetValue('start_stop', false );
+        }
     }
-
 
       //--------------------------------------------------< Reaction >----------------------------------------
       public function RequestAction($Ident, $Value)
@@ -220,107 +259,70 @@ class HomeConnectDishwasher extends IPSModule {
           $this->_log( "Trying to start Device..." );
           // Set the device ready ( device must be ready for start )
           $this->SetActive(true);
-          // Wait short until the device in ready state
-          sleep(1);
-          // Refresh variables (like door state)
-          $this->refresh();
 
           // Build the program string the user set
           $run_program = "Dishcare.Dishwasher.Program." . $mode;
-
           // Build the json for the api
           $opt = '{"data":{"key":"' . $run_program . '","options":[{"key":"BSH.Common.Option.StartInRelative","value":' . $delay . ',"unit":"seconds"}]}}';
 
-          //====================================================================================================================== Send start
-          if ($this->GetValue("remoteStart")) {
-              // Check Door state
-              if (!$this->GetValue("door")) {
-                  // Check if the device is on
-                  if ($this->GetValue("state") == 1) {
-                      try {
-                          Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
-                          // log
-                          $this->_log( "Send start to HomeConnect" );
-                          //============================================================ Check Notifications
-                          if ($this->ReadPropertyBoolean("notify_start")) {
-                              $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm " . DishwasherTranslateMode($mode, true) . " gestarted!");
-                          }
-                          //============================================================ Check Notifications
-                          // log
-                          $this->_log( "Send start notify" );
-                      } catch (Exception $ex) {
-                          // log
-                          $this->_log( "Start failed look for authorization in discovery instance" );
-                          $this->SetStatus( analyseEX($ex) );
-                      }
-                  } else {
-                      // log
-                      $this->_log( "Canceled (program running)" );
-                      throw new Exception("state");
-                  }
-              } else {
-                  // log
-                  $this->_log( "Canceled (door open)" );
-                  throw new Exception("door");
-              }
-          } else {
+          // Check device conditions for the start
+          if ( !$this->GetValue("remoteStart") ) { throw new Exception("permission"); }
+          if ( $this->GetValue("door") ) { throw new Exception("door"); }
+          if ( $this->GetValue("state") != 1 ) { throw new Exception("state"); }
+
+          // try to start the device
+          try {
+              Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
               // log
-              $this->_log( "Canceled (no permission)" );
-              throw new Exception("permission");
+              $this->_log( "Send start to HomeConnect" );
+          } catch (Exception $ex) {
+              // log
+              $this->_log( "Start failed look for authorization in discovery instance" );
+              $this->SetStatus( analyseEX($ex) );
           }
       }
 
     /**
      * Function to stop a running program
-     * @throws Exception
+     * @throws Exception in case of other state or denied permission
      */
       public function stop() {
           // log
           $this->_log( "Trying to stop..." );
-          // basic refresh for state and control permission
-          $this->refresh();
+          // save device state for later
+          $state = $this->GetValue("state");
 
-          //====================================================================================================================== Send stop
-          if ( $this->GetValue("remoteControl") ) {
-              // log
-              $this->_log( "Canceled (remote control not allowed)" );
-              // Check if the device is running a program
-              switch ( $this->GetValue("state") ) {
-                  // stop running program
-                  case 3:
-                      try {
-                          // log
-                          $this->_log(  "Stopped while deice was running a program" );
-                          // Send custom delete to stop current program
-                          Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
-                          $this->SetValue("state", 1 );
-                          //============================================================ Check Notifications
-                          if ($this->ReadPropertyBoolean("notify_stop")) {
-                              $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm gestoppt!");
-                          }
-                          //============================================================ Check Notifications
-                      } catch (Exception $ex) {
-                          // log
-                          $this->_log( "Program didnt stop" );
-                          $this->SetStatus( analyseEX($ex) );
-                      }
-                      break;
-                  // stop delayed start
-                  case 2:
+          // Check device conditions for the stop
+          if ( !$this->GetValue("remoteControl") ) { throw new Exception("permission"); }
+          if ( $state == 0 || $state == 1 ) { throw new Exception("state" ); }
+
+          switch ( $this->GetValue("state") ) {
+              // stop running program
+              case 3:
+                  try {
                       // log
-                      $this->_log( "Stopped while device was in mode 'Prepare for start'" );
-                      // Turn the device off ( this stops the delayed start )
-                      $this->SetActive(false);
-                      break;
-                  default:
+                      $this->_log(  "Stopped while deice was running a program" );
+
+                      // Send custom delete to stop current program
+                      Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
+                      $this->SetValue("state", 1 );
+
+                      // send notify
+                      $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm gestoppt!", "stop");
+                  } catch (Exception $ex) {
                       // log
-                      $this->_log( "Canceled (no program is running)" );
-                      // throw logic exception for no reason to stop
-                      throw new Exception("state" );
-              }
-          } else {
-              // throw logic exception for no permission
-              throw new Exception("permission");
+                      $this->_log( "Program didnt stop" );
+                      $this->SetStatus( analyseEX($ex) );
+                  }
+                  break;
+              // stop delayed start
+              case 2:
+                  // log
+                  $this->_log( "Stopped while device was in mode 'Prepare for start'" );
+
+                  // Turn the device off ( this stops the delayed start )
+                  $this->SetActive(false);
+                  break;
           }
       }
 
@@ -329,12 +331,13 @@ class HomeConnectDishwasher extends IPSModule {
      * @param bool $state switch
      */
       public function SetActive( $state ) {
+
+          // power off string for HomeConnect
+          $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.Off","type": "BSH.Common.EnumType.PowerState"}}';
           if ( $state ) {
               // power on string for HomeConnect
               $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.On","type": "BSH.Common.EnumType.PowerState"}}';
-          } else {
-              // power off string for HomeConnect
-              $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.Off","type": "BSH.Common.EnumType.PowerState"}}';}
+          }
 
           try {
               Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/settings/BSH.Common.Setting.PowerState", $power);
@@ -344,19 +347,6 @@ class HomeConnectDishwasher extends IPSModule {
               // log
               $this->_log("Failed to send Device state" );
               $this->SetStatus( analyseEX($ex) );
-          }
-      }
-
-      public function test( $type ) {
-          switch ($type) {
-              // sending handy test message with ips function
-              case "handy_message":
-                  WFC_PushNotification( $this->ReadPropertyInteger("notify_instance"), "HomeConnect", "Test Message", $this->ReadPropertyString("notify_sound"), $this->InstanceID );
-                  break;
-              // sending web message with ips function
-              case "web_message":
-                  WFC_SendNotification( $this->ReadPropertyInteger("web_notify_instance"), "HomeConnect", "Test Message", "Power", $this->ReadPropertyInteger("web_notify_Timeout") );
-                  break;
           }
       }
 
@@ -425,38 +415,7 @@ class HomeConnectDishwasher extends IPSModule {
        * @return array[] Form Actions
        */
       protected function FormActions() {
-          return[
-              [
-                  "type" => "RowLayout",
-                  "items" => [
-                      [
-                          "type" => "Button",
-                          "caption" => "Test Handy notify",
-                          "onClick" => 'HCDishwasher_test( $id, "handy_message" );',
-                      ],
-                      [
-                          "type" => "Button",
-                          "caption" => "Test Webfront notify",
-                          "onClick" => 'HCDishwasher_test( $id, "web_message" );',
-                      ],
-                  ]
-              ],
-              [
-                  "type" => "RowLayout",
-                  "items" => [
-                      [
-                          "type" => "Button",
-                          "caption" => "Refresh",
-                          "onClick" => 'HCDishwasher_refresh( $id );',
-                      ],
-                      [
-                          "type" => "Button",
-                          "caption" => "Profile refresh",
-                          "onClick" => 'HCDishwasher_BuildList( $id, "HC_DishwasherMode");',
-                      ]
-                  ]
-              ],
-          ];
+          return[];
       }
 
       /**
@@ -470,7 +429,7 @@ class HomeConnectDishwasher extends IPSModule {
               ],
               [
                   "type" => "List",
-                  "name" => "Gerät Information",
+                  "name" => "Device info",
                   "caption" => "Information about this device",
                   "rowCount" => 1,
                   "add" => false,
@@ -602,6 +561,11 @@ class HomeConnectDishwasher extends IPSModule {
                                   "suffix" => "sec",
                                   "minimum" => "0",
                                   "maximum" => "300",
+                              ],
+                              [
+                                  "type" => "Label",
+                                  "name" => "notify",
+                                  "caption" => "Select Notifications"
                               ],
                               [
                                   "type" => "RowLayout",
@@ -854,16 +818,17 @@ class HomeConnectDishwasher extends IPSModule {
           }
       }
 
-      /** Send Text
+      /** Send Text as a Notification on a mobile device or Webfront
        * @param string $text Text in the Notification
+       * @param string $type The Information type of the message
        */
-      protected function SendNotify( $text ) {
-          // Send notification for mobile devices (if on)
-          if ( $this->ReadPropertyInteger("notify_instance") != 0 ) {
+      protected function SendNotify( $text, $type) {
+          // Send notification for mobile (if on) only notify the user when this content is allowed
+          if ( $this->ReadPropertyInteger("notify_instance") != 0 && $this->ReadPropertyBoolean("notify_" . $type) ) {
               WFC_PushNotification( $this->ReadPropertyInteger("notify_instance"), "HomeConnect", "\n" . $text, $this->ReadPropertyString("notify_sound"), $this->InstanceID );
           }
-          // Send notification for webfront (if on)
-          if ( $this->ReadPropertyInteger("web_notify_instance") != 0 ) {
+          // Send notification for webfront (if on) only notify the user when this content is allowed
+          if ( $this->ReadPropertyInteger("web_notify_instance") != 0 && $this->ReadPropertyBoolean("web_notify_" . $type ) ) {
               WFC_SendNotification( $this->ReadPropertyInteger("web_notify_instance"), "HomeConnect", "\n" . $text, "Power", $this->ReadPropertyInteger("web_notify_Timeout") );
           }
       }
@@ -932,71 +897,6 @@ class HomeConnectDishwasher extends IPSModule {
               return DishwasherTranslateMode( $profile_list[$this->GetValue('mode')], false);
           }
           return $profile_list[$this->GetValue('mode')];
-      }
-
-      /** Counting Seconds down
-       * @param string $var_name
-       */
-      public function DownCount( $var_name ) {
-          // Counting down if device is in active or delayed start state
-          if ( $this->GetValue('state') == 3 || $this->GetValue('state') == 2 ) {
-              // get current timestamp
-              $now = "1970-01-01 " . $this->GetValue( $var_name );
-              // set timestamp in date format (after -1)
-              $time = strtotime($now) + 3600;
-
-              if ( $time >= 0 && $time < 28800 ) {
-                  // set time
-                  $set = gmdate("H:i:s", $time - 1);
-                  // Set Value
-                  $this->SetValue( $var_name, $set);
-              } else {
-                  // set no number
-                  $this->SetValue( $var_name, "--:--:--");
-                  // turn timer off (no reason to count down)
-                  $this->SetTimerInterval('DownCountStart', 0);
-                  $this->SetTimerInterval('DownCountProgram', 0);
-                  // refresh data
-                  $this->refresh();
-              }
-          } else {
-              // set no number
-              $this->SetValue( $var_name, "--:--:--");
-              // turn timer off (no reason to count down)
-              $this->SetTimerInterval('DownCountStart', 0);
-              $this->SetTimerInterval('DownCountProgram', 0);
-          }
-      }
-
-      /** Function to show all options of a running Device [for dev]
-       * @param array $input input array after api call
-       * @param string $row The next array options after data
-       * @return mixed return array with KEY => VALUE
-       */
-      protected function getKeys( array $input, $row ) {
-          if ( isset( $input['data'] ) ) {
-              // Get Options out of data
-              $opt = $input['data'][$row];
-              // no error appeared
-              $this->SetStatus( 102 );
-
-              // Define vars and length
-              $options_count = count( $opt );
-              $option_list[] = array();
-
-              // Build options list
-              for( $i = 0; $i < $options_count; $i++) {
-                  // Get Data to set
-                  $option_name = $opt[$i]['key'];
-                  $option_value= $opt[$i]['value'];
-
-                  $options_list[$option_name] = $option_value;
-              }
-              // Options list (KEY => VALUE)
-              return $options_list;
-
-          }
-          return false;
       }
 
       /** Send logs to IP-Symcon
