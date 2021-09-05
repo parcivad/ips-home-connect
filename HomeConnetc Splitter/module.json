@@ -1,7 +1,7 @@
 {
   "id": "{29BCE126-7037-F9E3-C4AE-BBC515C56203}",
   "name": "HomeConnect Splitter",
-  "type": 3,
+  "type": 2,
   "vendor": "HomeConnect GmbH",
   "aliases": [],
   "url": "https://github.com/parcivad/ips-home-connect",
