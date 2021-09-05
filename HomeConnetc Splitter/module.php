@@ -37,14 +37,22 @@ class HomeConnectSplitter extends IPSModule {
         //Im Meldungsfenster zu Debug zwecken ausgeben
         IPS_LogMessage("Splitter", print_r($data, true));
 
-        $this->SendDataToChildren($JSONString);
-        $this->SendDataToChildren(json_encode([
-            'DataID' => "{29BCE126-7037-F9E3-C4AE-BBC515C56203}",
-            'Event' => utf8_encode( $data['Event'] ),
-            'Data' => utf8_encode( $data['Data'] ),
-            'Retry' => utf8_encode( $data['Retry'] ),
-            'ID' => $data['ID']
-        ]));
+        $msg = [
+            "DataID" => "{874DFA8F-327E-51F2-7DAD-967865BB5738}",
+            "Event" => $data['Event'],
+            "Data" => $data['Data'],
+            "Retry" => $data['Retry'],
+            "ID" => $data['ID']
+        ];
+
+        $this->SendData($msg);
+    }
+
+    /** Function to send data to child
+     * @param array $msg
+     */
+    public function SendData( $msg ) {
+        $this->SendDataToChildren( json_encode($msg) );
     }
 
     /** This function will set all important information for a working sse client ( I/O parent ) */

@@ -17,7 +17,7 @@ class HomeConnectDishwasher extends IPSModule {
         // Overwrite ips function
         parent::Create();
 
-        // connect ot HomeConnect splitter to get all sse informations
+        // connect ot HomeConnect splitter to get all sse information
         $this->ConnectParent('{29BCE126-7037-F9E3-C4AE-BBC515C56203}');
 
         // Device Information, set by Configurator
