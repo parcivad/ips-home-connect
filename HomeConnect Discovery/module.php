@@ -44,7 +44,7 @@ class HomeConnectDiscovery extends IPSModule {
 
         $this->SendDataToChildren(json_encode([
             'DataID' => "{C479F9CC-ED6C-14D5-623B-A43D659849F2}",
-            'EVENT' => utf8_encode( $data['EVENT'] ),
+            'Event' => utf8_encode( $data['Event'] ),
             'Data' => utf8_encode( $data['Data'] ),
             'Retry' => utf8_encode( $data['Retry'] ),
             'ID' => $data['ID']
