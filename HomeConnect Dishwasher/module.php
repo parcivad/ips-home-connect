@@ -48,7 +48,7 @@ class HomeConnectDishwasher extends IPSModule {
         $this->RegisterPropertyBoolean("mode_translate", true);
 
         // sse token check timer
-        $this->RegisterTimer('sse', 0, 'HCDishwasher_setupSSE( $id );');
+        $this->RegisterTimer('sse', 0, "HCDishwasher_setupSSE( $this->InstanceID );");
 
         // Turn on/off of Log messages
         $this->RegisterPropertyBoolean("log", false);
