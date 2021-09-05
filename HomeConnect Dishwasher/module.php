@@ -114,9 +114,15 @@ class HomeConnectDishwasher extends IPSModule {
         $this->_log("Configured SSE Client");
     }
 
+    /** This function will analyse each item from the sse client
+     * @param $JSONString
+     * @return bool|void
+     */
     public function ReceiveData($JSONString) {
         // SSE client json response
         $data = json_decode($JSONString, true);
+
+        IPS_LogMessage("DATA", print_r($data, true));
 
         // catch simple error / null pointer
         if ( $data['DataID'] !== "{5A709184-B602-D394-227F-207611A33BDF}" ) { return; }
