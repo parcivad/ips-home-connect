@@ -39,10 +39,10 @@ class HomeConnectDiscovery extends IPSModule {
     public function ReceiveData($JSONString) {
         $data = json_decode($JSONString);
 
-        //Im Meldungsfenster zu Debug zwecken ausgeben
-        IPS_LogMessage("Dishwasher", print_r($data, true));
+        $this->SendDataToChildren($data);
 
-        $this->SendDataToChildren($JSONString);
+        //Im Meldungsfenster zu Debug zwecken ausgeben
+        IPS_LogMessage("Discovery", print_r($data, true));
     }
 
     /** This function will set all important information for a working sse client ( I/O parent ) */
