@@ -320,7 +320,7 @@ class HomeConnectDishwasher extends IPSModule {
      * Function to turn the dishwasher on
      * @param bool $state switch
      */
-      public function SetActive( boolean $state ) {
+      public function SetActive( bool $state ) {
 
           // power off string for HomeConnect
           $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.Off","type": "BSH.Common.EnumType.PowerState"}}';
