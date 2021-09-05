@@ -37,7 +37,7 @@ class HomeConnectDiscovery extends IPSModule {
 
     // Empfangene Daten vom Parent (RX Paket) vom Typ Erweitert (SSE)
     public function ReceiveData($JSONString) {
-        $data = json_decode($JSONString);
+        $data = json_decode($JSONString, true);
 
         //Im Meldungsfenster zu Debug zwecken ausgeben
         IPS_LogMessage("Discovery", print_r($data, true));
