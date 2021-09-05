@@ -18,7 +18,7 @@ class HomeConnectSplitter extends IPSModule {
         parent::Create();
 
         // Register Timer in case of new token
-        $this->RegisterTimer('sse', 60000, "HCSplitter_setupSSE( $this->InstanceID )");
+        $this->RegisterTimer('sse', 60000, "HCSplitter_setupSSE( $this->InstanceID );");
 
         // SSE Client is required for device connection
         $this->RequireParent('{2FADB4B7-FDAB-3C64-3E2C-068A4809849A}');
