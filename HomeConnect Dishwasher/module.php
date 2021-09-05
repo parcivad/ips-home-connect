@@ -98,23 +98,6 @@ class HomeConnectDishwasher extends IPSModule {
 
     //--------------------------------------------------< SSE Handling >--------------------------------------
 
-    /** This function will set all important information for a working sse client ( I/O parent ) */
-    public function setupSSE() {
-        // get parent instance
-        $parent = IPS_GetInstance( $this->InstanceID )['ConnectionID'];
-        // build url
-        $url = "https://api.home-connect.com/api/homeappliances/" . $this->ReadPropertyString("haId"). "/events";
-        // setup
-        IPS_SetProperty( $parent, "URL", $url);
-        IPS_SetProperty( $parent, 'Headers', json_encode([['Name' => 'Authorization', 'Value' => 'Bearer ' . getAccessToken()]]));
-        IPS_SetProperty( $parent, "Active", false);
-        IPS_ApplyChanges( $parent );
-        IPS_SetProperty( $parent, 'Active', true );
-        IPS_ApplyChanges( $parent );
-        // log msg
-        $this->_log("Configured SSE Client");
-    }
-
     /** This function will analyse each item from the sse client
      * @param $JSONString
      * @return bool|void
@@ -125,11 +108,7 @@ class HomeConnectDishwasher extends IPSModule {
 
         IPS_LogMessage("Dishwasher", print_r($data, true));
 
-        // reset timer and set next timer
-        //$this->sseRefresh();
-
         // catch simple error / null pointer
-        if ( $data['DataID'] !== "{5A709184-B602-D394-227F-207611A33BDF}" ) { return; }
         if ( $data['Event'] === "KEEP-ALIVE" ) { $this->_log("Module is still connected with the HomeConnect Servers"); return; }
         // item stack
         $items = json_decode( $data['Data'], true)['items'];
@@ -204,15 +183,6 @@ class HomeConnectDishwasher extends IPSModule {
         $this->_log( "Single item stack update finished");
         // checking background options
         $this->backgroundCheck();
-    }
-
-    /**
-     *  A function called by a timer when the sse client work wrong
-     */
-    private function sseRefresh() {
-        $this->SetTimerInterval('sse', 0 );
-        $this->SetTimerInterval('sse', 60000 );
-        $this->_log('sse refresh reset');
     }
 
     /**

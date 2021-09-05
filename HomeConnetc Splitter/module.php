@@ -43,21 +43,15 @@ class HomeConnectSplitter extends IPSModule {
         //Im Meldungsfenster zu Debug zwecken ausgeben
         IPS_LogMessage("Splitter", print_r($data, true));
 
-        $devices = [
-            "{874DFA8F-327E-51F2-7DAD-967865BB5738}"
+        $msg = [
+            "DataID" => "{29BCE126-7037-F9E3-C4AE-BBC515C56203}",
+            "Event" => $data['Event'],
+            "Data" => $data['Data'],
+            "Retry" => $data['Retry'],
+            "ID" => $data['ID']
         ];
 
-        foreach ($devices as $device) {
-            $msg = [
-                "DataID" => $device,
-                "Event" => $data['Event'],
-                "Data" => $data['Data'],
-                "Retry" => $data['Retry'],
-                "ID" => $data['ID']
-            ];
-
-            $this->SendData($msg);
-        }
+        $this->SendData($msg);
     }
 
     /** Function to send data to child
