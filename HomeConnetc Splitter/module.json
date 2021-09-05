@@ -1,0 +1,22 @@
+{
+  "id": "{29BCE126-7037-F9E3-C4AE-BBC515C56203}",
+  "name": "HomeConnect Splitter",
+  "type": 2,
+  "vendor": "HomeConnect GmbH",
+  "aliases": [],
+  "url": "https://github.com/parcivad/ips-home-connect",
+  "parentRequirements": [
+    "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"
+  ],
+  "childRequirements": [
+    "{874DFA8F-327E-51F2-7DAD-967865BB5738}",
+    "{E589B307-79F8-1882-8041-F0E91FB31605}"
+  ],
+  "implemented": [
+    "{1BC6B6DE-B97D-AAE2-1B2A-7EADB108B9B1}",
+    "{5A709184-B602-D394-227F-207611A33BDF}",
+    "{01AAC85A-49A3-E5B1-1C21-B5EB59793319}"
+  ],
+  "prefix": "HCSplitter"
+}
+

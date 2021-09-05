@@ -8,8 +8,12 @@
     "HomeConnect Discovery"
   ],
   "url": "https://github.com/LegendDragon11",
-  "parentRequirements": [],
+  "parentRequirements": [
+    "{01AAC85A-49A3-E5B1-1C21-B5EB59793319}"
+  ],
   "childRequirements": [],
-  "implemented": [],
+  "implemented": [
+    "{E589B307-79F8-1882-8041-F0E91FB31605}"
+  ],
   "prefix": "HomeConnectDiscovery"
 }

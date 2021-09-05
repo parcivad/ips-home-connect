@@ -18,6 +18,9 @@ class HomeConnectDiscovery extends IPSModule {
         // Overwrite ips function
         parent::Create();
 
+        // SSE Client is required for device connection
+        $this->RequireParent('{29BCE126-7037-F9E3-C4AE-BBC515C56203}');
+
         $this->RegisterPropertyString("auth_url", null);
     }
     /*
