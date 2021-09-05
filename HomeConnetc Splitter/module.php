@@ -17,6 +17,9 @@ class HomeConnectSplitter extends IPSModule {
         // Overwrite ips function
         parent::Create();
 
+        // Register Timer in case of new token
+        $this->RegisterTimer('sse', 60000, "HCSplitter_setupSSE( $this->InstanceID )");
+
         // SSE Client is required for device connection
         $this->RequireParent('{2FADB4B7-FDAB-3C64-3E2C-068A4809849A}');
     }
@@ -30,15 +33,18 @@ class HomeConnectSplitter extends IPSModule {
         $this->setupSSE();
     }
 
-    // Empfangene Daten vom Parent (RX Paket) vom Typ Erweitert (SSE)
+    // From SSE -> Device
     public function ReceiveData($JSONString) {
         $data = json_decode($JSONString, true);
+
+        // reset refresh timer
+        $this->sseRefresh();
 
         //Im Meldungsfenster zu Debug zwecken ausgeben
         IPS_LogMessage("Splitter", print_r($data, true));
 
         $msg = [
-            "DataID" => "{874DFA8F-327E-51F2-7DAD-967865BB5738}",
+            "DataID" => "{29BCE126-7037-F9E3-C4AE-BBC515C56203}",
             "Event" => $data['Event'],
             "Data" => $data['Data'],
             "Retry" => $data['Retry'],
@@ -53,6 +59,14 @@ class HomeConnectSplitter extends IPSModule {
      */
     public function SendData( $msg ) {
         $this->SendDataToChildren( json_encode($msg) );
+    }
+
+    /**
+     *  A function called by a timer when the sse client work wrong
+     */
+    private function sseRefresh() {
+        $this->SetTimerInterval('sse', 0 );
+        $this->SetTimerInterval('sse', 60000 );
     }
 
     /** This function will set all important information for a working sse client ( I/O parent ) */
