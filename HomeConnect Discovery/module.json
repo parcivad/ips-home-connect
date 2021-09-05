@@ -9,14 +9,11 @@
   ],
   "url": "https://github.com/LegendDragon11",
   "parentRequirements": [
-    "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"
+    "{01AAC85A-49A3-E5B1-1C21-B5EB59793319}"
   ],
-  "childRequirements": [
-    "{9AADBEFF-8D30-7196-984A-A705138F456C}"
-  ],
+  "childRequirements": [],
   "implemented": [
-    "{EE2167DE-6F0A-707E-D6C7-A9A8E1C39E47}",
-    "{5A709184-B602-D394-227F-207611A33BDF}"
+    "{E589B307-79F8-1882-8041-F0E91FB31605}"
   ],
   "prefix": "HomeConnectDiscovery"
 }
