@@ -39,16 +39,16 @@ class HomeConnectDiscovery extends IPSModule {
     public function ReceiveData($JSONString) {
         $data = json_decode($JSONString);
 
-        $this->SendDataToChildren(json_encode([
-            'DataID' => "{C479F9CC-ED6C-14D5-623B-A43D659849F2}",
-            'EVENT' => $data['EVENT'],
-            'Data' => $data['Data'],
-            'Retry' => $data['Retry'],
-            'ID' => $data['ID']
-        ]));
-
         //Im Meldungsfenster zu Debug zwecken ausgeben
         IPS_LogMessage("Discovery", print_r($data, true));
+
+        $this->SendDataToChildren(json_encode([
+            'DataID' => "{C479F9CC-ED6C-14D5-623B-A43D659849F2}",
+            'EVENT' => utf8_encode( $data['EVENT'] ),
+            'Data' => utf8_encode( $data['Data'] ),
+            'Retry' => utf8_encode( $data['Retry'] ),
+            'ID' => $data['ID']
+        ]));
     }
 
     /** This function will set all important information for a working sse client ( I/O parent ) */
