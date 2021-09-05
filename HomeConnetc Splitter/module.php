@@ -37,6 +37,7 @@ class HomeConnectSplitter extends IPSModule {
         //Im Meldungsfenster zu Debug zwecken ausgeben
         IPS_LogMessage("Splitter", print_r($data, true));
 
+        $this->SendDataToChildren($JSONString);
         $this->SendDataToChildren(json_encode([
             'DataID' => "{29BCE126-7037-F9E3-C4AE-BBC515C56203}",
             'Event' => utf8_encode( $data['Event'] ),

@@ -93,8 +93,6 @@ class HomeConnectDishwasher extends IPSModule {
         // Overwrite ips function
         parent::ApplyChanges();
 
-        // setup SSE client after all other configurations
-        //$this->setupSSE();
     }
 
 
