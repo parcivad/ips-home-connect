@@ -50,7 +50,7 @@ class HomeConnectDiscovery extends IPSModule {
         // get parent instance
         $parent = IPS_GetInstance( $this->InstanceID )['ConnectionID'];
         // build url
-        $url = "https://api.home-connect.com/api/homeappliances/" . $this->ReadPropertyString("haId"). "/events";
+        $url = "https://api.home-connect.com/api/homeappliances/events";
         // setup
         IPS_SetProperty( $parent, "URL", $url);
         IPS_SetProperty( $parent, 'Headers', json_encode([['Name' => 'Authorization', 'Value' => 'Bearer ' . getAccessToken()]]));
