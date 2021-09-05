@@ -58,8 +58,6 @@ class HomeConnectDiscovery extends IPSModule {
         IPS_ApplyChanges( $parent );
         IPS_SetProperty( $parent, 'Active', true );
         IPS_ApplyChanges( $parent );
-        // log msg
-        $this->_log("Configured SSE Client");
     }
 
     //-----------------------------------------------------< Profiles >------------------------------

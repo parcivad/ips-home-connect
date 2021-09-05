@@ -48,7 +48,7 @@ class HomeConnectDishwasher extends IPSModule {
         $this->RegisterPropertyBoolean("mode_translate", true);
 
         // sse token check timer
-        $this->RegisterTimer('sse', 60000, "HCDishwasher_setupSSE( $this->InstanceID );");
+        //$this->RegisterTimer('sse', 60000, "HCDishwasher_setupSSE( $this->InstanceID );");
 
         // Turn on/off of Log messages
         $this->RegisterPropertyBoolean("log", false);
@@ -94,7 +94,7 @@ class HomeConnectDishwasher extends IPSModule {
         parent::ApplyChanges();
 
         // setup SSE client after all other configurations
-        $this->setupSSE();
+        //$this->setupSSE();
     }
 
 
@@ -126,7 +126,7 @@ class HomeConnectDishwasher extends IPSModule {
         $data = json_decode($JSONString, true);
 
         // reset timer and set next timer
-        $this->sseRefresh();
+        //$this->sseRefresh();
 
         // catch simple error / null pointer
         if ( $data['DataID'] !== "{5A709184-B602-D394-227F-207611A33BDF}" ) { return; }
