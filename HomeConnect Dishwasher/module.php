@@ -125,6 +125,8 @@ class HomeConnectDishwasher extends IPSModule {
         // SSE client json response
         $data = json_decode($JSONString, true);
 
+        IPS_LogMessage("Dishwasher", print_r($data, true));
+
         // reset timer and set next timer
         //$this->sseRefresh();
 

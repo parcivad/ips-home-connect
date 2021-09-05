@@ -40,7 +40,7 @@ class HomeConnectDiscovery extends IPSModule {
         $data = json_decode($JSONString);
 
         //Im Meldungsfenster zu Debug zwecken ausgeben
-        IPS_LogMessage("DATA", print_r($data, true));
+        IPS_LogMessage("Dishwasher", print_r($data, true));
 
         $this->SendDataToChildren($JSONString);
     }
