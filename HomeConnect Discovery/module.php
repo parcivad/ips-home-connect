@@ -39,7 +39,7 @@ class HomeConnectDiscovery extends IPSModule {
      * @param $opt
      * @return bool|mixed
      */
-    public function tm($opt) {
+    public function tm( bool $opt) {
         switch ($opt) {
             case "auth":
                 try {
