@@ -106,7 +106,8 @@ class HomeConnectDishwasher extends IPSModule {
         // SSE client json response
         $data = json_decode($JSONString, true);
 
-        IPS_LogMessage("Dishwasher", print_r($data, true));
+        // Check if the event source is this device, you can do this by comparing the haId
+        if ( $data['ID'] != $this->ReadPropertyString('haId')) { return; }
 
         // catch simple error / null pointer
         if ( $data['Event'] === "KEEP-ALIVE" ) { $this->_log("Module is still connected with the HomeConnect Servers"); return; }
@@ -888,7 +889,7 @@ class HomeConnectDishwasher extends IPSModule {
           return $profile_list[$this->GetValue('mode')];
       }
 
-      /** Send logs to IP-Symcon
+      /** Send logs to symcon
        * @param string $msg Message to send
        */
       protected function _log( $msg) {

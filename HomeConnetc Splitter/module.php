@@ -60,7 +60,7 @@ class HomeConnectSplitter extends IPSModule {
     /** Function to send data to child
      * @param array $msg
      */
-    public function SendData( $msg ) {
+    private function SendData( $msg ) {
         $this->SendDataToChildren( json_encode($msg) );
     }
 
@@ -88,6 +88,33 @@ class HomeConnectSplitter extends IPSModule {
 
         // update
         IPS_LogMessage("HomeConnect Splitter", "sse client update!");
+    }
+
+    /** This Function will set the IP Symcon Form.json
+     * @return false|string Form json
+     */
+    public function GetConfigurationForm() {
+        // return current form
+        $Form = json_encode([
+            'actions'  => $this->FormActions(),
+        ]);
+        $this->SendDebug('FORM', $Form, 0);
+        $this->SendDebug('FORM', json_last_error_msg(), 0);
+
+        return $Form;
+    }
+
+    /**
+     * @return array[] Form Actions
+     */
+    protected function FormActions() {
+        return[
+            [
+                "type" => "Button",
+                "caption" => "Upate Token for SSE Client",
+                "onClick" => "HCSplitter_setupSSE( $this->InstanceID );"
+            ],
+        ];
     }
 }
 ?>
