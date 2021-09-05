@@ -18,7 +18,7 @@ class HomeConnectDishwasher extends IPSModule {
         parent::Create();
 
         // SSE Client is required for device connection
-        $this->RequireParent('{2FADB4B7-FDAB-3C64-3E2C-068A4809849A}');
+        //$this->RequireParent('{2FADB4B7-FDAB-3C64-3E2C-068A4809849A}');
 
         // Device Information, set by Configurator
         $this->RegisterPropertyString('name', '');
@@ -41,14 +41,14 @@ class HomeConnectDishwasher extends IPSModule {
         $this->RegisterPropertyBoolean("web_notify_finish", false);
         $this->RegisterPropertyBoolean("web_notify_abort", false);
 
-        // Check if the user wants to hide or show varaibles
+        // Check if the user wants to hide or show variables
         $this->RegisterPropertyBoolean("hide_show", true);
 
-        // Check if the user wants to translate the mode varialbe
+        // Check if the user wants to translate the mode variable
         $this->RegisterPropertyBoolean("mode_translate", true);
 
         // sse token check timer
-        $this->RegisterTimer('sse', 0, "HCDishwasher_setupSSE( $this->InstanceID );");
+        $this->RegisterTimer('sse', 60000, "HCDishwasher_setupSSE( $this->InstanceID );");
 
         // Turn on/off of Log messages
         $this->RegisterPropertyBoolean("log", false);

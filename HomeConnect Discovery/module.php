@@ -18,6 +18,9 @@ class HomeConnectDiscovery extends IPSModule {
         // Overwrite ips function
         parent::Create();
 
+        // SSE Client is required for device connection
+        $this->RequireParent('{2FADB4B7-FDAB-3C64-3E2C-068A4809849A}');
+
         $this->RegisterPropertyString("auth_url", null);
     }
     /*
@@ -27,7 +30,36 @@ class HomeConnectDiscovery extends IPSModule {
         // Overwrite ips function
         parent::ApplyChanges();
 
+        $this->setupSSE();
+
         $this->ReloadForm();
+    }
+
+    // Empfangene Daten vom Parent (RX Paket) vom Typ Erweitert (SSE)
+    public function ReceiveData($JSONString) {
+        $data = json_decode($JSONString);
+
+        //Im Meldungsfenster zu Debug zwecken ausgeben
+        IPS_LogMessage("DATA", print_r($data, true));
+
+        $this->SendDataToChildren($JSONString);
+    }
+
+    /** This function will set all important information for a working sse client ( I/O parent ) */
+    public function setupSSE() {
+        // get parent instance
+        $parent = IPS_GetInstance( $this->InstanceID )['ConnectionID'];
+        // build url
+        $url = "https://api.home-connect.com/api/homeappliances/" . $this->ReadPropertyString("haId"). "/events";
+        // setup
+        IPS_SetProperty( $parent, "URL", $url);
+        IPS_SetProperty( $parent, 'Headers', json_encode([['Name' => 'Authorization', 'Value' => 'Bearer ' . getAccessToken()]]));
+        IPS_SetProperty( $parent, "Active", false);
+        IPS_ApplyChanges( $parent );
+        IPS_SetProperty( $parent, 'Active', true );
+        IPS_ApplyChanges( $parent );
+        // log msg
+        $this->_log("Configured SSE Client");
     }
 
     //-----------------------------------------------------< Profiles >------------------------------
