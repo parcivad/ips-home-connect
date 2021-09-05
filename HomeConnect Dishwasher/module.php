@@ -17,9 +17,8 @@ class HomeConnectDishwasher extends IPSModule {
         // Overwrite ips function
         parent::Create();
 
-        // SSE Client is required for device connection
-        //$this->RequireParent('{2FADB4B7-FDAB-3C64-3E2C-068A4809849A}');
-        $this->ConnectParent('{C479F9CC-ED6C-14D5-623B-A43D659849F2}');
+        // connect ot HomeConnect splitter to get all sse informations
+        $this->ConnectParent('{29BCE126-7037-F9E3-C4AE-BBC515C56203}');
 
         // Device Information, set by Configurator
         $this->RegisterPropertyString('name', '');
