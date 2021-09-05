@@ -47,6 +47,9 @@ class HomeConnectDishwasher extends IPSModule {
         // Check if the user wants to translate the mode varialbe
         $this->RegisterPropertyBoolean("mode_translate", true);
 
+        // sse token check timer
+        $this->RegisterTimer('sse', 0, 'HCDishwasher_setupSSE( $id );');
+
         // Turn on/off of Log messages
         $this->RegisterPropertyBoolean("log", false);
 
@@ -98,7 +101,7 @@ class HomeConnectDishwasher extends IPSModule {
     //--------------------------------------------------< SSE Handling >--------------------------------------
 
     /** This function will set all important information for a working sse client ( I/O parent ) */
-    private function setupSSE() {
+    public function setupSSE() {
         // get parent instance
         $parent = IPS_GetInstance( $this->InstanceID )['ConnectionID'];
         // build url
@@ -122,7 +125,8 @@ class HomeConnectDishwasher extends IPSModule {
         // SSE client json response
         $data = json_decode($JSONString, true);
 
-        IPS_LogMessage("DATA", print_r($data, true));
+        // reset timer and set next timer
+        $this->sseRefresh();
 
         // catch simple error / null pointer
         if ( $data['DataID'] !== "{5A709184-B602-D394-227F-207611A33BDF}" ) { return; }
@@ -200,6 +204,15 @@ class HomeConnectDishwasher extends IPSModule {
         $this->_log( "Single item stack update finished");
         // checking background options
         $this->backgroundCheck();
+    }
+
+    /**
+     *  A function called by a timer when the sse client work wrong
+     */
+    private function sseRefresh() {
+        $this->SetTimerInterval('sse', 0 );
+        $this->SetTimerInterval('sse', 60000 );
+        $this->_log('sse refresh reset');
     }
 
     /**
