@@ -189,7 +189,7 @@ class HomeConnectDishwasher extends IPSModule {
     /**
      *  This function will check variables and states in the background to optimise or sync stuff.
      */
-    private function backgroundCheck() {
+    protected function backgroundCheck() {
         // Check Program list
         if ( $this->ReadAttributeBoolean('firstStart') ) {
             // Build Program List
