@@ -189,7 +189,7 @@ class HomeConnectDishwasher extends IPSModule {
     /**
      *  This function will check variables and states in the background to optimise or sync stuff.
      */
-    private function backgroundCheck() {
+    protected function backgroundCheck() {
         // Check Program list
         if ( $this->ReadAttributeBoolean('firstStart') ) {
             // Build Program List
@@ -244,7 +244,7 @@ class HomeConnectDishwasher extends IPSModule {
      * @param int $delay Delay in seconds until the device starts
      * @throws Exception
      */
-      public function start( $mode, $delay ) {
+      public function start( string $mode, int $delay ) {
           // log
           $this->_log( "Trying to start Device..." );
           // Set the device ready ( device must be ready for start )
@@ -320,7 +320,7 @@ class HomeConnectDishwasher extends IPSModule {
      * Function to turn the dishwasher on
      * @param bool $state switch
      */
-      public function SetActive( $state ) {
+      public function SetActive( bool $state ) {
 
           // power off string for HomeConnect
           $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.Off","type": "BSH.Common.EnumType.PowerState"}}';
@@ -812,7 +812,7 @@ class HomeConnectDishwasher extends IPSModule {
        * @param string $text Text in the Notification
        * @param string $type The Information type of the message
        */
-      protected function SendNotify( $text, $type) {
+      protected function SendNotify( string $text, string $type) {
           // Send notification for mobile (if on) only notify the user when this content is allowed
           if ( $this->ReadPropertyInteger("notify_instance") != 0 && $this->ReadPropertyBoolean("notify_" . $type) ) {
               WFC_PushNotification( $this->ReadPropertyInteger("notify_instance"), "HomeConnect", "\n" . $text, $this->ReadPropertyString("notify_sound"), $this->InstanceID );
@@ -826,7 +826,7 @@ class HomeConnectDishwasher extends IPSModule {
       /** Function to set Profile of a Integer Var
        * @param string $profile Name of the profile
        */
-      public function BuildList( $profile ) {
+      public function BuildList( string $profile ) {
           try {
               // make api call to get available programs on this device
               $programs = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/available")['data']['programs'];
@@ -849,7 +849,7 @@ class HomeConnectDishwasher extends IPSModule {
       /** Function to set integer by name association
        * @param string $name
        */
-      protected function SetListValue( $name ) {
+      protected function SetListValue( string $name ) {
           // Get ID with Associations
           $name = explode( ".", $name )[3];
           $profile = IPS_GetVariableProfile( "HC_DishwasherMode" )['Associations'];
@@ -892,7 +892,7 @@ class HomeConnectDishwasher extends IPSModule {
       /** Send logs to symcon
        * @param string $msg Message to send
        */
-      protected function _log( $msg) {
+      protected function _log( string $msg) {
           if ( $this->ReadPropertyBoolean('log') ) {
               IPS_LogMessage("HomeConnectDishwasher", $msg);
           }

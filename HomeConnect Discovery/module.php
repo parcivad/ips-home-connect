@@ -39,7 +39,7 @@ class HomeConnectDiscovery extends IPSModule {
      * @param $opt
      * @return bool|mixed
      */
-    public function tm($opt) {
+    public function tm( bool $opt) {
         switch ($opt) {
             case "auth":
                 try {
@@ -230,7 +230,7 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Label",
                 "name" => "loginInfo",
-                "caption" => "Open the link in a browser; Log in and copy the url out of your browser after it shows no page.",
+                "caption" => "Open the link in a browser; Log in and copy the url out of your browser in the url field after it shows no page.",
                 "visible" => $visible,
             ],
             [
