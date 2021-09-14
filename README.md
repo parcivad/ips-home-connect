@@ -1,3 +1,10 @@
+
+////// !
+NICHT AKTUELL ZU DIESEM BRANCH
+////// !
+
+
+
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-blue.svg)](https://www.symcon.de/produkt/)
 
