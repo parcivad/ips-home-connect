@@ -474,6 +474,22 @@ class HomeConnectDishwasher extends IPSModule {
                   ],
               ],
               [
+                  "type" => "ExpansionPanel",
+                  "caption" => "Variable",
+                  "items" => [
+                      [
+                          "type" => "CheckBox",
+                          "name" => "hide_show",
+                          "caption" => "Dynamic show/hide",
+                      ],
+                      [
+                          "type" => "CheckBox",
+                          "name" => "mode_translate",
+                          "caption" => "Translate the program names into german",
+                      ],
+                  ],
+              ],
+              [
                   "type" => "RowLayout",
                   "items" => [
                       [
@@ -604,22 +620,6 @@ class HomeConnectDishwasher extends IPSModule {
                           ],
                       ],
                   ]
-              ],
-              [
-                  "type" => "ExpansionPanel",
-                  "caption" => "Variable",
-                  "items" => [
-                      [
-                          "type" => "CheckBox",
-                          "name" => "hide_show",
-                          "caption" => "Dynamic show/hide",
-                      ],
-                      [
-                          "type" => "CheckBox",
-                          "name" => "mode_translate",
-                          "caption" => "Translate the program names into german",
-                      ],
-                  ],
               ],
               [
                   "type" => "CheckBox",
