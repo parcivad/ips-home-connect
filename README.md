@@ -1,17 +1,8 @@
-
-////// !
-NICHT AKTUELL ZU DIESEM BRANCH
-////// !
-
-
-
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-blue.svg)](https://www.symcon.de/produkt/)
+[![Version](https://img.shields.io/badge/Symcon%20Version-6.0%20%3E-brightgreen.svg)](https://www.symcon.de/produkt/)
 
 # IP-Symcon HomeConnect
-Das ist ein IP-Symcon HomeConnect Modul. Es dient dazu mit verschieden Gerät von Siemens und Bosch zu kommunizieren. Dafür wird die Cloud Basis, HomeConnect benötigt.
-Diese wird von Bosch und Siemens bereitgestellt.
-Für das Nutzen dieses Moduls wird ein HomeConnect Account benötigt.
+Dieses IP-Symcon Modul ist eine komfortable Schnittstelle zwischen der Bosch/Siemens Cloud, HomeConnect, und der IP-Symcon Oberfläche. Das Modul ist für die 6.0 Beta geschrieben und ist somit der Nachfolger von der 5.0 Version.
 
 ## Inhaltsverzeichnis
 
@@ -19,16 +10,15 @@ Für das Nutzen dieses Moduls wird ein HomeConnect Account benötigt.
 - [Einrichten](#einrichten)
 - [Geräte](#inhaltsverzeichnis)
 	- [Geschirrspüler](https://github.com/LegendDragon11/ips-home-connect/blob/main/HomeConnect%20Dishwasher/Geschirrspüler.md)
-	- [Ofen](https://github.com/LegendDragon11/ips-home-connect/blob/main/HomeConnect%20Oven/Ofen.md)
-	- [Trockner](https://github.com/parcivad/ips-home-connect/blob/main/HomeConnect%20Dryer/Trockner.md)
+	<!-- [Ofen](https://github.com/LegendDragon11/ips-home-connect/blob/main/HomeConnect%20Oven/Ofen.md)-->
 - [Im Webfront](#im-webfront)
-- [Refreshen](#refreshen)
-- [Limits](#rate-limits)
 - [Fehlercodes](#fehlercodes)
 
 ## Installation 
 Das Modul kann über die Kerninstanz `Modules` installiert werden. Dafür auf den `Hinzufügen/Plus` Knopf drücken und dann die Url von 
 diesem Modul eingeben `https://github.com/parcivad/ips-home-connect`;
+
+Achten sie darauf den Branch von `main` auf `v6.0-symcon` zu wechseln.
 
 Nach der Installation kann das Modul über die ``Discovery Instance`` eingestellt werden.
 
@@ -39,26 +29,13 @@ Nach dem Hinzufügen der ``Discovery Instance`` können die Geräte gefunden wer
   <img width="auto" height="auto" src="https://github.com/parcivad/img/blob/main/Home%20Connect%20Login.png">
 </p>
 
-Nach dem Kopieren der Url muss der Login Knopf gedrückt werden. Danach die Instanz ``refreshen`` und die Geräte auswählen die
-hinzugefügt werden sollen.
+Nach dem Kopieren der Url **muss** der Login Knopf gedrückt werden. Anschließen können sie das Modul aktualisieren um all ihre Geräte zu sehen.
 
 ## Im Webfront
 Durch verschiedene Einstellungen in der Geräte Instanz (`Variablen ein-/ausblenden`) wird das direkte Einbinden in das
 IP-Symcon Webfront ermöglicht, durch Beispielsweise einen *`Link`*.
 
-## Refreshen
-Zur Erinnerung, eine Gerät-Instanz updated max. alle 5min automatisch. Das heißt das sie nach einem ``Start/Stopp`` 5min
-warten müssen bis sie aktuelle Informationen sehen.
-
-Bei Programmen die eine feste Laufzeit haben wird die ``aktuelle`` Zeit angezeit (Modul eingener Timer). Falls keine feste
-Laufzeit feststeht, *zb. beim Vorheizen von einem Ofen*, wird in der Variable `Verbleibende Zeit` *--:--:--* angezeigt.
-
-Ebenfalls kann natürlich auch manuell per ``refresh()`` aktualisiert werden. Diese Funktion ist aber eher dafür gedacht
-vor einem ``start()`` die Berechtigung oder Türzustand abzufragen. Denn falls einer dieser Berechtigungen fehlt, wird ein Fehler
-geworfen.
-
-## Rate-Limits
-Auch dieses Modul muss die [HomeConnect Rate-Limits](https://api-docs.home-connect.com/general?#rate-limiting) einhalten, deshalb ist es jedem Benutzer dieses Moduls erlaubt max. 1.000 Anfragen [Requests] zu senden.
+Hierbei Empfielt es sich die gesamte Geräte Instanz als einen Link in das Webfront einzubinden!
 
 ## Fehlercodes
 Für den Fall eines Fehlers besitzt die Geräte Instanz eine Variable namens `error`.
