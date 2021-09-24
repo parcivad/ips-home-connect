@@ -94,7 +94,7 @@ class HomeConnectOven extends IPSModule {
 
           // Set Hide, the user can link the instance with no unimportant info
           IPS_SetHidden($this->GetIDForIdent("remoteControl"), true);
-          IPS_SetHidden($this->GetIDForIdent('LastRefresh'), true);
+          IPS_SetHidden($this->GetIDForIdent('childLock'), true );
           IPS_SetHidden($this->GetIDForIdent('LastReceive'), true );
           // the standard is on
           $this->SetValue('childLock', true);
