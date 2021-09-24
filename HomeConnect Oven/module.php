@@ -945,6 +945,7 @@ class HomeConnectOven extends IPSModule {
        */
       protected function SetListValue( string $name ) {
           // Get ID with Associations
+          $name = explode( ".", $name )[4];
           $profile = IPS_GetVariableProfile( "HC_OvenMode" )['Associations'];
           // count Associations
           $profile_count = count( $profile );
