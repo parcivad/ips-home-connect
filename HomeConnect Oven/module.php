@@ -78,7 +78,7 @@ class HomeConnectOven extends IPSModule {
           // Register Variables
           $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_RemoteStart", -2);
           $this->RegisterVariableBoolean("childLock", "Child Lock", "", -1);
-          $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -2);
+          $this->RegisterVariableInteger('LastReceive', "Last Receive", "UnixTimestamp", -2);
           $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_State", 0);
           $this->RegisterVariableString("remainStartTime", "Start in", "", 1);
           $this->RegisterVariableInteger("mode", "Programm", "HC_OvenMode", 2);
@@ -125,7 +125,7 @@ class HomeConnectOven extends IPSModule {
     public function ReceiveData($JSONString) {
         // SSE client json response
         $data = json_decode($JSONString, true);
-        
+
         // Check if the event source is this device, you can do this by comparing the haId
         if ( $data['ID'] != $this->ReadPropertyString('haId')) { return; }
 
