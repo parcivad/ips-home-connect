@@ -1,0 +1,23 @@
+{
+  "translations": {
+    "de": {
+      "Information about this device": "Informationen über das Gerät",
+      "Device": "Gerät",
+      "Company": "Firma",
+
+      "Mobil Notification": "Mobil Benachrichtigungen",
+      "Webfront Notification": "Webfront Benachrichtigungen",
+      "Notification Instance Mobil": "Benachrichtigungs Instanze Mobil",
+      "Notification sounds": "Benachrichtigungs Geräusche",
+      "Select Notifications": "Wähle die Benachrichtigung aus",
+      "When finished": "Wenn fertig",
+      "When aborted": "Wenn abgebrochen",
+      "Messsage Timeout": "Nachrichten Sichtbarkeit",
+
+      "Dynamic show/hide": "Dynamischen ein/-ausblenden",
+      "Translate the program names into german": "Übersetzt die Program Namen ins deutsche",
+
+      "LogMessages": "Log Nachrichten"
+    }
+  }
+}

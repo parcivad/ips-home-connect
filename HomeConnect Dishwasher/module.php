@@ -40,6 +40,9 @@ class HomeConnectDishwasher extends IPSModule {
         $this->RegisterPropertyBoolean("web_notify_finish", false);
         $this->RegisterPropertyBoolean("web_notify_abort", false);
 
+        // Attribute for just one finish message
+        $this->RegisterAttributeBoolean('finish_message_sent', false);
+
         // Check if the user wants to hide or show variables
         $this->RegisterPropertyBoolean("hide_show", true);
 
@@ -336,10 +339,10 @@ class HomeConnectDishwasher extends IPSModule {
      */
       public function SetActive( bool $state ) {
 
-          // power off string for HomeConnect
+          // power off string for HomeConnect Dishwasher
           $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.Off","type": "BSH.Common.EnumType.PowerState"}}';
           if ( $state ) {
-              // power on string for HomeConnect
+              // power on string for HomeConnect Dishwasher
               $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.On","type": "BSH.Common.EnumType.PowerState"}}';
           }
 
@@ -470,22 +473,6 @@ class HomeConnectDishwasher extends IPSModule {
                           "device" => $this->ReadPropertyString( "device"),
                           "company" => $this->ReadPropertyString( "company"),
                           "haId" => $this->ReadPropertyString( "haId"),
-                      ],
-                  ],
-              ],
-              [
-                  "type" => "ExpansionPanel",
-                  "caption" => "Variable",
-                  "items" => [
-                      [
-                          "type" => "CheckBox",
-                          "name" => "hide_show",
-                          "caption" => "Dynamic show/hide",
-                      ],
-                      [
-                          "type" => "CheckBox",
-                          "name" => "mode_translate",
-                          "caption" => "Translate the program names into german",
                       ],
                   ],
               ],
@@ -626,6 +613,22 @@ class HomeConnectDishwasher extends IPSModule {
                   "name" => "log",
                   "caption" => "LogMessages",
               ],
+              [
+                  "type" => "ExpansionPanel",
+                  "caption" => "Variable",
+                  "items" => [
+                      [
+                          "type" => "CheckBox",
+                          "name" => "hide_show",
+                          "caption" => "Dynamic show/hide",
+                      ],
+                      [
+                          "type" => "CheckBox",
+                          "name" => "mode_translate",
+                          "caption" => "Translate the program names into german",
+                      ],
+                  ],
+              ]
           ];
       }
 

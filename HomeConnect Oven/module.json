@@ -8,9 +8,13 @@
     "HomeConnect Oven"
   ],
   "url": "https://github.com/parcivad",
-  "parentRequirements": [],
+  "parentRequirements": [
+    "{5C48C5A2-F7D5-CD84-B094-C4DC51B8BBB3}"
+  ],
   "childRequirements": [],
-  "implemented": [],
+  "implemented": [
+    "{55C053EA-CF85-D540-BAB6-A10EB11C9370}"
+  ],
   "prefix": "HCOven"
 }
 
