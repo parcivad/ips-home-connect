@@ -126,6 +126,8 @@ class HomeConnectOven extends IPSModule {
         // SSE client json response
         $data = json_decode($JSONString, true);
 
+        IPS_LogMessage('DEBUG', 'data income');
+
         // Check if the event source is this device, you can do this by comparing the haId
         if ( $data['ID'] != $this->ReadPropertyString('haId')) { return; }
 
