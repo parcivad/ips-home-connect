@@ -66,11 +66,6 @@ class HomeConnectOven extends IPSModule {
           $this->RegisterAttributeString("remoteStartAllowed", "Dein Gerät erlaub keinen Fernstart");
           $this->RegisterAttributeBoolean("first_start", true );
 
-          // Register Timers [refresh Timer, Count down until start, Count down until program ends]
-          $this->RegisterTimer($this->InstanceID . "-refresh", 300000, "HCOven_refresh($this->InstanceID);");
-          $this->RegisterTimer("DownCountStart", 0, "HCOven_DownCount($this->InstanceID, 'remainStartTime'");
-          $this->RegisterTimer("DownCountProgram", 0, "HCOven_DownCount($this->InstanceID, 'remainTime');");
-
           // Register Variable and Profiles [look in class]
           $this->registerProfiles();
 
@@ -151,6 +146,7 @@ class HomeConnectOven extends IPSModule {
             'BSH.Common.Event.AlarmClockElapsed' => 'CLOCK_ELAPSED',
 
             'Cooking.Oven.Option.SetpointTemperature' => 'temperature',
+            "Cooking.Oven.Status.CurrentCavityTemperature" => 'temperature',
             'Cooking.Oven.Event.PreheatFinished' => 'PREHEAT_FINISHED',
 
         ];
