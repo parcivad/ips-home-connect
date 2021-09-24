@@ -95,6 +95,7 @@ class HomeConnectOven extends IPSModule {
           // Set Hide, the user can link the instance with no unimportant info
           IPS_SetHidden($this->GetIDForIdent("remoteControl"), true);
           IPS_SetHidden($this->GetIDForIdent('LastRefresh'), true);
+          IPS_SetHidden($this->GetIDForIdent('LastReceive'), true );
           // the standard is on
           $this->SetValue('childLock', true);
           $this->SetValue('remoteControl', true);
@@ -145,7 +146,7 @@ class HomeConnectOven extends IPSModule {
             'BSH.Common.Event.ProgramAborted' => 'ABORTED',
             'BSH.Common.Event.AlarmClockElapsed' => 'CLOCK_ELAPSED',
 
-            'Cooking.Oven.Option.SetpointTemperature' => 'temperature',
+            'Cooking.Oven.Option.SetpointTemperature' => 'setTemperature',
             "Cooking.Oven.Status.CurrentCavityTemperature" => 'temperature',
             'Cooking.Oven.Event.PreheatFinished' => 'PREHEAT_FINISHED',
 
