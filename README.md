@@ -1,4 +1,4 @@
-[![IP-Symcon](https://img.shields.io/badge/IP--Symcon->5.0-blue.svg?style=flat-square)](https://www.symcon.de)
+[![IP-Symcon](https://img.shields.io/badge/IP--Symcon->6.0-blue.svg?style=flat-square)](https://www.symcon.de)
 [![Symcon-php-module](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 
 # IP-Symcon HomeConnect
