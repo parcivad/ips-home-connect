@@ -2,8 +2,7 @@
 
 require_once(dirname(dirname(__FILE__)) . "/libs/tools/api.php");
 require_once( dirname(dirname(__FILE__) ) . "/libs/tools/tm/tm.php");
-$data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/libs/tools/tm/data.json" ), true );
-
+require_once( dirname(dirname(__FILE__) ) . "/libs/tools/mode-translate.php");
 
 // HomeConnect Oven class with special oven settings
 class HomeConnectOven extends IPSModule {
@@ -15,6 +14,9 @@ class HomeConnectOven extends IPSModule {
       {
           // Overwrite ips function
           parent::Create();
+
+          // connect ot HomeConnect splitter to get all sse information
+          $this->ConnectParent('{29BCE126-7037-F9E3-C4AE-BBC515C56203}');
 
           // Device Information, set by Configurator
           $this->RegisterPropertyString('name', '');
@@ -32,12 +34,13 @@ class HomeConnectOven extends IPSModule {
           $this->RegisterPropertyBoolean("notify_start", false);
           $this->RegisterPropertyBoolean("notify_stop", false);
           $this->RegisterPropertyBoolean("notify_finish", false);
+          $this->RegisterPropertyBoolean("notify_abort", false);
           // Notify Settings [Set by User]
           $this->RegisterPropertyInteger("web_notify_instance", 0);
           $this->RegisterPropertyInteger("web_notify_Timeout", 10);
           $this->RegisterPropertyBoolean("web_notify_start", false);
-          $this->RegisterPropertyBoolean("web_notify_stop", false);
           $this->RegisterPropertyBoolean("web_notify_finish", false);
+          $this->RegisterPropertyBoolean("web_notify_abort", false);
 
           // Attribute for just one finish message
           $this->RegisterAttributeBoolean('finish_message_sent', false);
@@ -48,39 +51,39 @@ class HomeConnectOven extends IPSModule {
           // Check if the user wants to translate the mode varialbe
           $this->RegisterPropertyBoolean("mode_translate", true);
 
+          // message notify
+          $this->RegisterAttributeBoolean("finish_notify", false);
+          $this->RegisterAttributeBoolean("abort_notify", false);
+
           // Turn on/off of Log messages
           $this->RegisterPropertyBoolean("log", false);
+
+          // first start setup
+          $this->RegisterAttributeBoolean("firstStart", true);
 
           // Remote start and Build list [Set by refresh function]
           $this->RegisterAttributeString("remoteControlAllowed", "Dein Gerät erlaubt keine Fernbedienung");
           $this->RegisterAttributeString("remoteStartAllowed", "Dein Gerät erlaub keinen Fernstart");
           $this->RegisterAttributeBoolean("first_start", true );
 
-          // Register Timers [refresh Timer, Count down until start, Count down until program ends]
-          $this->RegisterTimer($this->InstanceID . "-refresh", 300000, "HCOven_refresh($this->InstanceID);");
-          $this->RegisterTimer("DownCountStart", 0, "HCOven_DownCount($this->InstanceID, 'remainStartTime'");
-          $this->RegisterTimer("DownCountProgram", 0, "HCOven_DownCount($this->InstanceID, 'remainTime');");
-
           // Register Variable and Profiles [look in class]
           $this->registerProfiles();
 
           // Register Variables
           $this->RegisterVariableBoolean("remoteControl", "Remote control", "HC_RemoteStart", -2);
-          $this->RegisterVariableInteger('LastRefresh', "Last Refresh", "UnixTimestamp", -2);
+          $this->RegisterVariableBoolean("childLock", "Child Lock", "", -1);
+          $this->RegisterVariableInteger('LastReceive', "Last Receive", "UnixTimestamp", -2);
           $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_State", 0);
           $this->RegisterVariableString("remainStartTime", "Start in", "", 1);
           $this->RegisterVariableInteger("mode", "Programm", "HC_OvenMode", 2);
-          $this->RegisterVariableInteger("setTemperature", "Gesetzte Temperatur", "HC_OvenSetTemperature", 3);
-          $this->RegisterVariableInteger("setTime", "Gesetzte Laufzeit", "HC_OvenSetTime", 4);
+          $this->RegisterVariableInteger("setTemperature", "Temperatur", "HC_OvenSetTemperature", 3);
+          $this->RegisterVariableInteger("setTime", "Laufzeit", "HC_OvenSetTime", 4);
           $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_RemoteStart", 5);
           $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_DoorState", 6);
           $this->RegisterVariableFloat("temperature", "Temperature", "Temperature", 7);
           $this->RegisterVariableString("remainTime", "Verbleibende Programm Zeit", "", 8);
           $this->RegisterVariableInteger("progress", "Fortschritt", "HC_Progress", 9);
           $this->RegisterVariableBoolean("start_stop", "Programm start/stop", "HC_StartStop", 10);
-
-          // error codes
-          $this->RegisterVariableString("info", "Info", "", 99 );
 
           // Enable Action for variables, for change reaction look up RequestAction();
           $this->EnableAction('start_stop');
@@ -91,8 +94,11 @@ class HomeConnectOven extends IPSModule {
 
           // Set Hide, the user can link the instance with no unimportant info
           IPS_SetHidden($this->GetIDForIdent("remoteControl"), true);
-          IPS_SetHidden($this->GetIDForIdent('LastRefresh'), true);
-          IPS_SetHidden($this->GetIDForIdent('info'), true);
+          IPS_SetHidden($this->GetIDForIdent('childLock'), true );
+          IPS_SetHidden($this->GetIDForIdent('LastReceive'), true );
+          // the standard is on
+          $this->SetValue('childLock', true);
+          $this->SetValue('remoteControl', true);
           $this->Hide();
       }
 
@@ -105,8 +111,151 @@ class HomeConnectOven extends IPSModule {
           parent::ApplyChanges();
       }
 
+    //--------------------------------------------------< SSE Handling >--------------------------------------
 
-      //--------------------------------------------------< Reaction >----------------------------------------
+    /** This function will analyse each item from the sse client
+     * @param $JSONString
+     * @return bool|void
+     */
+    public function ReceiveData($JSONString) {
+        // SSE client json response
+        $data = json_decode($JSONString, true);
+
+        // Check if the event source is this device, you can do this by comparing the haId
+        if ( $data['ID'] != $this->ReadPropertyString('haId')) { return; }
+
+        // catch simple error / null pointer
+        if ( $data['Event'] === "KEEP-ALIVE" ) { $this->_log("Module is still connected with the HomeConnect Servers"); return; }
+        // item stack
+        $items = json_decode( $data['Data'], true)['items'];
+
+        // BSH keys for value input from the SSE client
+        $Manual = [
+            'BSH.Common.Status.RemoteControlActive' => 'remoteControl',
+            'BSH.Common.Status.RemoteControlStartAllowed' => 'remoteStart',
+            'BSH.Common.Status.OperationState' => 'state',
+            'BSH.Common.Status.DoorState' => 'door',
+            'BSH.Common.Option.ProgramProgress' => 'progress',
+            'BSH.Common.Root.ActiveProgram' => 'PROGRAM',
+            'BSH.Common.Root.SelectedProgram' => 'PROGRAM',
+            'BSH.Common.Option.StartInRelative' => 'remainStartTime',
+            'BSH.Common.Option.RemainingProgramTime' => 'remainTime',
+            "BSH.Common.Option.Duration" => 'remainTime',
+            'BSH.Common.Setting.ChildLock' => 'childLock',
+            'BSH.Common.Event.ProgramFinished' => 'FINISHED',
+            'BSH.Common.Event.ProgramAborted' => 'ABORTED',
+            'BSH.Common.Event.AlarmClockElapsed' => 'CLOCK_ELAPSED',
+
+            'Cooking.Oven.Option.SetpointTemperature' => 'setTemperature',
+            "Cooking.Oven.Status.CurrentCavityTemperature" => 'temperature',
+            'Cooking.Oven.Event.PreheatFinished' => 'PREHEAT_FINISHED',
+
+        ];
+
+        // translation between BSH and module variable ident
+        foreach ($items as $item) {
+            // check is key is present
+            if ( isset($Manual[ $item['key'] ])) {
+                $key = $Manual[ $item['key'] ];
+
+                // decide what action
+                switch ( $key ) {
+                    case "CLOCK_ELAPSED":
+                        // Send Finished Notification
+                        $this->SendNotify("Beim " . $this->ReadPropertyString('name') . " ist der Wecker abgelaufen!", "finish" );
+                        $this->WriteAttributeBoolean('finish_notify', true );
+                        break;
+
+                    case "PREHEAT_FINISHED":
+                        // Send Finished Notification
+                        $this->SendNotify("Der " . $this->ReadPropertyString('name') . " hat das Vorheizen beendet.", "finish" );
+                        $this->WriteAttributeBoolean('finish_notify', true );
+                        break;
+
+                    case "FINISHED":
+                        // Check that there is no double send
+                        if ( $this->ReadAttributeBoolean('finish_notify') ) { break; }
+                        // Send Finished Notification
+                        $this->SendNotify("Der " . $this->ReadPropertyString('name') . " ist fertig mit dem Programm.", "finish" );
+                        $this->WriteAttributeBoolean('finish_notify', true );
+                        break;
+
+                    case "ABORTED":
+                        // Check that there is no double send
+                        if ( $this->ReadAttributeBoolean('abort_notify') ) { break; }
+                        // Send Finished Notification
+                        $this->SendNotify("Der " . $this->ReadPropertyString('name') . " hat das Programm abgebrochen.", "abort" );
+                        $this->WriteAttributeBoolean('abort_notify', true );
+                        break;
+
+                    case "PROGRAM":
+                        // Set Program through function
+                        $this->SetListValue( $item['value'] );
+                        break;
+
+                    case "state":
+                        // React with a notification on state change
+                        $OpSt = HC( $item['value'] );
+                        if ( $OpSt == 3 ) {
+                            $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm gestarted!", "start");
+                        }
+                        $this->SetValue( $key, $OpSt );
+                        break;
+
+                    case "remainStartTime":
+                    case "remainTime":
+                        // into date String
+                        if ( $item['value'] === 0 ) { $item['value'] = "--:--:--"; }
+                        $this->SetValue( $key, gmdate("H:i:s", $item['value'] ) );
+                        break;
+
+                    default:
+                        // default; set value from the key
+                        $this->SetValue( $key, HC( $item['value'] ) );
+                }
+            }
+        }
+
+        // Set last receive
+        $this->SetValue( "LastReceive", time() );
+        // check is there items that have to hide or show
+        $this->Hide();
+        // feedback that a item/variable has updated
+        $this->_log( "Single item stack update finished");
+        // checking background options
+        $this->backgroundCheck();
+    }
+
+    /**
+     *  This function will check variables and states in the background to optimise or sync stuff.
+     */
+    protected function backgroundCheck() {
+        // device state
+        $state = $this->GetValue('state');
+
+        // Check Program list
+        if ( $this->ReadAttributeBoolean('firstStart') ) {
+            // Build Program List
+            $this->BuildList("HC_OvenMode");
+            $this->WriteAttributeBoolean('firstStart', false);
+        }
+        // reset notify and abort lock
+        if ( $state == 3 ) {
+            $this->WriteAttributeBoolean('finish_notify', true );
+            $this->WriteAttributeBoolean('abort_notify', true );
+        }
+        // Check Start/Stop Button
+        if ( $state > 1 ) {
+            // Give the user the option to stop a running program
+            $this->SetValue('start_stop', true );
+        } else {
+            // Give the user the option to start a "custom" program
+            $this->SetValue('start_stop', false );
+        }
+    }
+
+
+    //--------------------------------------------------< Reaction >----------------------------------------
       public function RequestAction($Ident, $Value)
       {
           switch ($Ident) {
@@ -155,158 +304,6 @@ class HomeConnectOven extends IPSModule {
       }
       //--------------------------------------------------< User functions >----------------------------------
 
-      /** Function to refresh the device values and set active program when active
-       * @return string could return error
-       */
-      public function refresh() {
-          // log
-          $this->_log( "Refreshing startet..." );
-          //====================================================================================================================== Check Timer
-          // Get current Hour
-          $hour = date('G');
-
-          // Check Refresh time set by the user. After that set the interval of the timer (fast or slow)
-          if ( $hour >= $this->ReadPropertyInteger("first_refresh") && $hour <= $this->ReadPropertyInteger("second_refresh") ) {
-              $this->SetTimerInterval($this->InstanceID . "-refresh", 300000 );
-          } else {
-              $this->SetTimerInterval($this->InstanceID . "-refresh", 900000 );
-          }
-
-          //====================================================================================================================== Refreshing
-          // Check if the user activated the refresh function
-          if ( $this->ReadPropertyBoolean("refresh_on_off") ) {
-              try {
-                  // Make a Api call to get the current status of the device (inactive, ready, delayed start, active)
-                  $recall_api = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/status" );
-              } catch (Exception $ex) {
-                  $this->SetStatus( analyseEX($ex) );
-                  return false;
-              }
-              // Build a Key => Value array with the getKeys function (look down in the code)
-              $options_recall = $this->getKeys($recall_api, 'status');
-
-              //================================================================================================================== Refreshing Permissions
-              // Check if the RemoteControl active is [Set by Device]
-              if ( $options_recall['BSH.Common.Status.RemoteControlActive'] ) {
-                  $this->WriteAttributeString("remoteControlAllowed", "Dein Gerät erlaubt eine Fernbedienung");
-                  $this->SetValue("remoteControl", true );
-              } else {
-                  $this->WriteAttributeString("remoteControlAllowed", "Dein Gerät erlaubt keine Fernbedienung");
-                  $this->SetValue("remoteControl", false );
-              }
-              // Check if the RemoteControl is active [Set by User on device]
-              if ( $options_recall['BSH.Common.Status.RemoteControlStartAllowed'] ) {
-                  $this->WriteAttributeString("remoteStartAllowed", "Dein Gerät erlaub ein Fernstart" );
-                  $this->SetValue("remoteStart", true );
-              } else {
-                  $this->WriteAttributeString("remoteStartAllowed", "Dein Gerät erlaub keinen Fernstart" );
-                  $this->SetValue("remoteStart", false );
-              }
-
-
-              //================================================================================================================== Refreshing Device Program
-              // Get door state and operation state from the Key => Value array (see above)
-              $DoorState =  $this->HC( $options_recall['BSH.Common.Status.DoorState'] );
-              $OperationState = $this->HC( $options_recall['BSH.Common.Status.OperationState'] );
-
-              // Check if the device is active or in delayed start
-              if ( $OperationState == 3 || $OperationState == 2 ) {
-                  try {
-                      // Api call to get the active program
-                      $recallProgram = Api("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active");
-                  } catch (Exception $ex) {
-                      $this->SetStatus( analyseEX($ex) );
-                      return false;
-                  }
-                  // Build a Key => Value array with the getKeys options (see bottom of the code)
-                  $options = $this->getKeys($recallProgram, 'options');
-
-                  // Set current program mode
-                  if ( explode( ".", $recallProgram['data']['key'] )[3] == "HeatingMode" ) {
-                      $this->SetListValue( explode( ".", $recallProgram['data']['key'] )[4] );
-                  } else {
-                      $this->SetListValue( "Dish" );
-                  }
-
-                  // Set Program progress
-                  $this->SetValue("progress", $options['BSH.Common.Option.ProgramProgress'] );
-                  $this->SetValue('start_stop', true );
-
-                  // Tell apart between device active and delayed start
-                  switch ( $OperationState ) {
-                      case 2:
-                          // Set the remaining time until the device will start (out of the $options array)
-                          $this->SetValue("remainStartTime", gmdate("H:i:s", $options['BSH.Common.Option.StartInRelative']) );
-                          // Set counter timer, to count down
-                          $this->SetTimerInterval('DownCountStart', 1001);
-                          $this->SetTimerInterval('DownCountProgram', 0);
-                          break;
-                      case 3:
-                          // Set counters for the left program time (because the device is active)
-                          $this->SetTimerInterval('DownCountStart', 0);
-                          $this->SetTimerInterval('DownCountProgram', 1001);
-                          break;
-                      default:
-                          // Set counters off, no device information (safety feature)
-                          $this->SetTimerInterval('DownCountStart', 0);
-                          $this->SetTimerInterval('DownCountProgram', 0);
-                  }
-
-                  // get remaining time (you can get this in state 2 or 3)
-                  if ( isset($options['BSH.Common.Option.RemainingProgramTime']) ) {
-                      $this->SetValue("remainTime", gmdate("H:i:s", $options['BSH.Common.Option.RemainingProgramTime']) );
-                  } else {
-                      $this->SetValue("remainTime", "--:--:--" );
-                      $this->SetTimerInterval('DownCountProgram', 0);
-                  }
-
-              } else {
-                  // Set default mode
-                  $this->SetTimerInterval('DownCountStart', 0);
-                  $this->SetTimerInterval('DownCountProgram', 0);
-                  $this->SetListValue( "HotAir" );
-                  $this->SetValue("remainTime", "--:--:--");
-                  $this->SetValue("remainStartTime", "--:--:--" );
-                  $this->SetValue("progress", 0 );
-                  $this->SetValue('start_stop', false );
-                  // reset finish message
-                  $this->WriteAttributeBoolean( 'finish_message_sent', false);
-              }
-
-              //================================================================================================================== Check if device is done
-              if ( $this->GetValue('state') == 3 && $OperationState != 3 && !$this->ReadAttributeBoolean('finish_message_sent' )) {
-                  if ( $this->GetValue('state') == 3 && $this->ReadPropertyBoolean('notify_finish') || $this->ReadPropertyBoolean('web_notify_finish')  ) {
-                      $this->SendNotify("Der " . $this->ReadPropertyString('name') . " ist mit dem Programm fertig!");
-                  }
-                  $this->WriteAttributeBoolean('finish_message_sent', true );
-              }
-              //================================================================================================================== Refreshing Basic Variables
-              $this->SetValue("temperature", round( $options_recall['Cooking.Oven.Status.CurrentCavityTemperature'], 2));
-              $this->SetValue("door", $DoorState );
-              $this->SetValue("state", $OperationState );
-              // Set last refresh ( user information)
-              $this->SetValue( "LastRefresh", time() );
-
-          } else {
-              // For safety turn the counter timers off
-              $this->SetTimerInterval('DownCountStart', 0);
-              $this->SetTimerInterval('DownCountProgram', 0);
-              // Set message sent to false (device is not active)
-              $this->WriteAttributeBoolean( 'finish_message_sent', false);
-          }
-
-          //================================================================================================================== Settings for the first start after refresh
-          if ( $this->ReadAttributeBoolean("first_start") ) {
-              $this->BuildList("HC_OvenMode");
-              $this->WriteAttributeBoolean("first_start", false );
-          }
-
-          // Let the function Hide() check if there variables to check or uncheck
-          $this->Hide();
-          $this->_log( "Refreshing end" );
-          return true;
-      }
-
     /** Function to start Modes for the Dishwasher
      * @param string $mode Mode
      * @param int $temp Temperature to reach
@@ -316,60 +313,31 @@ class HomeConnectOven extends IPSModule {
       public function start( string $mode,  int $temp, int $duration ) {
           // log
           $this->_log( "Trying to start Device..." );
-
           // Set the device ready ( device must be ready for start )
           $this->SetActive(true);
-          // Wait short until the device in ready state
-          sleep(1);
-          // Refresh variables (like door state)
-          $this->refresh();
 
+          // Build the program string the user set
           if ( $mode == "Dish" ) { throw new LogicException("Dish programs can`t be started"); }
-
           // Build the program string the user set
           $run_program = "Cooking.Oven.Program.HeatingMode." . $mode;
 
           // Build the json for the api
           $opt = '{"data":{"key":"' . $run_program . '","options":[{"key":"Cooking.Oven.Option.SetpointTemperature","value":'. $temp .',"unit":"°C"},{"key":"BSH.Common.Option.Duration","value":' . $duration .',"unit":"seconds"}]}}';
 
-          //====================================================================================================================== Send start
-          if ($this->GetValue("remoteStart")) {
-              // Check Door state
-              if (!$this->GetValue("door")) {
-                  // Check if the device is on
-                  if ($this->GetValue("state") == 1) {
-                      try {
-                          Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
-                          // log
-                          $this->_log("Started Program" );
+          // Check device conditions for the start
+          if ( !$this->GetValue("remoteStart") ) { throw new Exception("permission"); }
+          if ( $this->GetValue("door") ) { throw new Exception("door"); }
+          if ( $this->GetValue("state") != 1 ) { throw new Exception("state"); }
 
-                          //============================================================ Check Notifications
-                          if ($this->ReadPropertyBoolean("notify_start")) {
-                              $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm " . OvenTranslateMode($mode, true) . " gestarted!");
-                          }
-                          //============================================================ Check Notifications
-                          // log
-                          $this->_log( "Send start notify" );
-                      } catch (Exception $ex) {
-                          // log
-                          $this->_log("Start failed look for authorization in discovery instance" );
-                          $this->SetStatus( analyseEX($ex) );
-                      }
-
-                  } else {
-                      // log
-                      $this->_log( "Canceled (program running)" );
-                      throw new Exception("state");
-                  }
-              } else {
-                  // log
-                  $this->_log( "Canceled (door open)" );
-                  throw new Exception("door");
-              }
-          } else {
+          // try to start the device
+          try {
+              Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
               // log
-              $this->_log( "Canceled (no permission)" );
-              throw new Exception("permission");
+              $this->_log("Started Program" );
+          } catch (Exception $ex) {
+              // log
+              $this->_log("Start failed look for authorization in discovery instance" );
+              $this->SetStatus( analyseEX($ex) );
           }
       }
 
@@ -380,45 +348,36 @@ class HomeConnectOven extends IPSModule {
       public function stop() {
           // log
           $this->_log("Trying to stop..." );
-          // basic refresh for state and control permission
-          $this->refresh();
+          // save device state for later
+          $state = $this->GetValue("state");
 
-          //====================================================================================================================== Send stop
-          if ( $this->GetValue("remoteControl") ) {
-              // log
-              $this->_log( "Canceled (remote control not allowed)" );
-              // Check if the device is running a program
-              switch ( $this->GetValue("state") ) {
-                  // stop running program
-                  case 3:
-                      try {
-                          // Send custom delete to stop current program
-                          Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
-                          $this->SetValue("state", 1 );
-                          // log
-                          $this->_log( "Stopped while device was running a program" );
-                      } catch (Exception $ex) {
-                          // log
-                          $this->_log( "Program didnt stop" );
-                          $this->SetStatus( analyseEX($ex) );
-                      }
-                      break;
-                  // stop delayed start
-                  case 2:
+          // Check device conditions for the stop
+          if ( !$this->GetValue("remoteControl") ) { throw new Exception("permission"); }
+          if ( $state == 0 || $state == 1 ) { throw new Exception("state" ); }
+
+          // Check if the device is running a program
+          switch ( $this->GetValue("state") ) {
+              // stop running program
+              case 3:
+                  try {
+                      // Send custom delete to stop current program
+                      Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
+                      $this->SetValue("state", 1 );
                       // log
-                      $this->_log( "Stopped while device was in mode 'Prepare for start'" );
-                      // Turn the device off ( this stops the delayed start )
-                      $this->SetActive(false);
-                      break;
-                  default:
+                      $this->_log( "Stopped while device was running a program" );
+                  } catch (Exception $ex) {
                       // log
-                      $this->_log( "Canceled (no program is running)" );
-                      // throw logic exception for no reason to stop
-                      throw new Exception("state" );
-              }
-          } else {
-              // throw logic exception for no permission
-              throw new Exception("permission");
+                      $this->_log( "Program didnt stop" );
+                      $this->SetStatus( analyseEX($ex) );
+                  }
+                  break;
+              // stop delayed start
+              case 2:
+                  // log
+                  $this->_log( "Stopped while device was in mode 'Prepare for start'" );
+                  // Turn the device off ( this stops the delayed start )
+                  $this->SetActive(false);
+                  break;
           }
       }
 
@@ -427,10 +386,13 @@ class HomeConnectOven extends IPSModule {
        * @param bool $state switch
        */
       public function SetActive( bool $state ) {
+
+          // power off string for HomeConnect Oven
+          $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.Standby","type": "BSH.Common.EnumType.PowerState"}}';
           if ( $state ) {
+              // power on string for HomeConnect Dishwasher
               $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.On","type": "BSH.Common.EnumType.PowerState"}}';
-          } else {
-              $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.Standby","type": "BSH.Common.EnumType.PowerState"}}'; }
+          }
 
           try {
               Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/settings/BSH.Common.Setting.PowerState", $power);
@@ -440,22 +402,6 @@ class HomeConnectOven extends IPSModule {
               // log
               $this->_log( "Failed to send Device state" );
               $this->SetStatus( analyseEX($ex) );
-          }
-      }
-
-      /** Test function for buttons in the instance settings
-       * @param $type
-       */
-      public function test( $type ) {
-          switch ($type) {
-              // sending handy test message with ips function
-              case "handy_message":
-                  WFC_PushNotification( $this->ReadPropertyInteger("notify_instance"), "HomeConnect", "Test Message", $this->ReadPropertyString("notify_sound"), $this->InstanceID );
-                  break;
-              // sending web message with ips function
-              case "web_message":
-                  WFC_SendNotification( $this->ReadPropertyInteger("web_notify_instance"), "HomeConnect", "Test Message", "Power", $this->ReadPropertyInteger("web_notify_Timeout") );
-                  break;
           }
       }
 
@@ -475,7 +421,7 @@ class HomeConnectOven extends IPSModule {
           }
           if (!IPS_VariableProfileExists("HC_OvenMode") ) {
               IPS_CreateVariableProfile("HC_OvenMode", 1);
-              IPS_SetVariableProfileIcon("HC_OvenMode", 'Drops');
+              IPS_SetVariableProfileIcon("HC_OvenMode", 'Temperature');
           }
           if (!IPS_VariableProfileExists('HC_Progress')) {
               IPS_CreateVariableProfile('HC_Progress', 1);
@@ -535,28 +481,7 @@ class HomeConnectOven extends IPSModule {
        * @return array[] Form Actions
        */
       protected function FormActions() {
-          return[
-              [
-                  "type" => "Button",
-                  "caption" => "Test Handy notify",
-                  "onClick" => 'HCOven_test( $id, "handy_message" );',
-              ],
-              [
-                  "type" => "Button",
-                  "caption" => "Test Webfront notify",
-                  "onClick" => 'HCOven_test( $id, "web_message" );',
-              ],
-              [
-                  "type" => "Button",
-                  "caption" => "Refresh",
-                  "onClick" => 'HCOven_refresh( $id, );',
-              ],
-              [
-                  "type" => "Button",
-                  "caption" => "Profile refresh",
-                  "onClick" => 'HCOven_BuildList( $id, "HC_OvenMode");',
-              ]
-          ];
+          return[];
       }
 
       /**
@@ -570,8 +495,8 @@ class HomeConnectOven extends IPSModule {
               ],
               [
                   "type" => "List",
-                  "name" => "Gerät Information",
-                  "caption" => "Informationen zu diesem Gerät [ Ofen ]",
+                  "name" => "Device info",
+                  "caption" => "Information about this device",
                   "rowCount" => 1,
                   "add" => false,
                   "delete" => false,
@@ -611,162 +536,157 @@ class HomeConnectOven extends IPSModule {
                   ],
               ],
               [
-                  "type" => "ExpansionPanel",
-                  "caption" => "Berechtigungen die von deinem Gerät gesetzt werden",
+                  "type" => "RowLayout",
                   "items" => [
                       [
-                          "type" => "Label",
-                          "name" => "remoteControlAllowed",
-                          "caption" => $this->ReadAttributeString('remoteControlAllowed'),
-                      ],
-                      [
-                          "type" => "Label",
-                          "name" => "remoteStartAllowed",
-                          "caption" => $this->ReadAttributeString('remoteStartAllowed'),
-                      ],
-                  ],
-              ],
-              [
-                  "type" => "ExpansionPanel",
-                  "caption" => "Refreshing Data",
-                  "items" => [
-                      [
-                          "type" => "Label",
-                          "name" => "refresh Info",
-                          "caption" => "Das System updated in dem Zeitraum alle 5min. Sonst nur 15min."
-                      ],
-                      [
-                          "type" => "NumberSpinner",
-                          "name" => "first_refresh",
-                          "caption" => "Refreshen von " . $this->ReadPropertyInteger("first_refresh") . " Uhr",
-                          "suffix" => "h",
-                          "minimum" => "0",
-                          "maximum" => "24",
-                          "enabled" => true
-                      ],
-                      [
-                          "type" => "NumberSpinner",
-                          "name" => "second_refresh",
-                          "caption" => "Bis " . $this->ReadPropertyInteger("second_refresh") . " Uhr",
-                          "suffix" => "h",
-                          "minimum" => "0",
-                          "maximum" => "24",
-                          "enabled" => true
-                      ],
-                      [
-                          "type" => "CheckBox",
-                          "name" => "refresh_on_off",
-                          "caption" => "Refresh An/Aus",
-                      ],
-                  ],
-              ],
-              [
-                  "type" => "ExpansionPanel",
-                  "caption" => "Handy Notification Settings",
-                  "items" => [
-                      [
-                          "type" => "SelectInstance",
-                          "name" => "notify_instance",
-                          "caption" => "Benachrichtigungs Instanz [Mobile / Handy]",
-                      ],
-                      [
-                          "type" => "Select",
-                          "name" => "notify_sound",
-                          "caption" => "Benachrichtigungs Sound [nichts für den normalen]",
-                          "options" => [
-                              [ "caption" => "Normal", "value" => "" ],
-                              [ "caption" => "alarm", "value" => "alarm" ],
-                              [ "caption" => "bell", "value" => "bell" ],
-                              [ "caption" => "boom", "value" => "boom" ],
-                              [ "caption" => "buzzer", "value" => "buzzer" ],
-                              [ "caption" => "connected", "value" => "connected" ],
-                              [ "caption" => "dark", "value" => "dark" ],
-                              [ "caption" => "digital", "value" => "digital" ],
-                              [ "caption" => "drums", "value" => "drums" ],
-                              [ "caption" => "duck", "value" => "duck" ],
-                              [ "caption" => "full", "value" => "full" ],
-                              [ "caption" => "happy", "value" => "happy" ],
-                              [ "caption" => "horn", "value" => "horn" ],
-                              [ "caption" => "inception", "value" => "inception" ],
-                              [ "caption" => "kazoo", "value" => "kazoo" ],
-                              [ "caption" => "roll", "value" => "roll" ],
-                              [ "caption" => "siren", "value" => "siren" ],
-                              [ "caption" => "space", "value" => "space" ],
-                              [ "caption" => "trickling", "value" => "trickling" ],
-                              [ "caption" => "turn", "value" => "turn" ],
+                          "type" => "ExpansionPanel",
+                          "caption" => "Mobil Notification",
+                          "items" => [
+                              [
+                                  "type" => "SelectInstance",
+                                  "name" => "notify_instance",
+                                  "caption" => "Notification Instance Mobil",
+                              ],
+                              [
+                                  "type" => "Select",
+                                  "name" => "notify_sound",
+                                  "caption" => "Notification sounds",
+                                  "options" => [
+                                      [ "caption" => "Normal", "value" => "" ],
+                                      [ "caption" => "alarm", "value" => "alarm" ],
+                                      [ "caption" => "bell", "value" => "bell" ],
+                                      [ "caption" => "boom", "value" => "boom" ],
+                                      [ "caption" => "buzzer", "value" => "buzzer" ],
+                                      [ "caption" => "connected", "value" => "connected" ],
+                                      [ "caption" => "dark", "value" => "dark" ],
+                                      [ "caption" => "digital", "value" => "digital" ],
+                                      [ "caption" => "drums", "value" => "drums" ],
+                                      [ "caption" => "duck", "value" => "duck" ],
+                                      [ "caption" => "full", "value" => "full" ],
+                                      [ "caption" => "happy", "value" => "happy" ],
+                                      [ "caption" => "horn", "value" => "horn" ],
+                                      [ "caption" => "inception", "value" => "inception" ],
+                                      [ "caption" => "kazoo", "value" => "kazoo" ],
+                                      [ "caption" => "roll", "value" => "roll" ],
+                                      [ "caption" => "siren", "value" => "siren" ],
+                                      [ "caption" => "space", "value" => "space" ],
+                                      [ "caption" => "trickling", "value" => "trickling" ],
+                                      [ "caption" => "turn", "value" => "turn" ],
+                                  ],
+                              ],
+                              [
+                                  "type" => "Label",
+                                  "name" => "notify",
+                                  "caption" => "Select Notifications"
+                              ],
+                              [
+                                  "type" => "RowLayout",
+                                  "items" => [
+                                      [
+                                          "type" => "CheckBox",
+                                          "name" => "notify_start",
+                                          "caption" => "Start"
+                                      ],
+                                      [
+                                          "type" => "CheckBox",
+                                          "name" => "notify_stop",
+                                          "caption" => "Stop"
+                                      ]
+                                  ]
+                              ],
+                              [
+                                  "type" => "RowLayout",
+                                  "items" => [
+                                      [
+                                          "type" => "CheckBox",
+                                          "name" => "notify_finish",
+                                          "caption" => "When finished"
+                                      ],
+                                      [
+                                          "type" => "CheckBox",
+                                          "name" => "notify_abort",
+                                          "caption" => "When aborted"
+                                      ]
+                                  ]
+                              ]
                           ],
                       ],
                       [
-                          "type" => "CheckBox",
-                          "name" => "notify_start",
-                          "caption" => "Startbenachrichtigung",
+                          "type" => "ExpansionPanel",
+                          "caption" => "Webfront Notification",
+                          "items" => [
+                              [
+                                  "type" => "SelectInstance",
+                                  "name" => "web_notify_instance",
+                                  "caption" => "Notification Instance Webfront",
+                              ],
+                              [
+                                  "type" => "NumberSpinner",
+                                  "name" => "web_notify_Timeout",
+                                  "caption" => "Message timeout",
+                                  "suffix" => "sec",
+                                  "minimum" => "0",
+                                  "maximum" => "300",
+                              ],
+                              [
+                                  "type" => "Label",
+                                  "name" => "notify",
+                                  "caption" => "Select Notifications"
+                              ],
+                              [
+                                  "type" => "RowLayout",
+                                  "items" => [
+                                      [
+                                          "type" => "CheckBox",
+                                          "name" => "web_notify_start",
+                                          "caption" => "Start"
+                                      ],
+                                      [
+                                          "type" => "CheckBox",
+                                          "name" => "web_notify_stop",
+                                          "caption" => "Stop"
+                                      ]
+                                  ]
+                              ],
+                              [
+                                  "type" => "RowLayout",
+                                  "items" => [
+                                      [
+                                          "type" => "CheckBox",
+                                          "name" => "web_notify_finish",
+                                          "caption" => "When finished"
+                                      ],
+                                      [
+                                          "type" => "CheckBox",
+                                          "name" => "web_notify_abort",
+                                          "caption" => "When aborted"
+                                      ]
+                                  ]
+                              ]
+                          ],
                       ],
-                      [
-                          "type" => "CheckBox",
-                          "name" => "notify_stop",
-                          "caption" => "Stopbenachrichtigung",
-                      ],
-                      [
-                          "type" => "CheckBox",
-                          "name" => "notify_finish",
-                          "caption" => "Benachrichtigung wenn fertig",
-                      ],
-                  ],
-              ],
-              [
-                  "type" => "ExpansionPanel",
-                  "caption" => "Webfront Notification Settings",
-                  "items" => [
-                      [
-                          "type" => "SelectInstance",
-                          "name" => "web_notify_instance",
-                          "caption" => "Benachrichtigungs Instanz [Mobile / Handy]",
-                      ],
-                      [
-                          "type" => "NumberSpinner",
-                          "name" => "web_notify_Timeout",
-                          "caption" => "Nachrichten Timeout",
-                          "suffix" => "sec",
-                          "minimum" => "0",
-                          "maximum" => "300",
-                      ],
-                      [
-                          "type" => "CheckBox",
-                          "name" => "web_notify_start",
-                          "caption" => "Startbenachrichtigung",
-                      ],
-                      [
-                          "type" => "CheckBox",
-                          "name" => "web_notify_stop",
-                          "caption" => "Stopbenachrichtigung",
-                      ],
-                      [
-                          "type" => "CheckBox",
-                          "name" => "web_notify_finish",
-                          "caption" => "Benachrichtigung wenn fertig",
-                      ],
-                  ],
-              ],
-              [
-                  "type" => "ExpansionPanel",
-                  "caption" => "Variable Settings",
-                  "items" => [
-                      [
-                          "type" => "CheckBox",
-                          "name" => "hide_show",
-                          "caption" => "Dynamisches ein-/ausblenden",
-                      ],
-                      [
-                          "type" => "CheckBox",
-                          "name" => "mode_translate",
-                          "caption" => "Modus Profil übersetzen (Option aus um die Modi zu sehen die Gesetzt werden können)",
-                      ],
-                  ],
+                  ]
               ],
               [
                   "type" => "CheckBox",
                   "name" => "log",
                   "caption" => "LogMessages",
+              ],
+              [
+                  "type" => "ExpansionPanel",
+                  "caption" => "Variable",
+                  "items" => [
+                      [
+                          "type" => "CheckBox",
+                          "name" => "hide_show",
+                          "caption" => "Dynamic show/hide",
+                      ],
+                      [
+                          "type" => "CheckBox",
+                          "name" => "mode_translate",
+                          "caption" => "Translate the program names into german",
+                      ],
+                  ],
               ],
           ];
       }
@@ -975,19 +895,20 @@ class HomeConnectOven extends IPSModule {
           }
       }
 
-      /** Send Text
-       * @param string $text Text in the Notification
-       */
-      protected function SendNotify( string $text ) {
-          // Send notification for mobile devices (if on)
-          if ( $this->ReadPropertyInteger("notify_instance") != 0 ) {
-              WFC_PushNotification( $this->ReadPropertyInteger("notify_instance"), "HomeConnect", $text, $this->ReadPropertyString("notify_sound"), $this->InstanceID );
-          }
-          // Send notification for webfront (if on)
-          if ( $this->ReadPropertyInteger("web_notify_instance") != 0 ) {
-              WFC_SendNotification( $this->ReadPropertyInteger("web_notify_instance"), "HomeConnect", $text, "Power", $this->ReadPropertyInteger("web_notify_Timeout") );
-          }
-      }
+    /** Send Text as a Notification on a mobile device or Webfront
+     * @param string $text Text in the Notification
+     * @param string $type The Information type of the message
+     */
+    protected function SendNotify( string $text, string $type) {
+        // Send notification for mobile (if on) only notify the user when this content is allowed
+        if ( $this->ReadPropertyInteger("notify_instance") != 0 && $this->ReadPropertyBoolean("notify_" . $type) ) {
+            WFC_PushNotification( $this->ReadPropertyInteger("notify_instance"), "HomeConnect", "\n" . $text, $this->ReadPropertyString("notify_sound"), $this->InstanceID );
+        }
+        // Send notification for webfront (if on) only notify the user when this content is allowed
+        if ( $this->ReadPropertyInteger("web_notify_instance") != 0 && $this->ReadPropertyBoolean("web_notify_" . $type ) ) {
+            WFC_SendNotification( $this->ReadPropertyInteger("web_notify_instance"), "HomeConnect", "\n" . $text, "Power", $this->ReadPropertyInteger("web_notify_Timeout") );
+        }
+    }
 
       /** Function to set Profile of a Integer Var
        * @param string $profile Name of the profile
@@ -1024,6 +945,7 @@ class HomeConnectOven extends IPSModule {
        */
       protected function SetListValue( string $name ) {
           // Get ID with Associations
+          $name = explode( ".", $name )[4];
           $profile = IPS_GetVariableProfile( "HC_OvenMode" )['Associations'];
           // count Associations
           $profile_count = count( $profile );
@@ -1060,96 +982,6 @@ class HomeConnectOven extends IPSModule {
           }
           return $profile_list[$this->GetValue('mode')];
       }
-
-      /** Counting Seconds down
-       * @param string $var_name
-       */
-      public function DownCount( string $var_name ) {
-          // Counting down if device is in active or delayed start state
-          if ( $this->GetValue('state') == 3 || $this->GetValue('state') == 2 ) {
-              // get current timestamp
-              $now = "1970-01-01 " . $this->GetValue( $var_name );
-              // set timestamp in date format (after -1)
-              $time = strtotime($now) + 3600;
-
-              if ( $time >= 0 && $time < 28800 ) {
-                  // set time
-                  $set = gmdate("H:i:s", $time - 1);
-                  // Set Value
-                  $this->SetValue( $var_name, $set);
-              } else {
-                  // set no number
-                  $this->SetValue( $var_name, "--:--:--");
-                  // turn timer off (no reason to count down)
-                  $this->SetTimerInterval('DownCountStart', 0);
-                  $this->SetTimerInterval('DownCountProgram', 0);
-                  // refresh data
-                  $this->refresh();
-              }
-          } else {
-              // set no number
-              $this->SetValue( $var_name, "--:--:--");
-              // turn timer off (no reason to count down)
-              $this->SetTimerInterval('DownCountStart', 0);
-              $this->SetTimerInterval('DownCountProgram', 0);
-          }
-      }
-
-      /** Function to show all options of a running Device [for dev]
-       * @param array $input input array after api call
-       * @param string $row The next array options after data
-       * @return mixed return array with KEY => VALUE
-       */
-      protected function getKeys( array $input, string $row ) {
-          if ( isset( $input['data'] ) ) {
-              // Get Options out of data
-              $opt = $input['data'][$row];
-              // no error appeared
-              $this->SetStatus(102);
-
-              // Define vars and length
-              $options_count = count( $opt );
-              $option_list[] = array();
-
-              // Build options list
-              for( $i = 0; $i < $options_count; $i++) {
-                  // Get Data to set
-                  $option_name = $opt[$i]['key'];
-                  $option_value= $opt[$i]['value'];
-
-                  $options_list[$option_name] = $option_value;
-              }
-              // Options list (KEY => VALUE)
-              return $options_list;
-
-          }
-          return false;
-      }
-
-      /**
-       * @param string $var that should be analyse
-       * @return bool returns true or false for HomeConnect Api result
-       */
-      private function HC($var ) {
-        // Return Variable to BSH Common type
-        switch ( $var ) {
-            //------------------------ DOOR
-            case "BSH.Common.EnumType.DoorState.Open":
-                return true;
-            case "BSH.Common.EnumType.DoorState.Closed":
-                return false;
-            //------------------------ OPERATION STATE
-            case "BSH.Common.EnumType.OperationState.Inactive":
-                return 0;
-            case "BSH.Common.EnumType.OperationState.Ready":
-                return 1;
-            case "BSH.Common.EnumType.OperationState.DelayedStart":
-                return 2;
-            case "BSH.Common.EnumType.OperationState.Run":
-                return 3;
-        }
-        return 0;
-    }
 
       /** Send logs to IP-Symcon
        * @param string $msg Message to send

@@ -7,9 +7,8 @@ Zudem lassen sich Informationen wie die verbleibende Zeit oder die Programme geb
   - [Variablen Webfront](#variablen-webfront)
   - [Geschirrspüler set()](#geschirrspler-set)
     - [Zustand steuern](#zustand-steuern)
-    - [Programm starten](#programm-starten-4-requests)
-    - [Programm stoppen](#programm-stoppen-3-requests)
-    - [Manuell refreshen](#manuell-refreshen-1-2-requests)
+    - [Programm starten](#programm-starten)
+    - [Programm stoppen](#programm-stoppen)
 - [Fehlercodes](#fehlercodes)
 
 ## Instanz Einstellungen
@@ -31,6 +30,7 @@ Name | Type | Werte | Funktionen
 :--- | :---: | :---  | :---:
 `Last Refresh` | UnixTimeStamp | time | Zeigt die Zeit vom letzten aktualisieren
 `Remote Control` | Boolean | true, false | Zeigt ob die Permission Control gegeben ist
+`Child Lock` | Boolean | true, false | Zeigt ob die Kindersicherung an ist
 `Geräte Zustand`| Integer | 0 Aus; 1 An; 2 Verzögerter Start; 3 Programm läuft | Zeigt dem Nutzer den Zustand vom Gerät
 `Start in`| Date string | Date("H:i:s") | Zeigt verbleibende Zeit bis das ausgewählte Programm startet
 `Programm` | Integer | 0,1,2... | Zeigt den Aktuellen Modus, auch zum auswählen
@@ -59,7 +59,7 @@ HCDishwasher_SetActive( InstaceID, false/true );
 ```diff
 -Für diese Aktion wird die Berechtigung RemoteControl benötigt!
 ```
-### Programm starten [4 REQUESTS]
+### Programm starten
 Ein Programm kann im Webfront gestartet werden, beim Drücken auf dem start knopf wird der aktuelle Modus ausgewählt und gestartet
 
 Im Code kann das Programm auch noch verzögert gestartet werden mit.
@@ -86,7 +86,7 @@ try {
 ```diff
 -Für diese Aktion wird die Berechtigung RemoteControl und RemoteStart benötigt!
 ```
-### Programm stoppen [3 REQUESTS]
+### Programm stoppen
 Ein Programm kann über das Webfront gestoppt werden, das ist auch möglich, wenn sich das Gerät im Zustand "Start in" befindet.
 
 Im Code kann das Programm mit ... gestoppt werden.
@@ -107,17 +107,6 @@ try {
      }
 
 }
-```
-```diff
--Für diese Aktion wird die Berechtigung RemoteControl benötigt!
-```
-### Manuell refreshen [1-2 REQUESTS]
-Das kann mit diesem Befehl gemacht werden.
-```php
-HCDishwasher_refresh( InstanceID );
-```
-```diff
-+Für diese Aktion wird nur die Authorizierung gebraucht.
 ```
 
 ## Fehlercodes

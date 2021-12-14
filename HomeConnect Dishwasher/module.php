@@ -7,7 +7,6 @@ require_once( dirname(dirname(__FILE__) ) . "/libs/tools/mode-translate.php");
 // import
 $data = json_decode( file_get_contents( dirname(dirname(__FILE__) ) . "/libs/tools/tm/data.json" ), true );
 
-
 class HomeConnectDishwasher extends IPSModule {
 
     /** This function will be called on the creation of this Module
@@ -41,14 +40,18 @@ class HomeConnectDishwasher extends IPSModule {
         $this->RegisterPropertyBoolean("web_notify_finish", false);
         $this->RegisterPropertyBoolean("web_notify_abort", false);
 
+        // Attribute for just one finish message
+        $this->RegisterAttributeBoolean('finish_message_sent', false);
+
         // Check if the user wants to hide or show variables
         $this->RegisterPropertyBoolean("hide_show", true);
 
         // Check if the user wants to translate the mode variable
         $this->RegisterPropertyBoolean("mode_translate", true);
 
-        // sse token check timer
-        //$this->RegisterTimer('sse', 60000, "HCDishwasher_setupSSE( $this->InstanceID );");
+        // message notify
+        $this->RegisterAttributeBoolean("finish_notify", false);
+        $this->RegisterAttributeBoolean("abort_notify", false);
 
         // Turn on/off of Log messages
         $this->RegisterPropertyBoolean("log", false);
@@ -139,13 +142,19 @@ class HomeConnectDishwasher extends IPSModule {
                 // decide what action
                 switch ( $key ) {
                     case "FINISHED":
+                        // Check that there is no double send
+                        if ( $this->ReadAttributeBoolean('finish_notify') ) { break; }
                         // Send Finished Notification
                         $this->SendNotify("Der " . $this->ReadPropertyString('name') . " ist fertig mit dem Programm.", "finish" );
+                        $this->WriteAttributeBoolean('finish_notify', true );
                         break;
 
                     case "ABORTED":
-                        // Send Aborted Notification
+                        // Check that there is no double send
+                        if ( $this->ReadAttributeBoolean('abort_notify') ) { break; }
+                        // Send Finished Notification
                         $this->SendNotify("Der " . $this->ReadPropertyString('name') . " hat das Programm abgebrochen.", "abort" );
+                        $this->WriteAttributeBoolean('abort_notify', true );
                         break;
 
                     case "PROGRAM":
@@ -190,14 +199,22 @@ class HomeConnectDishwasher extends IPSModule {
      *  This function will check variables and states in the background to optimise or sync stuff.
      */
     protected function backgroundCheck() {
+        // device state
+        $state = $this->GetValue('state');
+
         // Check Program list
         if ( $this->ReadAttributeBoolean('firstStart') ) {
             // Build Program List
             $this->BuildList("HC_DishwasherMode");
             $this->WriteAttributeBoolean('firstStart', false);
         }
+        // reset notify and abort lock
+        if ( $state == 3 ) {
+            $this->WriteAttributeBoolean('finish_notify', true );
+            $this->WriteAttributeBoolean('abort_notify', true );
+        }
         // Check Start/Stop Button
-        if ( $this->GetValue('state') > 1 ) {
+        if ( $state > 1 ) {
             // Give the user the option to stop a running program
             $this->SetValue('start_stop', true );
         } else {
@@ -322,10 +339,10 @@ class HomeConnectDishwasher extends IPSModule {
      */
       public function SetActive( bool $state ) {
 
-          // power off string for HomeConnect
+          // power off string for HomeConnect Dishwasher
           $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.Off","type": "BSH.Common.EnumType.PowerState"}}';
           if ( $state ) {
-              // power on string for HomeConnect
+              // power on string for HomeConnect Dishwasher
               $power = '{"data": {"key": "BSH.Common.Setting.PowerState","value": "BSH.Common.EnumType.PowerState.On","type": "BSH.Common.EnumType.PowerState"}}';
           }
 
@@ -592,6 +609,11 @@ class HomeConnectDishwasher extends IPSModule {
                   ]
               ],
               [
+                  "type" => "CheckBox",
+                  "name" => "log",
+                  "caption" => "LogMessages",
+              ],
+              [
                   "type" => "ExpansionPanel",
                   "caption" => "Variable",
                   "items" => [
@@ -606,12 +628,7 @@ class HomeConnectDishwasher extends IPSModule {
                           "caption" => "Translate the program names into german",
                       ],
                   ],
-              ],
-              [
-                  "type" => "CheckBox",
-                  "name" => "log",
-                  "caption" => "LogMessages",
-              ],
+              ]
           ];
       }
 

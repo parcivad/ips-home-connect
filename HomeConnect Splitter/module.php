@@ -41,7 +41,8 @@ class HomeConnectSplitter extends IPSModule {
         $this->sseRefresh();
 
         $devices = [
-            "{874DFA8F-327E-51F2-7DAD-967865BB5738}"
+            "{874DFA8F-327E-51F2-7DAD-967865BB5738}",
+            "{55C053EA-CF85-D540-BAB6-A10EB11C9370}"
         ];
 
         foreach ($devices as $device) {
