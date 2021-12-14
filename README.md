@@ -1,5 +1,5 @@
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-blue.svg)](https://www.symcon.de/produkt/)
+[![Version](https://img.shields.io/badge/Symcon--Version-5.5%20%3E-blue.svg)](https://www.symcon.de/produkt/)
 
 # IP-Symcon HomeConnect
 Das ist ein IP-Symcon HomeConnect Modul. Es dient dazu mit verschieden Gerät von Siemens und Bosch zu kommunizieren. Dafür wird die Cloud Basis, HomeConnect benötigt.
