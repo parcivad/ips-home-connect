@@ -1,5 +1,5 @@
-[![IP-Symcon](https://img.shields.io/badge/IP--Symcon->5.0-blue.svg?style=flat-square)](https://www.symcon.de)
-[![Symcon-php-module](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
+[![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
+[![Version](https://img.shields.io/badge/Symcon%20Version-6.0%20%3E-brightgreen.svg)](https://www.symcon.de/produkt/)
 
 # IP-Symcon HomeConnect
 Dieses IP-Symcon Modul ist eine komfortable Schnittstelle zwischen der Bosch/Siemens Cloud, HomeConnect, und der IP-Symcon Oberfläche. Das Modul ist  für die 6.0 optimiert, für die 5.0 können sie den Branch dieser Repository ändern.

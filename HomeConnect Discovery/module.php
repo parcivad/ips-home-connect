@@ -53,7 +53,7 @@ class HomeConnectDiscovery extends IPSModule {
             case "token":
                 try {
                     // refresh token with a button
-                    return getToken("https://api.home-connect.com/security/oauth/token", "35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5", "EC9B4140CB439DF1BEEE39860141077C92C553AC65FEE729B88B7092B745B1F7");
+                    return getToken("https://api.home-connect.com/security/oauth/token", "E1C592D4F052423018B7BE8AE500FBDC8B7D86CA386181A3BC9102119AF81B6C", "D008096E80951049FE2FB577CABF8B074E11C699699724C8989E8FFC80EE059E");
                 } catch (Exception $ex) {
                     $this->SetStatus( analyseEX($ex) );
                 }
