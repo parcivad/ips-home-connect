@@ -98,8 +98,7 @@ class HomeConnectDishwasher extends IPSModule {
 
     }
 
-
-    //--------------------------------------------------< SSE Handling >--------------------------------------
+    //============================================================> SSE Handling
 
     /** This function will analyse each item from the sse client
      * @param $JSONString
@@ -112,12 +111,12 @@ class HomeConnectDishwasher extends IPSModule {
         // Check if the event source is this device, you can do this by comparing the haId
         if ( $data['ID'] != $this->ReadPropertyString('haId')) { return; }
 
-        // catch simple error / null pointer
-        if ( $data['Event'] === "KEEP-ALIVE" ) { $this->_log("Module is still connected with the HomeConnect Servers"); return; }
-        // item stack
+        // Device send a KEEP-ALIVE signal to prove the connection -> log that and set the last receive time
+        if ( $data['Event'] === "KEEP-ALIVE" ) { $this->_log("Module is still connected with the HomeConnect Servers"); $this->SetValue( "LastReceive", time() ); return; }
+        // in other case there will be important data for the module
         $items = json_decode( $data['Data'], true)['items'];
 
-        // BSH keys for value input from the SSE client
+        // Define what event/notify BSH key will trigger
         $Manual = [
             'BSH.Common.Status.RemoteControlActive' => 'remoteControl',
             'BSH.Common.Status.RemoteControlStartAllowed' => 'remoteStart',
@@ -133,7 +132,7 @@ class HomeConnectDishwasher extends IPSModule {
             'BSH.Common.Event.ProgramAborted' => 'ABORTED'
         ];
 
-        // translation between BSH and module variable ident
+        // react on the trigger and give or set option
         foreach ($items as $item) {
             // check is key is present
             if ( isset($Manual[ $item['key'] ])) {
@@ -183,20 +182,18 @@ class HomeConnectDishwasher extends IPSModule {
                         $this->SetValue( $key, HC( $item['value'] ) );
                 }
             }
+            // feedback that a item/variable has been updated
+            $this->_log( "Single item stack update finished");
         }
 
-        // Set last receive
-        $this->SetValue( "LastReceive", time() );
         // check is there items that have to hide or show
         $this->Hide();
-        // feedback that a item/variable has updated
-        $this->_log( "Single item stack update finished");
         // checking background options
         $this->backgroundCheck();
     }
 
     /**
-     *  This function will check variables and states in the background to optimise or sync stuff.
+     *  This function will check variables and states in the background to optimise or sync vars.
      */
     protected function backgroundCheck() {
         // device state
@@ -223,115 +220,115 @@ class HomeConnectDishwasher extends IPSModule {
         }
     }
 
-      //--------------------------------------------------< Reaction >----------------------------------------
-      public function RequestAction($Ident, $Value)
-      {
-          switch ($Ident) {
-              case 'state':
-                  if ($this->GetValue("state") < 3) {
-                      if ($Value) {
-                          $this->SetActive(true);
-                          $this->SetValue('state', 1);
-                      } else {
-                          $this->SetActive(false);
-                          $this->SetValue('state', 0);
-                      }
-                  }
-                  break;
-              case 'mode':
-                  $this->SetValue('mode', $Value);
-                  break;
-              case 'start_stop':
-                  if ($Value) {
-                      $program = $this->GetListValue();
-                      $this->start($program, 0);
-                      $this->SetValue('start_stop', true);
-                  } else {
-                      $this->stop();
-                      $this->SetValue('start_stop', false);
-                  }
-          }
+    //============================================================> Reaction
+    public function RequestAction($Ident, $Value) {
+        switch ($Ident) {
+            case 'state':
+                if ($this->GetValue("state") < 3) {
+                    if ($Value) {
+                        $this->SetActive(true);
+                        $this->SetValue('state', 1);
+                    } else {
+                        $this->SetActive(false);
+                        $this->SetValue('state', 0);
+                    }
+                }
+                break;
+            case 'mode':
+                $this->SetValue('mode', $Value);
+                break;
+            case 'start_stop':
+                if ($Value) {
+                    $program = $this->GetListValue();
+                    $this->start($program, 0);
+                    $this->SetValue('start_stop', true);
+                } else {
+                    $this->stop();
+                    $this->SetValue('start_stop', false);
+                }
+        }
+        // check Hide/Show status of the variables
+        $this->Hide();
+    }
 
-          $this->Hide();
-      }
-      //--------------------------------------------------< User functions >----------------------------------
+    //============================================================> User functions
 
     /** Function to start Modes for the Dishwasher
      * @param string $mode Mode
      * @param int $delay Delay in seconds until the device starts
      * @throws Exception
      */
-      public function start( string $mode, int $delay ) {
-          // log
-          $this->_log( "Trying to start Device..." );
-          // Set the device ready ( device must be ready for start )
-          $this->SetActive(true);
+    public function start( string $mode, int $delay ) {
+        // log
+        $this->_log( "Trying to start Device..." );
+        // Set the device ready ( device must be ready for start )
+        $this->SetActive(true);
 
-          // Build the program string the user set
-          $run_program = "Dishcare.Dishwasher.Program." . $mode;
-          // Build the json for the api
-          $opt = '{"data":{"key":"' . $run_program . '","options":[{"key":"BSH.Common.Option.StartInRelative","value":' . $delay . ',"unit":"seconds"}]}}';
+        // Build the program string the user set
+        $run_program = "Dishcare.Dishwasher.Program." . $mode;
+        // Build the json for the api
+        $opt = '{"data":{"key":"' . $run_program . '","options":[{"key":"BSH.Common.Option.StartInRelative","value":' . $delay . ',"unit":"seconds"}]}}';
 
-          // Check device conditions for the start
-          if ( !$this->GetValue("remoteStart") ) { throw new Exception("permission"); }
-          if ( $this->GetValue("door") ) { throw new Exception("door"); }
-          if ( $this->GetValue("state") != 1 ) { throw new Exception("state"); }
+        // Check device conditions for the start
+        if ( !$this->GetValue("remoteStart") ) { throw new Exception("permission"); }
+        if ( $this->GetValue("door") ) { throw new Exception("door"); }
+        if ( $this->GetValue("state") != 1 ) { throw new Exception("state"); }
 
-          // try to start the device
-          try {
-              Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
-              // log
-              $this->_log( "Send start to HomeConnect" );
-          } catch (Exception $ex) {
-              // log
-              $this->_log( "Start failed look for authorization in discovery instance" );
-              $this->SetStatus( analyseEX($ex) );
-          }
-      }
+        // try to start the device
+        try {
+            Api_put("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active", $opt);
+            // log
+            $this->_log( "Send start to HomeConnect" );
+        } catch (Exception $ex) {
+            // log
+            $this->_log( "Start failed look for authorization in discovery instance" );
+            $this->SetStatus( analyseEX($ex) );
+        }
+    }
 
     /**
      * Function to stop a running program
      * @throws Exception in case of other state or denied permission
      */
-      public function stop() {
-          // log
-          $this->_log( "Trying to stop..." );
-          // save device state for later
-          $state = $this->GetValue("state");
+    public function stop() {
+        // log
+        $this->_log( "Trying to stop..." );
+        // save device state for later
+        $state = $this->GetValue("state");
 
-          // Check device conditions for the stop
-          if ( !$this->GetValue("remoteControl") ) { throw new Exception("permission"); }
-          if ( $state == 0 || $state == 1 ) { throw new Exception("state" ); }
+        // Check device conditions for the stop
+        if ( !$this->GetValue("remoteControl") ) { throw new Exception("permission"); }
+        if ( $state == 0 || $state == 1 ) { throw new Exception("state" ); }
 
-          switch ( $this->GetValue("state") ) {
-              // stop running program
-              case 3:
-                  try {
-                      // log
-                      $this->_log(  "Stopped while deice was running a program" );
+        switch ( $this->GetValue("state") ) {
+            // stop running program
+            case 3:
+                try {
+                    // log
+                    $this->_log(  "Stopped while deice was running a program" );
 
-                      // Send custom delete to stop current program
-                      Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
-                      $this->SetValue("state", 1 );
+                    // Send custom delete to stop current program
+                    Api_delete("homeappliances/" . $this->ReadPropertyString("haId") . "/programs/active" );
+                    $this->SetValue("state", 1 );
 
-                      // send notify
-                      $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm gestoppt!", "stop");
-                  } catch (Exception $ex) {
-                      // log
-                      $this->_log( "Program didnt stop" );
-                      $this->SetStatus( analyseEX($ex) );
-                  }
-                  break;
-              // stop delayed start
-              case 2:
-                  // log
-                  $this->_log( "Stopped while device was in mode 'Prepare for start'" );
+                    // send notify
+                    $this->SendNotify($this->ReadPropertyString("name") . " hat das Programm gestoppt!", "stop");
+                } catch (Exception $ex) {
+                    // log
+                    $this->_log( "Program didnt stop" );
+                    $this->SetStatus( analyseEX($ex) );
+                }
+                break;
+                // stop delayed start
+            case 2:
+                // log
+                $this->_log( "Stopped while device was in mode 'Prepare for start'" );
 
-                  // Turn the device off ( this stops the delayed start )
-                  $this->SetActive(false);
-                  break;
-          }
-      }
+                // Turn the device off ( this stops the delayed start )
+                $this->SetActive(false);
+                break;
+        }
+    }
 
     /**
      * Function to turn the dishwasher on
