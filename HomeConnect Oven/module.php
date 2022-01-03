@@ -76,8 +76,8 @@ class HomeConnectOven extends IPSModule {
           $this->RegisterVariableInteger("state", "Geräte Zustand", "HC_State", 0);
           $this->RegisterVariableString("remainStartTime", "Start in", "", 1);
           $this->RegisterVariableInteger("mode", "Programm", "HC_OvenMode", 2);
-          $this->RegisterVariableInteger("setTemperature", "Temperatur", "HC_OvenSetTemperature", 3);
-          $this->RegisterVariableInteger("setTime", "Laufzeit", "HC_OvenSetTime", 4);
+          $this->RegisterVariableInteger("setTemperature", "Gesetzte Temperatur", "HC_OvenSetTemperature", 3);
+          $this->RegisterVariableInteger("setTime", "Gesetzte Laufzeit", "HC_OvenSetTime", 4);
           $this->RegisterVariableBoolean("remoteStart", "Remote start", "HC_RemoteStart", 5);
           $this->RegisterVariableBoolean("door", "Tür Zustand", "HC_DoorState", 6);
           $this->RegisterVariableFloat("temperature", "Temperature", "Temperature", 7);
@@ -174,7 +174,7 @@ class HomeConnectOven extends IPSModule {
 
                     case "FINISHED":
                         // Check that there is no double send
-                        if ( $this->ReadAttributeBoolean('finish_notify') ) { break; }
+                        if ( !$this->ReadAttributeBoolean('finish_notify') ) { break; }
                         // Send Finished Notification
                         $this->SendNotify("Der " . $this->ReadPropertyString('name') . " ist fertig mit dem Programm.", "finish" );
                         $this->WriteAttributeBoolean('finish_notify', true );
@@ -182,7 +182,7 @@ class HomeConnectOven extends IPSModule {
 
                     case "ABORTED":
                         // Check that there is no double send
-                        if ( $this->ReadAttributeBoolean('abort_notify') ) { break; }
+                        if ( !$this->ReadAttributeBoolean('abort_notify') ) { break; }
                         // Send Finished Notification
                         $this->SendNotify("Der " . $this->ReadPropertyString('name') . " hat das Programm abgebrochen.", "abort" );
                         $this->WriteAttributeBoolean('abort_notify', true );
@@ -243,6 +243,9 @@ class HomeConnectOven extends IPSModule {
         if ( $state == 3 ) {
             $this->WriteAttributeBoolean('finish_notify', true );
             $this->WriteAttributeBoolean('abort_notify', true );
+        } else {
+            $this->WriteAttributeBoolean('finish_notify', false );
+            $this->WriteAttributeBoolean('abort_notify', false );
         }
         // Check Start/Stop Button
         if ( $state > 1 ) {
