@@ -38,13 +38,16 @@ class HomeConnectDiscovery extends IPSModule {
     public function login() {
         // open browser with login field ( ip-symcon api will open echo url in browser )
         echo 'https://api.home-connect.com/security/oauth/authorize?response_type=code&client_id=E1C592D4F052423018B7BE8AE500FBDC8B7D86CA386181A3BC9102119AF81B6C&redirect_uri=http%3A%2F%2Flocalhost%3A8080';
-        // try to authorize the user with the code in the url, otherwise check the error code
-        try {
-            // authorize through a button
-            authorize($this->ReadPropertyString("auth_url"));
-            $this->ReloadForm();
-        } catch (Exception $ex) {
-            $this->SetStatus( analyseEX($ex) );
+
+        if ( $this->ReadPropertyString("auth_url") != null ) {
+            // try to authorize the user with the code in the url, otherwise check the error code
+            try {
+                // authorize through a button
+                authorize($this->ReadPropertyString("auth_url"));
+                $this->ReloadForm();
+            } catch (Exception $ex) {
+                $this->SetStatus( analyseEX($ex) );
+            }
         }
     }
 
@@ -213,7 +216,7 @@ class HomeConnectDiscovery extends IPSModule {
                         "type" => "Button",
                         "caption" => "Login",
                         "confirm" => "After you finished the login process in your browser. Copy the url of localhost and paste it into the url field in this module instance",
-                        "onClick" => 'HomeConnectDiscovery_login( $this->InstanceID );',
+                        "onClick" => 'HomeConnectDiscovery_login( '. $this->InstanceID  . ');',
                     ]
                 ]
             ]
