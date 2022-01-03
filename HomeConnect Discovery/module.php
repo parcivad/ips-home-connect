@@ -30,16 +30,24 @@ class HomeConnectDiscovery extends IPSModule {
         // Overwrite ips function
         parent::ApplyChanges();
 
+        // try to login
+        $this->login(false);
+
         $this->ReloadForm();
     }
 
     //-----------------------------------------------------< Profiles >------------------------------
 
-    public function login() {
-        // open browser with login field ( ip-symcon api will open echo url in browser )
-        echo 'https://api.home-connect.com/security/oauth/authorize?response_type=code&client_id=E1C592D4F052423018B7BE8AE500FBDC8B7D86CA386181A3BC9102119AF81B6C&redirect_uri=http%3A%2F%2Flocalhost%3A8080';
 
+    public function login( bool $openBrowser ) {
+        // if no code is provided let the user login
         if ( $this->ReadPropertyString("auth_url") != null ) {
+            if ( !$openBrowser ) return;
+            // open browser with login field ( ip-symcon api will open echo url in browser )
+            echo 'https://api.home-connect.com/security/oauth/authorize?response_type=code&client_id=E1C592D4F052423018B7BE8AE500FBDC8B7D86CA386181A3BC9102119AF81B6C&redirect_uri=http%3A%2F%2Flocalhost%3A8080';
+
+        } else {
+            // else try to login with the existing code
             // try to authorize the user with the code in the url, otherwise check the error code
             try {
                 // authorize through a button
@@ -215,8 +223,8 @@ class HomeConnectDiscovery extends IPSModule {
                     [
                         "type" => "Button",
                         "caption" => "Login",
-                        "confirm" => "After you finished the login process in your browser. Copy the url of localhost and paste it into the url field in this module instance",
-                        "onClick" => 'HomeConnectDiscovery_login( '. $this->InstanceID  . ');',
+                        "confirm" => "Missing authorization code\n\nClick on OK to open the login field in your browser. After you finished the login process copy the url of localhost and paste it into the url field from this module instance.",
+                        "onClick" => 'HomeConnectDiscovery_login( '. $this->InstanceID  . ', true);',
                     ]
                 ]
             ]
@@ -247,7 +255,7 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Label",
                 "name" => "loginInfo",
-                "caption" => "No account found! Click on login to grant access to your device list",
+                "caption" => "Missing authorization! Login is needed.",
                 "visible" => $visible,
             ],
             [
