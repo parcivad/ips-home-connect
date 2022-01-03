@@ -41,7 +41,7 @@ class HomeConnectDiscovery extends IPSModule {
 
     public function login( bool $openBrowser ) {
         // if no code is provided let the user login
-        if ( $this->ReadPropertyString("auth_url") != null ) {
+        if ( $this->ReadPropertyString("auth_url") != "" ) {
             if ( !$openBrowser ) return;
             // open browser with login field ( ip-symcon api will open echo url in browser )
             echo 'https://api.home-connect.com/security/oauth/authorize?response_type=code&client_id=E1C592D4F052423018B7BE8AE500FBDC8B7D86CA386181A3BC9102119AF81B6C&redirect_uri=http%3A%2F%2Flocalhost%3A8080';
@@ -63,7 +63,7 @@ class HomeConnectDiscovery extends IPSModule {
      * @param $opt
      * @return bool|mixed
      */
-    public function tm( bool $opt) {
+    public function tm( string $opt) {
         switch ($opt) {
             case "auth":
                 try {
@@ -255,19 +255,13 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Label",
                 "name" => "loginInfo",
-                "caption" => "Missing authorization! Login is needed.",
+                "caption" => "Missing authorization code! Login is needed.",
                 "visible" => $visible,
             ],
             [
                 "type" => "ValidationTextBox",
                 "name" => "auth_url",
                 "caption" => "Url",
-                "visible" => $visible,
-            ],
-            [
-                "type" => "Label",
-                "name" => "loginInfo2",
-                "caption" => "After that click on Login to authorise your account!",
                 "visible" => $visible,
             ],
             [
