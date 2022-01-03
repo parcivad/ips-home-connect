@@ -35,6 +35,19 @@ class HomeConnectDiscovery extends IPSModule {
 
     //-----------------------------------------------------< Profiles >------------------------------
 
+    public function login() {
+        // open browser with login field ( ip-symcon api will open echo url in browser )
+        echo 'https://api.home-connect.com/security/oauth/authorize?response_type=code&client_id=E1C592D4F052423018B7BE8AE500FBDC8B7D86CA386181A3BC9102119AF81B6C&redirect_uri=http%3A%2F%2Flocalhost%3A8080';
+        // try to authorize the user with the code in the url, otherwise check the error code
+        try {
+            // authorize through a button
+            authorize($this->ReadPropertyString("auth_url"));
+            $this->ReloadForm();
+        } catch (Exception $ex) {
+            $this->SetStatus( analyseEX($ex) );
+        }
+    }
+
     /** Function for Authorization and Token
      * @param $opt
      * @return bool|mixed
@@ -194,12 +207,13 @@ class HomeConnectDiscovery extends IPSModule {
                         "type" => "Button",
                         "caption" => "Logout",
                         "onClick" => 'HomeConnectDiscovery_tm( ' . $this->InstanceID . ', "reset" );',
-                        'confirm' => 'Bist du sicher, dass du dich ausloggen willst.'
+                        'confirm' => 'logging out'
                     ],
                     [
                         "type" => "Button",
                         "caption" => "Login",
-                        "onClick" => 'HomeConnectDiscovery_tm( ' . $this->InstanceID . ', "auth" );',
+                        "confirm" => "After you finished the login process in your browser. Copy the url of localhost and paste it into the url field in this module instance",
+                        "onClick" => 'HomeConnectDiscovery_login( $this->InstanceID );',
                     ]
                 ]
             ]
@@ -230,14 +244,7 @@ class HomeConnectDiscovery extends IPSModule {
             [
                 "type" => "Label",
                 "name" => "loginInfo",
-                "caption" => "Open the link in a browser; Log in and copy the url out of your browser in the url field after it shows no page.",
-                "visible" => $visible,
-            ],
-            [
-                "type" => "Label",
-                "name" => "link",
-                "width" => "30px",
-                "caption" => "https://api.home-connect.com/security/oauth/authorize?response_type=code&client_id=35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5&scope=&redirect_uri=http%3A%2F%2Flocalhost%3A8080",
+                "caption" => "No account found! Click on login to grant access to your device list",
                 "visible" => $visible,
             ],
             [
