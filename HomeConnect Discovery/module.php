@@ -60,35 +60,38 @@ class HomeConnectDiscovery extends IPSModule {
         }
     }
 
+    public function tryforToken( bool $openBrowser ) {
+        // if no code is provided let the user login
+        if ( $this->ReadPropertyString("auth_url") == null ) {
+            if ( $openBrowser ) {
+                // open browser with login field ( ip-symcon api will open echo url in browser )
+                echo 'https://api.home-connect.com/security/oauth/authorize?response_type=code&client_id=E1C592D4F052423018B7BE8AE500FBDC8B7D86CA386181A3BC9102119AF81B6C&redirect_uri=http%3A%2F%2Flocalhost%3A8080';
+            }
+
+        } else {
+            // else try to login with the existing code
+            // try to authorize the user with the code in the url, otherwise check the error code
+            try {
+                // authorize through a button
+                authorize($this->ReadPropertyString("auth_url"));
+                $this->ReloadForm();
+            } catch (Exception $ex) {
+                $this->SetStatus( analyseEX($ex) );
+            }
+        }
+    }
+
     /** Function for Authorization and Token
      * @param $opt
      * @return bool|mixed
      */
     public function tm( string $opt) {
         switch ($opt) {
-            case "auth":
-                try {
-                    // authorize through a button
-                    authorize($this->ReadPropertyString("auth_url"));
-                    $this->ReloadForm();
-                } catch (Exception $ex) {
-                    $this->SetStatus( analyseEX($ex) );
-                }
-                break;
-            case "token":
-                try {
-                    // refresh token with a button
-                    return getToken("https://api.home-connect.com/security/oauth/token", "E1C592D4F052423018B7BE8AE500FBDC8B7D86CA386181A3BC9102119AF81B6C", "D008096E80951049FE2FB577CABF8B074E11C699699724C8989E8FFC80EE059E");
-                } catch (Exception $ex) {
-                    $this->SetStatus( analyseEX($ex) );
-                }
-                break;
             case "reset":
                 // reset the data.json
                 resetData();
                 break;
         }
-
     }
 
     /** Return Visible
