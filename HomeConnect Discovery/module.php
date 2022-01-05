@@ -29,7 +29,7 @@ class HomeConnectDiscovery extends IPSModule {
     public function ApplyChanges() {
         // Overwrite ips function
         parent::ApplyChanges();
-        
+
         // try to login
         $this->login(false);
 
@@ -190,17 +190,21 @@ class HomeConnectDiscovery extends IPSModule {
      * @return array[] Form Actions
      */
     protected function FormActions() {
+        $visible = $this->visible();
+
         return[
             [
                 "type" => "RowLayout",
                 "items" => [
                     [
                         "type" => "Button",
+                        "enabled" => !$visible,
                         "caption" => "Logout",
                         "onClick" => 'HomeConnectDiscovery_logout( ' . $this->InstanceID . ' );'
                     ],
                     [
                         "type" => "Button",
+                        "enabled" => $visible,
                         "caption" => "Login",
                         "confirm" => "Missing authorization code\n\nClick on OK to open the login field in your browser. After you finished the login process copy the url of localhost and paste it into the url field from this module instance.",
                         "onClick" => 'HomeConnectDiscovery_login( '. $this->InstanceID  . ', true );',
