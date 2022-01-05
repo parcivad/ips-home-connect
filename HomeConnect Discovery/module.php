@@ -29,10 +29,13 @@ class HomeConnectDiscovery extends IPSModule {
     public function ApplyChanges() {
         // Overwrite ips function
         parent::ApplyChanges();
-
+        
         // try to login
         $this->login(false);
 
+        // reload devices
+        $this->GetDevices();
+        // reload map
         $this->ReloadForm();
     }
 
@@ -60,38 +63,10 @@ class HomeConnectDiscovery extends IPSModule {
         }
     }
 
-    public function tryforToken( bool $openBrowser ) {
-        // if no code is provided let the user login
-        if ( $this->ReadPropertyString("auth_url") == null ) {
-            if ( $openBrowser ) {
-                // open browser with login field ( ip-symcon api will open echo url in browser )
-                echo 'https://api.home-connect.com/security/oauth/authorize?response_type=code&client_id=E1C592D4F052423018B7BE8AE500FBDC8B7D86CA386181A3BC9102119AF81B6C&redirect_uri=http%3A%2F%2Flocalhost%3A8080';
-            }
-
-        } else {
-            // else try to login with the existing code
-            // try to authorize the user with the code in the url, otherwise check the error code
-            try {
-                // authorize through a button
-                authorize($this->ReadPropertyString("auth_url"));
-                $this->ReloadForm();
-            } catch (Exception $ex) {
-                $this->SetStatus( analyseEX($ex) );
-            }
-        }
-    }
-
-    /** Function for Authorization and Token
-     * @param $opt
-     * @return bool|mixed
-     */
-    public function tm( string $opt) {
-        switch ($opt) {
-            case "reset":
-                // reset the data.json
-                resetData();
-                break;
-        }
+    // Function for Authorization and Token
+    public function logout() {
+        resetData();
+        echo "Logged out";
     }
 
     /** Return Visible
@@ -222,8 +197,7 @@ class HomeConnectDiscovery extends IPSModule {
                     [
                         "type" => "Button",
                         "caption" => "Logout",
-                        "onClick" => 'HomeConnectDiscovery_tm( ' . $this->InstanceID . ', "reset" );',
-                        'confirm' => 'logging out'
+                        "onClick" => 'HomeConnectDiscovery_logout( ' . $this->InstanceID . ' );'
                     ],
                     [
                         "type" => "Button",
