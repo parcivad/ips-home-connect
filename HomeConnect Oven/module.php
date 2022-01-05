@@ -174,18 +174,20 @@ class HomeConnectOven extends IPSModule {
 
                     case "FINISHED":
                         // Check that there is no double send
-                        if ( !$this->ReadAttributeBoolean('finish_notify') ) { break; }
-                        // Send Finished Notification
-                        $this->SendNotify("Der " . $this->ReadPropertyString('name') . " ist fertig mit dem Programm.", "finish" );
-                        $this->WriteAttributeBoolean('finish_notify', true );
+                        if ( !$this->ReadAttributeBoolean('finish_notify') ) {
+                            // Send Finished Notification
+                            $this->SendNotify("Der " . $this->ReadPropertyString('name') . " ist fertig mit dem Programm.", "finish" );
+                            $this->WriteAttributeBoolean('finish_notify', true );
+                        }
                         break;
 
                     case "ABORTED":
                         // Check that there is no double send
-                        if ( !$this->ReadAttributeBoolean('abort_notify') ) { break; }
-                        // Send Finished Notification
-                        $this->SendNotify("Der " . $this->ReadPropertyString('name') . " hat das Programm abgebrochen.", "abort" );
-                        $this->WriteAttributeBoolean('abort_notify', true );
+                        if ( !$this->ReadAttributeBoolean('abort_notify') ) {
+                            // Send Finished Notification
+                            $this->SendNotify("Der " . $this->ReadPropertyString('name') . " hat das Programm abgebrochen.", "abort" );
+                            $this->WriteAttributeBoolean('abort_notify', true );
+                        }
                         break;
 
                     case "PROGRAM":
@@ -240,10 +242,7 @@ class HomeConnectOven extends IPSModule {
             $this->WriteAttributeBoolean('firstStart', false);
         }
         // reset notify and abort lock
-        if ( $state == 3 ) {
-            $this->WriteAttributeBoolean('finish_notify', true );
-            $this->WriteAttributeBoolean('abort_notify', true );
-        } else {
+        if ( $state != 3 ) {
             $this->WriteAttributeBoolean('finish_notify', false );
             $this->WriteAttributeBoolean('abort_notify', false );
         }
