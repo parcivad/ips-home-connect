@@ -2,7 +2,7 @@
 [![Version](https://img.shields.io/badge/Symcon%20Version-6.0%20%3E-brightgreen.svg)](https://www.symcon.de/produkt/)
 
 # IP-Symcon HomeConnect
-Dieses IP-Symcon Modul ist eine komfortable Schnittstelle zwischen der Bosch/Siemens Cloud, HomeConnect, und der IP-Symcon Oberfläche. Das Modul ist  für die 6.0 optimiert, für die 5.0 können sie den Branch dieser Repository ändern.
+Dieses IP-Symcon Modul ist eine komfortable Schnittstelle zwischen der Bosch/Siemens Cloud, HomeConnect, und der IP-Symcon Oberfläche. Das Modul ist  für die 6.0 optimiert, für die 5.0 (Bald nichtmehr möglich) können sie den Branch dieser Repository ändern.
 
 ## Inhaltsverzeichnis
 
