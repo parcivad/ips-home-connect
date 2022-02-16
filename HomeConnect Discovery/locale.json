@@ -2,8 +2,8 @@
   "translations": {
     "de": {
       "Logged in successfully  \uD83D\uDC4D": "Erfolgreich eingeloggt  \uD83D\uDC4D",
-      "Open the link in a browser; Log in and copy the url out of your browser in the url field after it shows no page.": "Öffne den Link in einem Browser; Melde dich an und kopiere die Url von deinem Browser in das Eingabe Feld, wenn keine Page mehr angezeigt wird!",
-      "After that click on Login to authorise your account!":"Danach auf Login klicken um dein Konto zu autorisieren!",
+      "Missing authorization code! Login is needed.": "Fehlender Autorizierungscode! Ihr Login wird gebraucht",
+      "Missing authorization code\n\nClick on OK to open the login field in your browser. After you finished the login process copy the url of localhost and paste it into the url field from this module instance.": "Fehlender Autorizierungscode\n\nKlicken sie auf OK um das Login Feld im Browser zu öffnen. Nachdem sie sich eingeloggt haben sollten sie eine leere Seite sehen. Kopieren sie die URL von localhost und fügen sie diese in das URL Feld dieser Instanz ein.",
 
       "Device": "Gerät",
       "Company": "Firma",

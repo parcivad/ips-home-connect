@@ -30,39 +30,43 @@ class HomeConnectDiscovery extends IPSModule {
         // Overwrite ips function
         parent::ApplyChanges();
 
+        // try to login
+        $this->login(false);
+
+        // reload devices
+        $this->GetDevices();
+        // reload map
         $this->ReloadForm();
     }
 
     //-----------------------------------------------------< Profiles >------------------------------
 
-    /** Function for Authorization and Token
-     * @param $opt
-     * @return bool|mixed
-     */
-    public function tm( bool $opt) {
-        switch ($opt) {
-            case "auth":
-                try {
-                    // authorize through a button
-                    authorize($this->ReadPropertyString("auth_url"));
-                    $this->ReloadForm();
-                } catch (Exception $ex) {
-                    $this->SetStatus( analyseEX($ex) );
-                }
-                break;
-            case "token":
-                try {
-                    // refresh token with a button
-                    return getToken("https://api.home-connect.com/security/oauth/token", "E1C592D4F052423018B7BE8AE500FBDC8B7D86CA386181A3BC9102119AF81B6C", "D008096E80951049FE2FB577CABF8B074E11C699699724C8989E8FFC80EE059E");
-                } catch (Exception $ex) {
-                    $this->SetStatus( analyseEX($ex) );
-                }
-                break;
-            case "reset":
-                // reset the data.json
-                resetData();
-                break;
+
+    public function login( bool $openBrowser ) {
+        // if no code is provided let the user login
+        if ( $this->ReadPropertyString("auth_url") == null ) {
+            if ( $openBrowser ) {
+                // open browser with login field ( ip-symcon api will open echo url in browser )
+                echo 'https://api.home-connect.com/security/oauth/authorize?response_type=code&client_id=E1C592D4F052423018B7BE8AE500FBDC8B7D86CA386181A3BC9102119AF81B6C&redirect_uri=http%3A%2F%2Flocalhost%3A8080';
+            }
+
+        } else {
+            // else try to login with the existing code
+            // try to authorize the user with the code in the url, otherwise check the error code
+            try {
+                // authorize through a button
+                authorize($this->ReadPropertyString("auth_url"));
+                $this->ReloadForm();
+            } catch (Exception $ex) {
+                $this->SetStatus( analyseEX($ex) );
+            }
         }
+    }
+
+    // Function for Authorization and Token
+    public function logout() {
+        resetData();
+        echo "Logged out";
     }
 
     /** Return Visible
@@ -186,20 +190,24 @@ class HomeConnectDiscovery extends IPSModule {
      * @return array[] Form Actions
      */
     protected function FormActions() {
+        $visible = $this->visible();
+
         return[
             [
                 "type" => "RowLayout",
                 "items" => [
                     [
                         "type" => "Button",
+                        "enabled" => !$visible,
                         "caption" => "Logout",
-                        "onClick" => 'HomeConnectDiscovery_tm( ' . $this->InstanceID . ', "reset" );',
-                        'confirm' => 'Bist du sicher, dass du dich ausloggen willst.'
+                        "onClick" => 'HomeConnectDiscovery_logout( ' . $this->InstanceID . ' );'
                     ],
                     [
                         "type" => "Button",
+                        "enabled" => $visible,
                         "caption" => "Login",
-                        "onClick" => 'HomeConnectDiscovery_tm( ' . $this->InstanceID . ', "auth" );',
+                        "confirm" => "Missing authorization code\n\nClick on OK to open the login field in your browser. After you finished the login process copy the url of localhost and paste it into the url field from this module instance.",
+                        "onClick" => 'HomeConnectDiscovery_login( '. $this->InstanceID  . ', true );',
                     ]
                 ]
             ]
@@ -211,7 +219,10 @@ class HomeConnectDiscovery extends IPSModule {
      */
     protected function FormElements() {
         $visible = $this->visible();
-        $token = getAccessToken();
+        $tokenType = getTokenType();
+        $expiresIn = getExpiresIn();
+        $scopes = getScopes();
+
 
         return[
             [
@@ -221,35 +232,35 @@ class HomeConnectDiscovery extends IPSModule {
                 "items" => [
                     [
                         "type" => "Label",
-                        "name" => "showToken",
-                        "caption" => "Token: " . $token,
+                        "name" => "expiresIn",
+                        "caption" => "Expires in:\n" . $expiresIn,
                         "visible" => !$visible,
-                    ]
+                    ],
+                    [
+                        "type" => "Label",
+                        "name" => "tokenType",
+                        "caption" => "Token type:\n" . $tokenType,
+                        "visible" => !$visible,
+                    ],
+                    [
+                        "type" => "Label",
+                        "name" => "tokenScopes",
+                        "caption" => "Scopes:\n" . $scopes,
+                        "visible" => !$visible,
+                    ],
+
                 ]
             ],
             [
                 "type" => "Label",
                 "name" => "loginInfo",
-                "caption" => "Open the link in a browser; Log in and copy the url out of your browser in the url field after it shows no page.",
-                "visible" => $visible,
-            ],
-            [
-                "type" => "Label",
-                "name" => "link",
-                "width" => "30px",
-                "caption" => "https://api.home-connect.com/security/oauth/authorize?response_type=code&client_id=35C7EC3372C6EB5FB5378505AB9CE083D80A97713698ACB07B20C6E41E5E2CD5&scope=&redirect_uri=http%3A%2F%2Flocalhost%3A8080",
+                "caption" => "Missing authorization code! Login is needed.",
                 "visible" => $visible,
             ],
             [
                 "type" => "ValidationTextBox",
                 "name" => "auth_url",
                 "caption" => "Url",
-                "visible" => $visible,
-            ],
-            [
-                "type" => "Label",
-                "name" => "loginInfo2",
-                "caption" => "After that click on Login to authorise your account!",
                 "visible" => $visible,
             ],
             [
